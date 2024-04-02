@@ -1,0 +1,4 @@
+#ignore .vscode file created by platformio.ini
+.vscode
+#ignore .pio build created by platformio
+.pio
