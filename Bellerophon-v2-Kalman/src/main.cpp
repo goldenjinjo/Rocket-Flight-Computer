@@ -1,5 +1,5 @@
 /*
- * Main File to be uploaded to the UNSW Rocketry Flight Computer
+ * Main File to be uploaded to Bellerophon Flight Computer
  * 
  * 
  * 
@@ -16,51 +16,29 @@
 #include "deviceFunctions.hpp"
 #include "constants.hpp"
 #include "config.hpp"
-#include "Adafruit_BNO055.h"
 #include <BasicLinearAlgebra.h>
+#include <LSM6DSLSensor.h>
+#include "Adafruit_ICM20X.h"
+#include "Adafruit_ICM20948.h"
 
 
-using namespace BLA;
+
+
+float measureAltitude();
 
 //Create an instance of the objects
 MPL3115A2 baro;
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-int state = 0;
-/*
-    State 0: Pre-launch -> Launch Detect
-    State 1: Inflight -> Apogee Detect
-    State 2: First Deploy -> Deploy Command Sent
-    State 3: Second Deploy -> Deploy Command Sent
-    State 4: Descent -> Ground Detect
-    Stage 5: Ground
-*/
+LSM6DSLSensor lsm(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW);
+Adafruit_ICM20948 icm;
 
-BLA::Matrix<2,3> H;
-BLA::Matrix<3,3> Q; 
-BLA::Matrix<2,2> R; 
 
-BLA::Matrix<3,3> P;
-BLA::Matrix<3,2> K;
-
-BLA::Matrix<3> estimate;
-//Currently unused
-//unsigned long startUpTime;
+int launch_time;
 
 unsigned long loopStartTime;
 
-unsigned long previousTime;
+unsigned long previousTime = 0;
 
-float drogueTime;
-float mainTime;
-float apogeeTime;
 
-float filteredAcc;
-float altitudeBuffer[2];
-int altitudeBufferIndex;
-unsigned long altitudeBufferTime;
-
-float measureAltitude();
-float measureAcceleration();
 void logFlightEvent(const char* message, const unsigned long time);
 void logFlightData(const unsigned long time);
 
@@ -83,7 +61,7 @@ void setup() {
     startUp();
 
 
-    Wire1.begin(); // Join i2c bus
+    Wire.begin(); // Join i2c bus
     Serial.begin(9600);
 
     // track number of successful activations
@@ -113,199 +91,68 @@ void setup() {
     file.println("-----BEGIN INITIALIZATION SEQUENCE-----");
     file.println("");
   
-    file.println("Bellerophon v2 Online!");
+    file.println("Bellerophon v3 Online!");
     file.println("Flash Chip Found...");
     successCounter++; 
 
+
+    if (icm_enable == true){
+        if(!icm.begin_I2C()){
+            buzzerFailure();
+            
+        } else {
+            
+            Serial.println("ICM Found..");
+            icm.setAccelRange(ICM20948_ACCEL_RANGE_16_G);
+        }
+    }
     // Try to initialize!
-    if(!bno.begin()) {
-        file.println("BNO055 Not Dectected.");
-        buzzerFailure();
-    } else {
-        file.println("BNO055 Found...");
+    if (lsm.begin() == LSM6DSLStatusTypeDef::LSM6DSL_STATUS_OK) {
+        Serial.println("LSM Found");
+        lsm.Enable_X();
+        lsm.Enable_G();
+        lsm.Set_X_FS(16); // set to 16G
+        lsm.Set_G_FS(1000);
+
         successCounter++;
+    } else {    
+        Serial.println("LSM NOT Found");
     }
 
-    if(!baro.begin(Wire1)) {
-        file.println("MPL3115A2 Not Dectected.");
-        buzzerFailure();
-    } else {
-        file.println("MPL3115A2 Found...");
-        successCounter++;
-    }
+    baro.begin();
 
-    // Communicate all sensors have activated
-    if (successCounter == 3){
-        buzzerSuccess();
-        digitalWrite(B_LED, HIGH);
-        delay(500);
-        digitalWrite(B_LED, LOW);
-        file.println("All Sensors Responding Nominally.");
-    }
+ 
 
     file.close();
     
     file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
-    file.println("t,s,v,a,ax,ay,az,gx,gy,gz,mx,my,mz,p,T");
+    file.println("time, temp, ax,ay,az,mag_x,mag_y,mag_z,gx,gy,gz");
     file.close();
     
-    // Configure the sensors
-    baro.setOversampleRate(7); // Set Oversample to the recommended 128
+    // // Configure the sensors
+    baro.setOversampleRate(1); // set polling rate / accuracy -> lower number = higher poll but lower accuracy  
     baro.enableEventFlags(); // Enable all three pressure and temp event flags 
-  
-    bno.setExtCrystalUse(true);
-    bno.set16GRange();
-
 
     previousTime = 0;
-    altitudeBufferTime = 0;
 
-    // Initialize kalman filter
-    estimate.Fill(0);
+    loopStartTime = -1;
 
-    H = {
-        1, 0, 0,
-        0, 0, 1
-    };
 
-    Q = {
-        0, 0, 0,
-        0, 0, 0,
-        0, 0, SIGMA_M*SIGMA_M
-    };
-
-    R = {
-        SIGMA_S*SIGMA_S, 0,
-        0, SIGMA_A*SIGMA_A
-    };
-
-    altitudeBufferIndex = 0;
-    altitudeBuffer[0] = 0;
-    altitudeBuffer[1] = 0;
+    delay(10000);
 }
 
 // MAIN LOOP
 void loop()
 {
     unsigned long currentTime = millis();
-    float deltaTime = (currentTime - previousTime) / 1000.0;
-    if (previousTime == 0) {
-        deltaTime = 0;
-    }
-    
-    previousTime = currentTime;
-
-    if (!loopStartTime) {
+    if (loopStartTime == -1) {
         loopStartTime = currentTime;
     }
-
-    float h_measure = measureAltitude();
+   
     
-    // Disable kalman filter on ground
-    if (state != 6) {
-        BLA::Matrix<3,3> phi = {
-            1, deltaTime, deltaTime*deltaTime/2,
-            0, 1, deltaTime,
-            0, 0, 1
-        };
+    logFlightData(currentTime - loopStartTime);
+    previousTime = currentTime;
 
-        BLA::Matrix<3,3> P_minus = phi*P*(~phi) + Q;
-
-        BLA::Matrix<2,2> V = H*P_minus*(~H) + R;
-        Invert(V);
-
-        K = P_minus * ~H * V;
-
-        P = (BLA::Identity<3>() - K*H) * P_minus;
-
-        float a_measure = measureAcceleration();
-        BLA::Matrix<2> z = {h_measure, a_measure};
-
-        BLA::Matrix<3> predict = phi * estimate;
-        estimate = predict + K * (z - H*predict);
-    
-        logFlightData(loopStartTime - currentTime);
-    }
-
-    if (state == 0) {
-        // Pre-launch
-        if (altitudeBufferTime - currentTime >= ALTITUDE_BUFFER_PERIOD) {
-            altitudeBufferTime = currentTime;
-            altitudeBuffer[altitudeBufferIndex] = h_measure;
-            altitudeBufferIndex++;
-            altitudeBufferIndex %= 2;
-        }
-        
-        // Detect Launch
-        if (estimate(1) >= LAUNCH_VEL_THRESHOLD && estimate(2) > LAUNCH_ACC_THRESHOLD) {
-            state = 1;
-            
-            String event = "Launch Detected! Launch Altitude: ";
-            altitudeBufferIndex++;
-            altitudeBufferIndex %= 2;
-            event.concat(altitudeBuffer[altitudeBufferIndex]);
-            logFlightEvent(event.c_str(), loopStartTime - currentTime);
-        }
-    } else if (state == 1) {
-        // Inflight
-        
-        // Detect Apogee
-        if (estimate(1) > 0) {
-            // While going up, set the apogeeTime to the current time
-            apogeeTime = millis();
-        }
-
-        // If more than a small amount of time has passed, since the apogeeTime, consider apogee detected
-        if ((millis() - apogeeTime) > APOGEE_TIMER) {
-            state = 2;
-            drogueTime = millis();
-            logFlightEvent("Apogee Detected!", loopStartTime - currentTime);
-        }
-    } else if (state == 2) {
-        // First Deploy
-
-        if ((millis() - drogueTime) >= (drogueDelay - EPSILON) * 1000) {
-            digitalWrite(dualDeploy ? PYRO_DROGUE : PYRO_MAIN, HIGH);
-            state = dualDeploy ? 3 : 5;
-            logFlightEvent("Fired first deployment charge!", loopStartTime - currentTime);
-        }
-    } else if (state == 3) {
-        // Detect Main Altitude
-
-        //Only rely on barometer for main deployment as accelerometer is likely wrong
-        if (h_measure <= mainAltitude + altitudeBuffer[altitudeBufferIndex]) {
-            state = 4;
-            mainTime = millis();
-            logFlightEvent("Main Deployment Altitude Detected!", loopStartTime - currentTime);
-        }
-    } else if (state == 4) {
-        // Second Deploy
-
-        if ((millis() - mainTime) >= (mainDelay - EPSILON) * 1000) {
-            digitalWrite(PYRO_MAIN, HIGH);
-            state = 5;
-            logFlightEvent("Fired second deployment charge!", loopStartTime - currentTime);
-        }
-    } else if (state == 5) {
-        // Decsent
-
-        if (abs(estimate(1)) < LANDING_VEL_THERSHOLD) {
-            state = 6;
-            logFlightEvent("Landing Detected!", loopStartTime - currentTime);
-        }
-    } else if (state == 6) {
-        // Ground
-
-        // Disable pyro lines
-        digitalWrite(PYRO_DROGUE, LOW);
-        digitalWrite(PYRO_MAIN, LOW);
-
-        // Activate Buzzer
-        tone(BUZZER, 500);
-        delay(1000);
-        noTone(BUZZER);
-    } 
-    
 }
 
 float measureAltitude() {
@@ -314,25 +161,6 @@ float measureAltitude() {
     return pow(P_0/P, EXP)*(T + C_TO_K)/L_B;
 }
 
-float measureAcceleration() {
-    imu::Vector<3> accel = bno.getVector(bno.VECTOR_ACCELEROMETER);
-
-    // Assume accelerometer is inverted after apogee
-    int direction = state < 2 ? 1 : -1;
-    
-    //Only the x direction is taken, simplifies filter by assuming only vertical flight
-    float verticalAccel = direction * accel[0] - G_OFFSET;
-
-    //Initialize recursive filter if not done already.
-    if (!filteredAcc) {
-        filteredAcc = verticalAccel;
-    } else {
-        //Recursive filter to smooth out noise from accelerometer
-        filteredAcc = (1 - RECURSIVE_CONSTANT) * filteredAcc + RECURSIVE_CONSTANT * verticalAccel;
-    }
-
-    return filteredAcc;
-}
 
 void logFlightEvent(const char* message, const unsigned long time) {
     file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
@@ -344,51 +172,82 @@ void logFlightEvent(const char* message, const unsigned long time) {
 }
 
 void logFlightData(const unsigned long time) {
-    file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
+        
+    file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
     
     file.print(time);
     file.print(",");
 
-    //Kalman Filter estimates
-    file.print(estimate(0));
+   // Get LSM IMU Sensor Data
+    int32_t lsm_acc[3];
+    int32_t lsm_gyro[3];
+    lsm.Get_X_Axes(lsm_acc);
+    lsm.Get_G_Axes(lsm_gyro);
+
+    file.print(lsm_acc[0]);
     file.print(",");
-    file.print(estimate(1));
+    file.print(lsm_acc[1]);
     file.print(",");
-    file.print(estimate(2));
+    file.print(lsm_acc[2]);
     file.print(",");
 
-    //Accelerometer Data    
-    imu::Vector<3> data = bno.getVector(bno.VECTOR_ACCELEROMETER);
-    file.print(data[0]);
+    file.print(lsm_gyro[0]);
     file.print(",");
-    file.print(data[1]);
+    file.print(lsm_gyro[1]);
     file.print(",");
-    file.print(data[2]);
+    file.print(lsm_gyro[2]);
     file.print(",");
 
-    //Gyroscope Date
-    data = bno.getVector(bno.VECTOR_GYROSCOPE);
-    file.print(data[0]);
-    file.print(",");
-    file.print(data[1]);
-    file.print(",");
-    file.print(data[2]);
-    file.print(",");
-    
-    //Magnetometer Data
-    data = bno.getVector(bno.VECTOR_MAGNETOMETER);
-    file.print(data[0]);
-    file.print(",");
-    file.print(data[1]);
-    file.print(",");
-    file.print(data[2]);
-    file.print(",");
     
     //Barometer Data
     file.print(baro.readPressure());
     file.print(",");
     file.print(baro.readTemp());
-    file.println("");
+    
+    
+
+
+    if(icm_enable == true){
+        sensors_event_t accel;
+        sensors_event_t gyro;
+        sensors_event_t mag;
+        sensors_event_t temp;
+        icm.getEvent(&accel, &gyro, &temp, &mag);
+
+        float a_z = accel.acceleration.z;
+
+        if(abs(a_z) > LAUNCH_ACC_THRESHOLD){
+            Serial.println("launch detect");
+            int launch_time = millis();
+
+        }
+
+
+        file.print(",");
+        file.print(temp.temperature);
+        file.print(",");
+        file.print(accel.acceleration.x);
+        file.print(",");
+        file.print(accel.acceleration.z);
+        file.print(",");
+        file.print(accel.acceleration.z);
+        file.print(",");
+        file.print(mag.magnetic.x);
+        file.print(",");
+        file.print(mag.magnetic.y);
+        file.print(",");
+        file.print(mag.magnetic.z);
+        file.print(",");
+        file.print(gyro.gyro.x);
+        file.print(",");
+        file.print(gyro.gyro.y);
+        file.print(",");
+        file.print(gyro.gyro.z);
+        file.print(",");
+        file.println();
+    } else {
+        file.println("");
+    }
 
     file.close();
 }

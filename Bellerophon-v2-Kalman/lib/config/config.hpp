@@ -14,3 +14,21 @@ float mainDelay = 0;
 
 // Altitude to deploy main parachutes when in dual deploy mode.
 float mainAltitude = 300;
+
+
+int airbrakeWaitTime = 16000; // 16 seconds
+
+int airbrakeDeployTime = 5000; // 5 seconds
+
+int angleStep = 15; // 15 degrees
+
+int stepSize = 4;
+
+int maxAngle = 45;
+
+int intAngleOffSet = 10;
+
+bool icm_enable = true;
+
+int Y_AXIS = 0;
+

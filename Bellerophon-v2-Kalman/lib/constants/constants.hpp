@@ -8,8 +8,8 @@
 
 // Standard deviations of altitude and acceleration measurements
 // TODO: These must be determined experimentally
-#define SIGMA_S 1
-#define SIGMA_A 1
+#define SIGMA_S 3
+#define SIGMA_A 2
 
 // Period to buffer initial altitude measurements
 #define ALTITUDE_BUFFER_PERIOD 2000
@@ -28,7 +28,7 @@
 
 // Launch detect thresholds for velocity and acceleration
 #define LAUNCH_VEL_THRESHOLD 15
-#define LAUNCH_ACC_THRESHOLD 10
+#define LAUNCH_ACC_THRESHOLD 60
 
 // Time the rocket must spend with a velocity estimate below 0 before apgoee is decided 
 #define APOGEE_TIMER 100

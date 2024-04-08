@@ -5,23 +5,23 @@
 
 // buzzer patterns to indicate success or failure
 void buzzerSuccess() {
-  tone(BUZZER, 600);
-  delay(250);
-  noTone(BUZZER);
-  delay(250);
-  tone(BUZZER, 600);
-  delay(250);
-  noTone(BUZZER);
+  tone(BUZZER, 300, 500);
+  delay(500);
+  tone(BUZZER, 1100, 500);
+  delay(500);
+  tone(BUZZER, 300, 500);
+  delay(500);
+  tone(BUZZER, 1100, 500);
 }
 
 void buzzerFailure() {
-  tone(BUZZER, 1500);
+  tone(BUZZER, 100, 500);
   delay(500);
-  noTone(BUZZER);
-  delay(250);
-  tone(BUZZER, 500);
-  delay(3000);
-  noTone(BUZZER); 
+  tone(BUZZER, 200, 500);
+  delay(500);
+  tone(BUZZER, 100, 500);
+  delay(500);
+  tone(BUZZER, 400, 500);
 }
 
 void startUp() {
