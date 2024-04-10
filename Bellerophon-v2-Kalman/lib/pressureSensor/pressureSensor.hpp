@@ -1,5 +1,5 @@
-#ifndef pressureSensor_h
-#define pressureSensor_h
+#ifndef PRESSURESENSOR_H
+#define PRESSURESENSOR_H
 
 #include "Wire.h"
 #include "SparkFunMPL3115A2.h"
@@ -22,4 +22,4 @@ public:
     float temp;
 };
 
-#endif // pressureSensor_h
+#endif // PRESSURESENSOR_H

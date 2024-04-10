@@ -1,5 +1,5 @@
-#ifndef constants_h
-#define constants_h
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 // for declaring constants and measured values
 
@@ -46,4 +46,4 @@
 
 
 
-#endif // constants_h
+#endif // CONSTANTS_H
