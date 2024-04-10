@@ -7,36 +7,39 @@
 
 // Import Libraries
 #include <Wire.h>
-#include "SparkFunMPL3115A2.h"
 #include <SPI.h>
 #include "SdFat.h"
 #include "sdios.h"
 #include <Adafruit_Sensor.h>
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
-#include "constants.hpp"
 #include "config.hpp"
 #include <BasicLinearAlgebra.h>
 #include <LSM6DSLSensor.h>
 #include "Adafruit_ICM20X.h"
 #include "Adafruit_ICM20948.h"
+#include "pressureSensor.hpp"
+
+// declare sensors
+pressureSensor baro(1);
 
 
-
-
-float measureAltitude();
 
 //Create an instance of the objects
-MPL3115A2 baro;
+
 LSM6DSLSensor lsm(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW);
 Adafruit_ICM20948 icm;
 
+// flash memory
+SdFs sd;
+FsFile file;
 
 int launch_time;
 
 unsigned long loopStartTime;
 
 unsigned long previousTime = 0;
+
 
 
 void logFlightEvent(const char* message, const unsigned long time);
@@ -119,7 +122,7 @@ void setup() {
         Serial.println("LSM NOT Found");
     }
 
-    baro.begin();
+  
 
  
 
@@ -129,10 +132,7 @@ void setup() {
     file.println("time, temp, ax,ay,az,mag_x,mag_y,mag_z,gx,gy,gz");
     file.close();
     
-    // // Configure the sensors
-    baro.setOversampleRate(1); // set polling rate / accuracy -> lower number = higher poll but lower accuracy  
-    baro.enableEventFlags(); // Enable all three pressure and temp event flags 
-
+    
     previousTime = 0;
 
     loopStartTime = -1;
@@ -148,106 +148,105 @@ void loop()
     if (loopStartTime == -1) {
         loopStartTime = currentTime;
     }
+
+
+    float pressure = baro.getPressure();
    
     
-    logFlightData(currentTime - loopStartTime);
+    //logFlightData(currentTime - loopStartTime);
     previousTime = currentTime;
 
 }
 
-float measureAltitude() {
-    float P = baro.readPressure();
-    float T = baro.readTemp();
-    return pow(P_0/P, EXP)*(T + C_TO_K)/L_B;
-}
 
 
-void logFlightEvent(const char* message, const unsigned long time) {
-    file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
-    file.print(time);
-    file.print(": ");
-    file.print(message);
-    file.println("");
-    file.close();
-}
 
-void logFlightData(const unsigned long time) {
+// void logFlightEvent(const char* message, const unsigned long time) {
+//     file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
+//     file.print(time);
+//     file.print(": ");
+//     file.print(message);
+//     file.println("");
+//     file.close();
+// }
+
+// void logFlightData(const unsigned long time) {
         
-    file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
+//     file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
     
-    file.print(time);
-    file.print(",");
+//     file.print(time);
+//     file.print(",");
 
-   // Get LSM IMU Sensor Data
-    int32_t lsm_acc[3];
-    int32_t lsm_gyro[3];
-    lsm.Get_X_Axes(lsm_acc);
-    lsm.Get_G_Axes(lsm_gyro);
+//    // Get LSM IMU Sensor Data
+//     int32_t lsm_acc[3];
+//     int32_t lsm_gyro[3];
+//     lsm.Get_X_Axes(lsm_acc);
+//     lsm.Get_G_Axes(lsm_gyro);
 
-    file.print(lsm_acc[0]);
-    file.print(",");
-    file.print(lsm_acc[1]);
-    file.print(",");
-    file.print(lsm_acc[2]);
-    file.print(",");
+//     file.print(lsm_acc[0]);
+//     file.print(",");
+//     file.print(lsm_acc[1]);
+//     file.print(",");
+//     file.print(lsm_acc[2]);
+//     file.print(",");
 
-    file.print(lsm_gyro[0]);
-    file.print(",");
-    file.print(lsm_gyro[1]);
-    file.print(",");
-    file.print(lsm_gyro[2]);
-    file.print(",");
+//     file.print(lsm_gyro[0]);
+//     file.print(",");
+//     file.print(lsm_gyro[1]);
+//     file.print(",");
+//     file.print(lsm_gyro[2]);
+//     file.print(",");
 
     
-    //Barometer Data
-    file.print(baro.readPressure());
-    file.print(",");
-    file.print(baro.readTemp());
+//     //Barometer Data
+//     file.print(baro.readPressure());
+//     file.print(",");
+//     file.print(baro.readTemp());
     
     
 
 
-    if(icm_enable == true){
-        sensors_event_t accel;
-        sensors_event_t gyro;
-        sensors_event_t mag;
-        sensors_event_t temp;
-        icm.getEvent(&accel, &gyro, &temp, &mag);
+//     if(icm_enable == true){
+//         sensors_event_t accel;
+//         sensors_event_t gyro;
+//         sensors_event_t mag;
+//         sensors_event_t temp;
+//         icm.getEvent(&accel, &gyro, &temp, &mag);
 
-        float a_z = accel.acceleration.z;
+//         float a_z = accel.acceleration.z;
 
-        if(abs(a_z) > LAUNCH_ACC_THRESHOLD){
-            Serial.println("launch detect");
-            int launch_time = millis();
+//         if(abs(a_z) > LAUNCH_ACC_THRESHOLD){
+//             Serial.println("launch detect");
+//             int launch_time = millis();
 
-        }
+//         }
 
 
-        file.print(",");
-        file.print(temp.temperature);
-        file.print(",");
-        file.print(accel.acceleration.x);
-        file.print(",");
-        file.print(accel.acceleration.z);
-        file.print(",");
-        file.print(accel.acceleration.z);
-        file.print(",");
-        file.print(mag.magnetic.x);
-        file.print(",");
-        file.print(mag.magnetic.y);
-        file.print(",");
-        file.print(mag.magnetic.z);
-        file.print(",");
-        file.print(gyro.gyro.x);
-        file.print(",");
-        file.print(gyro.gyro.y);
-        file.print(",");
-        file.print(gyro.gyro.z);
-        file.print(",");
-        file.println();
-    } else {
-        file.println("");
-    }
+//         file.print(",");
+//         file.print(temp.temperature);
+//         file.print(",");
+//         file.print(accel.acceleration.x);
+//         file.print(",");
+//         file.print(accel.acceleration.z);
+//         file.print(",");
+//         file.print(accel.acceleration.z);
+//         file.print(",");
+//         file.print(mag.magnetic.x);
+//         file.print(",");
+//         file.print(mag.magnetic.y);
+//         file.print(",");
+//         file.print(mag.magnetic.z);
+//         file.print(",");
+//         file.print(gyro.gyro.x);
+//         file.print(",");
+//         file.print(gyro.gyro.y);
+//         file.print(",");
+//         file.print(gyro.gyro.z);
+//         file.print(",");
+//         file.println();
+//     } else {
+//         file.println("");
+//     }
 
-    file.close();
-}
+//     file.close();
+// }

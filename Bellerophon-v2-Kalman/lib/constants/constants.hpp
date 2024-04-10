@@ -1,3 +1,6 @@
+#ifndef constants_h
+#define constants_h
+
 // for declaring constants and measured values
 
 #define SPI_SPEED SD_SCK_MHZ(4)
@@ -39,6 +42,8 @@
 //Small epsilon for comparing values
 #define EPSILON 0.01
 
-// flash memory
-SdFs sd;
-FsFile file;
+
+
+
+
+#endif // constants_h
