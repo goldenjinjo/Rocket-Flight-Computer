@@ -23,8 +23,6 @@
 // declare sensors
 pressureSensor baro(1);
 
-
-
 //Create an instance of the objects
 
 LSM6DSLSensor lsm(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW);
@@ -42,8 +40,8 @@ unsigned long previousTime = 0;
 
 
 
-void logFlightEvent(const char* message, const unsigned long time);
-void logFlightData(const unsigned long time);
+// void logFlightEvent(const char* message, const unsigned long time);
+// void logFlightData(const unsigned long time);
 
 void setup() {
     //Currently Unused
