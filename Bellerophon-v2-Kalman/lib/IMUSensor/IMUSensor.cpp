@@ -3,7 +3,6 @@
 IMUSensor::IMUSensor(TwoWire* i2c, uint8_t addr, uint8_t accelRange, uint16_t gyroRange)
     : imu(i2c,addr), accelRange(accelRange), gyroRange(gyroRange) {
     
-    init();
 }
 
 
@@ -12,6 +11,16 @@ IMUSensor::IMUSensor(TwoWire* i2c, uint8_t addr, uint8_t accelRange, uint16_t gy
 void IMUSensor::init() {
     imu.begin();
     enable();
+    LSM6DSLStatusTypeDef status = imu.Get_X_Sensitivity(&accelSense);
+    if (status != LSM6DSL_STATUS_OK) {
+        Serial.println("Error retrieving accelerometer sensitivity.");
+        return;
+    }
+    status = imu.Get_G_Sensitivity(&gyroSense);
+    if (status != LSM6DSL_STATUS_OK) {
+        Serial.println("Error retrieving gyroscope sensitivity.");
+        return;
+    }
 }
 
 // Enable the IMU sensor
@@ -30,16 +39,21 @@ float* IMUSensor::getAccelerometerData() {
     LSM6DSLStatusTypeDef status;
 
     status = imu.Get_X_Axes(lsm_acc);
+
     if (status != LSM6DSL_STATUS_OK) {
         // Handle error
+        Serial.println("FUCK");
         return nullptr;
     }
 
+    Serial.println("test1");
     // Convert raw accelerometer data to physical units and store in the accelData array
-    accelData[0] = static_cast<float>(lsm_acc[0]) * imu.Get_X_Sensitivity(nullptr);
-    accelData[1] = static_cast<float>(lsm_acc[1]) * imu.Get_X_Sensitivity(nullptr);
-    accelData[2] = static_cast<float>(lsm_acc[2]) * imu.Get_X_Sensitivity(nullptr);
+    accelData[0] = static_cast<float>(lsm_acc[0]) * accelSense;
+    accelData[1] = static_cast<float>(lsm_acc[1]) * accelSense;
+    accelData[2] = static_cast<float>(lsm_acc[2]) * accelSense;
 
+
+    Serial.println("test2");
     return accelData;
 }
 
@@ -57,9 +71,9 @@ float* IMUSensor::getGyroscopeData() {
     }
 
     // Convert raw gyroscope data to physical units and store in the gyroData array
-    gyroData[0] = static_cast<float>(lsm_gyro[0]) * imu.Get_G_Sensitivity(nullptr);
-    gyroData[1] = static_cast<float>(lsm_gyro[1]) * imu.Get_G_Sensitivity(nullptr);
-    gyroData[2] = static_cast<float>(lsm_gyro[2]) * imu.Get_G_Sensitivity(nullptr);
+    gyroData[0] = static_cast<float>(lsm_gyro[0]) * gyroSense;
+    gyroData[1] = static_cast<float>(lsm_gyro[1]) * gyroSense;
+    gyroData[2] = static_cast<float>(lsm_gyro[2]) * gyroSense;
 
     return gyroData;
 }

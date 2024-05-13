@@ -22,7 +22,7 @@
 
 // declare sensors
 pressureSensor baro(1);
-IMUSensor imuSensor(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
+IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
 
 //Create an instance of the objects
 Adafruit_ICM20948 icm;
@@ -50,37 +50,39 @@ void setup() {
     digitalWrite(B_LED, LOW);
   
     // play start up sequence
-    startUp();
+    //startUp();
 
 
     Wire.begin(); // Join i2c bus
     Serial.begin(9600);
 
+    imu.init();
 
     previousTime = 0;
 
     loopStartTime = -1;
 
 
-    delay(10000);
+    delay(1000);
 }
 
 // MAIN LOOP
 void loop()
 {
-    unsigned long currentTime = millis();
-    if (loopStartTime == -1) {
-        loopStartTime = currentTime;
-    }
-
+    delay(500);
+  
     float pressure = baro.getPressure();
     float temp = baro.getTemperature();
 
+    float* acc = imu.getAccelerometerData();
+    float accX = acc[0];
+
     Serial.println(pressure);
     Serial.println(temp);
-   
-    //logFlightData(currentTime - loopStartTime);
-    previousTime = currentTime;
+    
+    // TODO: convert units to m/s
+    Serial.println(accX);
+
 
 }
 
