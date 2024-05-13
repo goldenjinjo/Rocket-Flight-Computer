@@ -1,15 +1,78 @@
- // track number of successful activations
-    int successCounter = 0;
 
-    // if (!sd.begin(CHIP_SELECT, SPI_SPEED)) {
-    //     buzzerFailure();
-    // }
+#include "dataLogger.hpp"
+    
+    // file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
+    // file.println("time, temp, ax,ay,az,mag_x,mag_y,mag_z,gx,gy,gz");
+    // file.close();
+
+DataLogger::DataLogger(const char* logFileName, const char* dataFileName) 
+    : logFileName(logFileName) {}
 
 
+bool DataLogger::initialize() {
+    if (!sd.begin(chipSelectPin, SPI_FULL_SPEED)) {
+        Serial.println("SD card initialization failed.");
+        return false;
+    }
 
-    file.open(dataFileName, O_RDWR | O_CREAT | O_AT_END);
-    file.println("time, temp, ax,ay,az,mag_x,mag_y,mag_z,gx,gy,gz");
-    file.close();
+    // Create or append to the data file
+    if (!dataFile.open(dataFileName, O_RDWR | O_CREAT | O_AT_END)) {
+        Serial.println("Failed to open data file.");
+        return false;
+    }
+
+    // Append to the log file
+    if (!logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END)) {
+        Serial.println("Failed to open log file.");
+        return false;
+    }
+
+    // Write header to data file
+    dataFile.println("time, temp, ax, ay, az, mag_x, mag_y, mag_z, gx, gy, gz");
+    dataFile.close();
+
+    // Format log file
+    logFile.println("");
+    logFile.println("-----FLIGHT LOG-----");
+    logFile.println("");
+    logFile.println("-----BEGIN INITIALIZATION SEQUENCE-----");
+    logFile.println("");
+    logFile.println("Bellerophon v3.5 Online!");
+    logFile.println("Flash Chip Found...");
+
+    logFile.close();
+
+    return true;
+}
+
+void DataLogger::logEvent(const char* message, unsigned long time) {
+    logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
+    logFile.print(time);
+    logFile.print(": ");
+    logFile.print(message);
+    logFile.println("");
+    logFile.close();
+}
+
+void DataLogger::logData(unsigned long time, int32_t* lsm_acc, int32_t* lsm_gyro) {
+    if (dataFile.open(dataFileName, O_RDWR | O_CREAT | O_AT_END)) {
+        dataFile.print(time);
+        dataFile.print(",");
+        for (int i = 0; i < 3; ++i) {
+            dataFile.print(lsm_acc[i]);
+            dataFile.print(",");
+        }
+        for (int i = 0; i < 3; ++i) {
+            dataFile.print(lsm_gyro[i]);
+            dataFile.print(",");
+        }
+        // Add more data logging here if needed
+
+        dataFile.println();
+        dataFile.close();
+    }
+}
+
 
     // Delete old versions of file if deleteFile condition is true
     // TODO: Change to function, and remove deleteFile config
@@ -22,28 +85,9 @@
     //         sd.remove(dataFileName);
     //     }
     // }
-    // create data file and start writing
-    file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
-
-    // Format file to distingish between new data sets
-    file.println("");
-    file.println("-----FLIGHT LOG-----");
-    file.println("");
-    file.println("-----BEGIN INITIALIZATION SEQUENCE-----");
-    file.println("");
-  
-    file.println("Bellerophon v3 Online!");
-    file.println("Flash Chip Found...");
 
 
-    // void logFlightEvent(const char* message, const unsigned long time) {
-//     file.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
-//     file.print(time);
-//     file.print(": ");
-//     file.print(message);
-//     file.println("");
-//     file.close();
-// }
+
 
 // void logFlightData(const unsigned long time) {
         

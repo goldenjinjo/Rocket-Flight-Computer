@@ -18,6 +18,7 @@
 
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
+#include "dataLogger.hpp"
 
 // declare sensors
 pressureSensor baro(1);
@@ -55,17 +56,7 @@ void setup() {
     Wire.begin(); // Join i2c bus
     Serial.begin(9600);
 
-   
-    if (icm_enable == true){
-        if(!icm.begin_I2C()){
-            buzzerFailure();
-            
-        } else {
-            
-            Serial.println("ICM Found..");
-            icm.setAccelRange(ICM20948_ACCEL_RANGE_16_G);
-        }
-    }
+
     previousTime = 0;
 
     loopStartTime = -1;
@@ -83,6 +74,10 @@ void loop()
     }
 
     float pressure = baro.getPressure();
+    float temp = baro.getTemperature();
+
+    Serial.println(pressure);
+    Serial.println(temp);
    
     //logFlightData(currentTime - loopStartTime);
     previousTime = currentTime;
