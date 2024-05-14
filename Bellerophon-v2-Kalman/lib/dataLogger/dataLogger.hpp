@@ -14,8 +14,10 @@ class DataLogger {
 public:
     DataLogger(const char* logFileName, const char* dataFileName);
     bool initialize();
+    void print(const char* message);
     void logEvent(const char* message, unsigned long time);
-    void logData(unsigned long time, int32_t* lsm_acc, int32_t* lsm_gyro);
+    void logData(unsigned long time, float* data, size_t numFloats);
+    bool deleteFile(const char* fileName);
 
 private:
     const uint8_t chipSelectPin = 10;

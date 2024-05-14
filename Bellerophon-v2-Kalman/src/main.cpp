@@ -11,30 +11,15 @@
 #include <Adafruit_Sensor.h>
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
-#include "config.hpp"
 #include <BasicLinearAlgebra.h>
-#include "Adafruit_ICM20X.h"
-#include "Adafruit_ICM20948.h"
-
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
 
-// declare sensors
+// Class Declarations
 pressureSensor baro(1);
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
-
-//Create an instance of the objects
-Adafruit_ICM20948 icm;
-
-
-
-int launch_time;
-
-unsigned long loopStartTime;
-
-unsigned long previousTime = 0;
-
+DataLogger logger(logFileName, dataFileName);
 
 void setup() {
     
@@ -50,17 +35,14 @@ void setup() {
     digitalWrite(B_LED, LOW);
   
     // play start up sequence
-    //startUp();
-
+    startUp();
 
     Wire.begin(); // Join i2c bus
     Serial.begin(500000);
 
+    // initilize classes
     imu.init();
-
-    previousTime = 0;
-
-    loopStartTime = -1;
+    logger.initialize();
 
     delay(2000);
     imu.setPollRate(7);
@@ -73,41 +55,23 @@ void setup() {
 
     Serial.print("Gyro Poll Rate: ");
     Serial.println(G_poll);
-
-    delay(1000);
-
-    
-
 }
 
 // MAIN LOOP
 void loop()
 {
-    Serial.println("loop");
-    delay(2000);
-    float pressure = baro.getPressure();
-    float temp = baro.getTemperature();
+    if(DEBUG){
+        delay(2000);
+    }
+   
+    // float pressure = baro.getPressure();
+    // float temp = baro.getTemperature();
 
     float* acc = imu.getAccelerometerData();
-    float accX = acc[0];
-    float accY = acc[1];
-    float accZ = acc[2];
-
     float* gyro = imu.getGyroscopeData();
-    float gyroX = gyro[0];
-    float gyroY = gyro[1];
-    float gyroZ = gyro[2];
 
-    Serial.println(pressure);
-    Serial.println(temp);
-    Serial.println(accX);
-    Serial.println(accY);
-    Serial.println(accZ);
-    Serial.println(gyroX);
-    Serial.println(gyroY);
-    Serial.println(gyroZ);
-
-
+    logger.logData(millis(),acc,3);
+    logger.logData(millis(), gyro,3);
 }
 
 

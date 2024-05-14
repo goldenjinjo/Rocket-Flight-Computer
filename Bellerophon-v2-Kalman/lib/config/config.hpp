@@ -1,27 +1,25 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+// DEBUG setting. Set to false for flight!!
+// Primary purpose is to print logfile messages to serial
+extern bool DEBUG;
 
 // file configuration
-const char* logFileName = "flight_log.txt";
-const char* dataFileName = "flight_data.csv";
-bool deleteFile = false;
+extern const char* logFileName;
+extern const char* dataFileName;
 
 // -----Deployment Settings-----
 // Whether computer should use dual or single deploy mode
-bool dualDeploy = false;
+extern bool dualDeploy;
 
 // Delays before deploying drogue or main parachutes when in dual deploy mode.
 // Note: drogueDelay is used when in single deploy mode.
-float drogueDelay = 0;
-float mainDelay = 0;
+extern float drogueDelay;
+extern float mainDelay;
 
 // Altitude to deploy main parachutes when in dual deploy mode.
-float mainAltitude = 300;
-
-bool icm_enable = true;
-
-int Y_AXIS = 0;
+extern float mainAltitude;
 
 
 #endif // CONFIG_HPP
