@@ -37,15 +37,6 @@ void setup() {
 
     float A_poll = imu.getAccelPollRate();
     float G_poll = imu.getGyroPollRate();
-
-    Serial.print("Accel Poll Rate: ");
-    Serial.println(A_poll);
-
-    Serial.print("Gyro Poll Rate: ");
-    Serial.println(G_poll);
-
-
-    logger.logEvent(millis(), "Flight Loop Initiated");
 }
 
 // MAIN LOOP
@@ -54,16 +45,27 @@ void loop()
     if(DEBUG){
         delay(2000);
     }
-   
-    
-    // float pressure = baro.getPressure();
-    // float temp = baro.getTemperature();
 
+    float* sensorArray = new float[9];
+
+    // get IMU data
     float* acc = imu.getAccelerometerData();
     float* gyro = imu.getGyroscopeData();
 
-    logger.logData(millis(),acc,3);
-    logger.logData(millis(), gyro,3);
+    // put all sensors into sensor array
+    // TODO: Abstract this to dataLogger class
+    sensorArray[0] = baro.getPressure();
+    sensorArray[1] = baro.getTemperature(); // DEBUG why this is not working
+    sensorArray[2] = acc[0];
+    sensorArray[3] = acc[1];
+    sensorArray[4] = acc[2];
+    sensorArray[5] = acc[3];
+    sensorArray[6] = gyro[1];
+    sensorArray[7] = gyro[2];
+    sensorArray[8] = gyro[3];
+
+    // log sensor data
+    logger.logData(millis(),sensorArray,9);
 }
 
 
