@@ -76,12 +76,29 @@ void loop()
 
     float* acc = imu.getAccelerometerData();
     float accX = acc[0];
+    float accY = acc[1];
+    float accZ = acc[2];
+
+    float* gyro = imu.getGyroscopeData();
+    float gyroX = gyro[0];
+    float gyroY = gyro[1];
+    float gyroZ = gyro[2];
 
     Serial.println(pressure);
     Serial.println(temp);
     
     // TODO: convert units to m/s
     Serial.println(accX);
+
+    Serial.println(accY);
+
+    Serial.println(accZ);
+
+    Serial.println(gyroX);
+
+    Serial.println(gyroY);
+
+    Serial.println(gyroZ);
 
 
 }
