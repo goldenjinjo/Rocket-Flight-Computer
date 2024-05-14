@@ -1,7 +1,4 @@
 #include "deviceFunctions.hpp"
-#include "pinAssn.hpp"
-#include "Arduino.h"
-
 
 // buzzer patterns to indicate success or failure
 void buzzerSuccess() {
@@ -26,8 +23,10 @@ void buzzerFailure() {
 
 void startUp() {
   // Activate Buzzers to Confirm Code started
-  
-  tone(BUZZER, 700, 500);
+
+  // play normal start up sounds if debug is not enabled 
+  if(!DEBUG){
+     tone(BUZZER, 700, 500);
   digitalWrite(R_LED, HIGH);
   digitalWrite(G_LED, HIGH);
   delay(250);
@@ -49,4 +48,15 @@ void startUp() {
   digitalWrite(G_LED, LOW);;
   tone(BUZZER, 800, 1250);
   delay(1250);
+  } else {
+    digitalWrite(R_LED, HIGH);
+    tone(BUZZER, 700, 500);
+    delay(500);
+    digitalWrite(R_LED, LOW);
+    delay(500);
+    digitalWrite(R_LED, HIGH);
+    tone(BUZZER, 700, 500);
+    delay(500);
+    digitalWrite(R_LED,LOW);
+  }
 }

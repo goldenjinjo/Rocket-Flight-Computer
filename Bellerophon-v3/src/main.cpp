@@ -1,8 +1,6 @@
 /*
  * Main File to be uploaded to Bellerophon Flight Computer
  * 
- * 
- * 
  */
 
 // Import Libraries

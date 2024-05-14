@@ -3,6 +3,7 @@
 #include "config.hpp"
 
 bool DEBUG = true;
+
 const char* logFileName = "flight_log.txt";
 const char* dataFileName = "flight_data.csv";
 bool dualDeploy = false;
