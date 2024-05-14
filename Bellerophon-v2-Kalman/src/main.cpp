@@ -62,7 +62,8 @@ void setup() {
 
     loopStartTime = -1;
 
-    imu.setPollRate(8);
+    delay(2000);
+    imu.setPollRate(7);
 
     float A_poll = imu.getAccelPollRate();
     float G_poll = imu.getGyroPollRate();
