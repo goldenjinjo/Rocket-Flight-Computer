@@ -2,13 +2,14 @@
 
 IMUSensor::IMUSensor(TwoWire* i2c, uint8_t addr, uint8_t accelRange, uint16_t gyroRange)
     : imu(i2c,addr), accelRange(accelRange), gyroRange(gyroRange) {
-    
+
+    initialize();        
 }
 
 
 
 // Initialize the IMU sensor
-void IMUSensor::init() {
+void IMUSensor::initialize() {
     imu.begin();
     enable();
     

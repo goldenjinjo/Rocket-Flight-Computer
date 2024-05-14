@@ -16,7 +16,7 @@ private:
 
 public:
     IMUSensor(TwoWire* i2c, uint8_t addr, uint8_t accelRange, uint16_t gyroRange);
-    void init(); // Initialize the IMU sensor
+    void initialize(); // Initialize the IMU sensor
     void enable(); // Enable the IMU sensor
     float* getAccelerometerData(); // Get accelerometer data as an array
     float* getGyroscopeData(); // Get gyroscope data as an array

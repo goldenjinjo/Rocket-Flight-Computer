@@ -18,25 +18,21 @@ IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
 DataLogger logger(logFileName, dataFileName);
 
 void setup() {
+
+    Wire.begin(); // Join i2c bus
+    Serial.begin(500000);
     
     // Set pin types and configure LEDs
     peripheralInitialize();
   
     // play start up sequence
     startUp();
-
-    Wire.begin(); // Join i2c bus
-    Serial.begin(500000);
-
+    
     // initilize classes
-    imu.init();
     logger.initialize();
 
     delay(2000);
-    imu.setPollRate(7);
-
-    float A_poll = imu.getAccelPollRate();
-    float G_poll = imu.getGyroPollRate();
+    imu.setPollRate(7);    
 }
 
 // MAIN LOOP
@@ -46,11 +42,11 @@ void loop()
         delay(2000);
     }
 
-    float* sensorArray = new float[9];
-
     // get IMU data
     float* acc = imu.getAccelerometerData();
     float* gyro = imu.getGyroscopeData();
+
+    float* sensorArray = new float[9];
 
     // put all sensors into sensor array
     // TODO: Abstract this to dataLogger class
