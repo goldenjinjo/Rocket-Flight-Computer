@@ -76,3 +76,50 @@ float* IMUSensor::getGyroscopeData() {
 
     return gyroData;
 }
+
+// configure polling rate for gyroscope and accelerometer on a scale of 1 to 10 (1.6 - 6664 Hz)
+void IMUSensor::setPollRate(char rate) {
+// Define the mapping of input byte values to output data rates
+    const float dataRates[] = {12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664}; // Corresponding output data rates in Hz
+    const int numRates = sizeof(dataRates) / sizeof(dataRates[0]);
+
+    // Ensure the rate value is within the valid range
+    if (rate < 1) {
+        rate = 1;
+    }
+    if(rate > numRates) {
+        rate = numRates;
+    }
+
+    // Convert the byte input to an index for dataRates array
+    int index = rate - 1; // Adjust to 0-based index
+
+    // Set the output data rates for both gyroscope and accelerometer
+    imu.Set_X_ODR(dataRates[index]);
+    imu.Set_G_ODR(dataRates[index]);
+
+}
+
+// Wrapper method to get the polling rate (ODR) of the accelerometer
+float IMUSensor::getAccelPollRate() {
+    float accelPollRate;
+    LSM6DSLStatusTypeDef accelStatus = imu.Get_X_ODR(&accelPollRate);
+    if (accelStatus != LSM6DSL_STATUS_OK) {
+        Serial.println("Error retrieving accelerometer polling rate.");
+        return -1.0f; // Return a negative value to indicate error
+    }
+    return accelPollRate;
+}
+
+// Wrapper method to get the polling rate (ODR) of the gyroscope
+float IMUSensor::getGyroPollRate() {
+    float gyroPollRate;
+    LSM6DSLStatusTypeDef gyroStatus = imu.Get_G_ODR(&gyroPollRate);
+    if (gyroStatus != LSM6DSL_STATUS_OK) {
+        Serial.println("Error retrieving gyroscope polling rate.");
+        return -1.0f; // Return a negative value to indicate error
+    }
+    return gyroPollRate;
+}
+
+

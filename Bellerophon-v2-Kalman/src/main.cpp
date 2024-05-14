@@ -54,7 +54,7 @@ void setup() {
 
 
     Wire.begin(); // Join i2c bus
-    Serial.begin(9600);
+    Serial.begin(500000);
 
     imu.init();
 
@@ -62,15 +62,28 @@ void setup() {
 
     loopStartTime = -1;
 
+    imu.setPollRate(8);
+
+    float A_poll = imu.getAccelPollRate();
+    float G_poll = imu.getGyroPollRate();
+
+    Serial.print("Accel Poll Rate: ");
+    Serial.println(A_poll);
+
+    Serial.print("Gyro Poll Rate: ");
+    Serial.println(G_poll);
 
     delay(1000);
+
+    
+
 }
 
 // MAIN LOOP
 void loop()
 {
-    delay(500);
-  
+    Serial.println("loop");
+    delay(2000);
     float pressure = baro.getPressure();
     float temp = baro.getTemperature();
 
@@ -86,18 +99,11 @@ void loop()
 
     Serial.println(pressure);
     Serial.println(temp);
-    
-    // TODO: convert units to m/s
     Serial.println(accX);
-
     Serial.println(accY);
-
     Serial.println(accZ);
-
     Serial.println(gyroX);
-
     Serial.println(gyroY);
-
     Serial.println(gyroZ);
 
 

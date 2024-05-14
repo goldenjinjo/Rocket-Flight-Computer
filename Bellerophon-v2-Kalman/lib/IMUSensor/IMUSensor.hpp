@@ -20,6 +20,9 @@ public:
     void enable(); // Enable the IMU sensor
     float* getAccelerometerData(); // Get accelerometer data as an array
     float* getGyroscopeData(); // Get gyroscope data as an array
+    void setPollRate(char rate); // adjust polling rate (ODR)
+    float getAccelPollRate(); // Method to get the polling rate (ODR) of the accelerometer
+    float getGyroPollRate(); // Method to get the polling rate (ODR) of the gyroscope
 };
 
 #endif // IMUSensor_h
