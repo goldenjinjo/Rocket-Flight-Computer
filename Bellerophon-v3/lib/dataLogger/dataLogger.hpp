@@ -15,7 +15,7 @@ public:
     DataLogger(const char* logFileName, const char* dataFileName);
     bool initialize();
     void print(const char* message);
-    void logEvent(const char* message, unsigned long time);
+    void logEvent(unsigned long time, const char* message);
     void logData(unsigned long time, float* data, size_t numFloats);
     bool deleteFile(const char* fileName);
 

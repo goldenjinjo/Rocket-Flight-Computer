@@ -49,7 +49,7 @@ bool DataLogger::initialize() {
     return true;
 }
 
-void DataLogger::logEvent(const char* message, unsigned long time) {
+void DataLogger::logEvent(unsigned long time, const char* message) {
     char buffer[50]; // Adjust buffer size as needed
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", time, message);
     print(buffer);

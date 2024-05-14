@@ -43,6 +43,9 @@ void setup() {
 
     Serial.print("Gyro Poll Rate: ");
     Serial.println(G_poll);
+
+
+    logger.logEvent(millis(), "Flight Loop Initiated");
 }
 
 // MAIN LOOP
@@ -52,6 +55,7 @@ void loop()
         delay(2000);
     }
    
+    
     // float pressure = baro.getPressure();
     // float temp = baro.getTemperature();
 
