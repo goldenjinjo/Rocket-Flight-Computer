@@ -1,5 +1,8 @@
 #include "dataLogger.hpp"
     
+
+// TODO: create a millis() like pointer that will automatically append itself to log data and log event, so no argument is needed
+// TODO: fix print method, it is now set up that everything prints to logFile! oops!
 DataLogger::DataLogger(const char* logFileName, const char* dataFileName) 
     : logFileName(logFileName), dataFileName(dataFileName) {}
 
@@ -38,6 +41,7 @@ bool DataLogger::initialize() {
     }
 
     // Write header to data file
+    // TODO: change dataLogger to input activated sensors and dynamically write this
     print("time, temp, ax, ay, az, mag_x, mag_y, mag_z, gx, gy, gz");
 
     // Format log file
