@@ -6,15 +6,13 @@
  */
 
 // Import Libraries
-#include <SPI.h>
-#include "sdios.h"
-#include <Adafruit_Sensor.h>
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
-#include <BasicLinearAlgebra.h>
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
+
+#include <BasicLinearAlgebra.h>
 
 // Class Declarations
 pressureSensor baro(1);
