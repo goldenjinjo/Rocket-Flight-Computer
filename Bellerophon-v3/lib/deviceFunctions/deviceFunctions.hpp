@@ -5,4 +5,5 @@
 void buzzerSuccess();
 void buzzerFailure();
 void startUp();
+void peripheralInitialize();
 

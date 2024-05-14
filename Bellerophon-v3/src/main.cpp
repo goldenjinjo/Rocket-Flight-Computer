@@ -19,16 +19,8 @@ DataLogger logger(logFileName, dataFileName);
 
 void setup() {
     
-    pinMode(R_LED, OUTPUT);
-    pinMode(G_LED, OUTPUT);
-    pinMode(B_LED, OUTPUT);
-  
-    pinMode(BUZZER, OUTPUT);
-
-    // Set LEDS to low in case previous program left it HIGH
-    digitalWrite(R_LED, LOW);
-    digitalWrite(G_LED, LOW);
-    digitalWrite(B_LED, LOW);
+    // Set pin types and configure LEDs
+    peripheralInitialize();
   
     // play start up sequence
     startUp();
