@@ -29,7 +29,7 @@ FsFile file;
 
 int chipSelect = 10;
 
-const char* fileName = "flight data";
+const char* fileName = "flight_data.csv";
 
 // Set up - check for Flash Chip
 void setup() {

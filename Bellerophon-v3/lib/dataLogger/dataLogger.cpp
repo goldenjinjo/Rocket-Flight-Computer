@@ -7,48 +7,44 @@ DataLogger::DataLogger(const char* logFileName, const char* dataFileName)
     : logFileName(logFileName), dataFileName(dataFileName) {}
 
 
-void DataLogger::print(const char* message) {
+void DataLogger::print(FsFile fileType, const char* fileName, const char* message) {
     if (DEBUG) {
         Serial.print(message);
-    } else {
-        logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END);
-        logFile.print(message);
-        logFile.close();
     }
-}
+
+    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+    fileType.print(message);
+    fileType.close();
+    }
 
 bool DataLogger::initialize() {
     if (!sd.begin(chipSelectPin, SPI_FULL_SPEED)) {
-        print("SD card initialization failed.\n");
+        logEvent("SD card initialization failed.\n");
         return false;
     }
 
     // Create or append to the data file
     if (!dataFile.open(dataFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        print("Failed to open data file.\n");
+        logEvent("Failed to open data file.\n");
         return false;
     }
 
     // Append to the log file
     if (!logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        print("Failed to open log file.\n");
+        logEvent("Failed to open log file.\n");
         return false;
     }
 
     // Print debug warning
     if(DEBUG){
-        print("Warning! DEBUG Enabled.\n");
+        logEvent("Warning! DEBUG Enabled.\n");
     }
+    // Format log file
+    logEvent("Bellerophon v3.5 Online!\n");
 
     // Write header to data file
     // TODO: change dataLogger to input activated sensors and dynamically write this
-    print("time, temp, ax, ay, az, mag_x, mag_y, mag_z, gx, gy, gz");
-
-    // Format log file
-    print("\n-----FLIGHT LOG-----\n\n");
-    print("-----BEGIN INITIALIZATION SEQUENCE-----\n\n");
-    print("Bellerophon v3.5 Online!\n");
-    print("Flash Chip Found...\n");
+    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az gx, gy, gz \n");
 
     return true;
 }
@@ -57,7 +53,7 @@ void DataLogger::logEvent(const char* message) {
     currentTime = millis();
     char buffer[logBuffer];
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
-    print(buffer);
+    print(logFile, logFileName, buffer);
 }
 
 void DataLogger::logData(float* data, size_t numFloats) {
@@ -68,18 +64,15 @@ void DataLogger::logData(float* data, size_t numFloats) {
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
     }
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
-    print(buffer);
+    print(dataFile, dataFileName, buffer);
 }
 
-/**
- * @brief  Deletes specified file. No going back.
- * @param  fileName the name of the file
- */
+
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
         return sd.remove(fileName);
     } else {
-        print("File not found, nothing deleted\n");
+        logEvent("File not found, nothing deleted\n");
         return false;
     }
 }
