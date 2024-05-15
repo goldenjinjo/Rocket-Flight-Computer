@@ -11,12 +11,16 @@
 #include "dataLogger.hpp"
 
 #include <BasicLinearAlgebra.h>
+#include "SparkFunMPL3115A2.h"
+
 
 // Class Declarations
+// set oversample rate (lower, faster)
 pressureSensor baro(1);
 // Change address to low or high based on PCB design
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
 DataLogger logger(logFileName, dataFileName);
+
 
 void setup() {
 
@@ -33,7 +37,7 @@ void setup() {
     logger.initialize();
 
     delay(2000);
-    imu.setPollRate(7);    
+    imu.setPollRate(10);    
 }
 
 // MAIN LOOP
@@ -51,8 +55,9 @@ void loop()
     
     // put all sensors into sensor array
     // TODO: Abstract this to dataLogger class
+    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
     sensorArray[0] = baro.getPressure();
-    sensorArray[1] = baro.getTemperature(); // DEBUG why this is not working
+    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
     sensorArray[2] = acc[0];
     sensorArray[3] = acc[1];
     sensorArray[4] = acc[2];
@@ -63,6 +68,7 @@ void loop()
 
     // log sensor data
     logger.logData(sensorArray,9);
+
 }
 
 

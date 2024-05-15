@@ -7,19 +7,44 @@
 
 class pressureSensor {
 private:
-    MPL3115A2 baro; // Declaring baro inside pressureSensor class
-
-
+    // ------------------------- MEMBERS ------------------------- //
+    MPL3115A2 baro; // MPL3115A2 object for pressure sensing
 
 public:
-    pressureSensor(byte rate); // Constructor with oversample rate as argument
-    void init(byte rate); // Initialize the sensor
-    float getAltitude(); // Get altitude
+    // ------------------------- METHODS ------------------------- //
+    /**
+     * @brief  Constructor for pressureSensor class.
+     * @param  rate Oversample rate for sensor readings.
+     */
+    pressureSensor(byte rate);
+    
+    /**
+     * @brief  Initialize the pressure sensor.
+     * @param  rate Oversample rate for sensor readings.
+     */
+    void init(byte rate);
+    
+    /**
+     * @brief  Get altitude from the pressure sensor.
+     * @return Altitude in meters.
+     */
+    float getAltitude();
+    
+    /**
+     * @brief  Get pressure from the pressure sensor.
+     * @return Pressure in Pascals (Pa).
+     */
     float getPressure();
+    
+    /**
+     * @brief  Get temperature from the pressure sensor.
+     * @return Temperature in degrees Celsius (°C).
+     */
     float getTemperature();
 
-    float pressure;
-    float temp;
+    // ------------------------- MEMBERS ------------------------- //
+    float pressure; // Current pressure reading
+    float temp; // Current temperature reading
 };
 
 #endif // PRESSURESENSOR_H

@@ -123,5 +123,3 @@ float IMUSensor::getGyroPollRate() {
     }
     return gyroPollRate;
 }
-
-
