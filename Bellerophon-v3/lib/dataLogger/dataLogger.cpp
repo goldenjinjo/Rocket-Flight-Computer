@@ -1,8 +1,5 @@
 #include "dataLogger.hpp"
-    
 
-// TODO: create a millis() like pointer that will automatically append itself to log data and log event, so no argument is needed
-// TODO: fix print method, it is now set up that everything prints to logFile! oops!
 DataLogger::DataLogger(const char* logFileName, const char* dataFileName) 
     : logFileName(logFileName), dataFileName(dataFileName) {}
 
@@ -18,7 +15,7 @@ void DataLogger::print(FsFile fileType, const char* fileName, const char* messag
     }
 
 bool DataLogger::initialize() {
-    if (!sd.begin(chipSelectPin, SPI_FULL_SPEED)) {
+    if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
         logEvent("SD card initialization failed.\n");
         return false;
     }

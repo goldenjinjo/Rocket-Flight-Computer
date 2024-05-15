@@ -14,6 +14,7 @@
 
 // Class Declarations
 pressureSensor baro(1);
+// Change address to low or high based on PCB design
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
 DataLogger logger(logFileName, dataFileName);
 
@@ -47,7 +48,7 @@ void loop()
     float* gyro = imu.getGyroscopeData();
 
     float* sensorArray = new float[9];
-
+    
     // put all sensors into sensor array
     // TODO: Abstract this to dataLogger class
     sensorArray[0] = baro.getPressure();
