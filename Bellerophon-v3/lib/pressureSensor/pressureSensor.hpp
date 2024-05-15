@@ -1,5 +1,5 @@
-#ifndef PRESSURESENSOR_H
-#define PRESSURESENSOR_H
+#ifndef PRESSURE_SENSOR_H
+#define PRESSURE_SENSOR_H
 
 #include "Wire.h"
 #include "SparkFunMPL3115A2.h"
@@ -47,4 +47,4 @@ public:
     float temp; // Current temperature reading
 };
 
-#endif // PRESSURESENSOR_H
+#endif // PRESSURE_SENSOR_H

@@ -1,5 +1,5 @@
-#ifndef IMUSensor_h
-#define IMUSensor_h
+#ifndef IMU_SENSOR_HPP
+#define IMU_SENSOR_HPP
 
 #include <Wire.h>
 #include <LSM6DSLSensor.h>
@@ -68,5 +68,5 @@ public:
     float getGyroPollRate();
 };
 
-#endif // IMUSensor_h
+#endif // IMU_SENSOR_HPP
 

@@ -1,3 +1,6 @@
+#ifndef PIN_ASSN_HPP
+#define PIN_ASSN_HPP
+
 #define BUZZER 22
 #define B_LED 2
 #define G_LED 1
@@ -10,3 +13,5 @@
 #define DIR 20 // TX port
 #define STEP 21 // RX port
 
+
+#endif // PIN_ASSN_HPP

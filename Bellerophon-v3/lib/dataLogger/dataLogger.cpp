@@ -4,6 +4,7 @@ DataLogger::DataLogger(const char* logFileName, const char* dataFileName)
     : logFileName(logFileName), dataFileName(dataFileName) {}
 
 
+// TODO: Assess the performance of opening the file in initialization and keeping it open for the duration of the program
 void DataLogger::print(FsFile fileType, const char* fileName, const char* message) {
     if (DEBUG) {
         Serial.print(message);
