@@ -6,8 +6,6 @@ IMUSensor::IMUSensor(TwoWire* i2c, uint8_t addr, uint8_t accelRange, uint16_t gy
     initialize();        
 }
 
-
-
 // Initialize the IMU sensor
 void IMUSensor::initialize() {
     imu.begin();
@@ -72,7 +70,7 @@ float* IMUSensor::getGyroscopeData() {
     }
 
     // Convert raw gyroscope data to physical units and store in the gyroData array
-    // Divide by 1000 to convert from milli
+    // Divide by 1000 to convert from milli degrees per second
     gyroData[0] = static_cast<float>(lsm_gyro[0]) / 1000.0f;
     gyroData[1] = static_cast<float>(lsm_gyro[1]) / 1000.0f;
     gyroData[2] = static_cast<float>(lsm_gyro[2]) / 1000.0f;
@@ -83,7 +81,8 @@ float* IMUSensor::getGyroscopeData() {
 // configure polling rate for gyroscope and accelerometer on a scale of 1 to 10 (1.6 - 6664 Hz)
 void IMUSensor::setPollRate(char rate) {
 // Define the mapping of input byte values to output data rates
-    const float dataRates[] = {12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664}; // Corresponding output data rates in Hz
+    // Corresponding output data rates in Hz
+    const float dataRates[] = {12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664}; 
     const int numRates = sizeof(dataRates) / sizeof(dataRates[0]);
 
     // Ensure the rate value is within the valid range
