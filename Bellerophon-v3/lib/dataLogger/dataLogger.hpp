@@ -42,17 +42,14 @@ public:
 
     // ------------------------- METHODS ------------------------- //
     // Tracks time since program inception
-    unsigned long currentTime = millis(); 
+    unsigned long currentTime = millis();
 
 private:
     // ------------------------- MEMBERS ------------------------- //
-    // Size of the log buffer
-    char logBuffer = 100;  
-    // Name of the log file
-    const char* logFileName;  
-    // Name of the data file
-    const char* dataFileName; 
-    // Two separate file instances so they may be written to concurrently
+    char logBuffer = 100; // Size of the log buffer
+    const char* logFileName; // Name of the log file
+    const char* dataFileName; // Name of the data file
+    // Two file instances so they may be written to concurrently
     FsFile logFile;  // File for logging events
     FsFile dataFile; // File for logging data
     // SD card instance

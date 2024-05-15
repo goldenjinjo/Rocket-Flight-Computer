@@ -50,6 +50,7 @@ float* IMUSensor::getAccelerometerData() {
     }
 
     // Convert raw accelerometer data to physical units and store in the accelData array
+    // divide by 1000 to convert from milli g, to g
     accelData[0] = static_cast<float>(lsm_acc[0]) / 1000.0f;
     accelData[1] = static_cast<float>(lsm_acc[1]) / 1000.0f;
     accelData[2] = static_cast<float>(lsm_acc[2]) / 1000.0f;
@@ -71,6 +72,7 @@ float* IMUSensor::getGyroscopeData() {
     }
 
     // Convert raw gyroscope data to physical units and store in the gyroData array
+    // Divide by 1000 to convert from milli
     gyroData[0] = static_cast<float>(lsm_gyro[0]) / 1000.0f;
     gyroData[1] = static_cast<float>(lsm_gyro[1]) / 1000.0f;
     gyroData[2] = static_cast<float>(lsm_gyro[2]) / 1000.0f;
