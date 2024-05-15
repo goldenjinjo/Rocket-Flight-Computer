@@ -15,12 +15,15 @@ public:
     DataLogger(const char* logFileName, const char* dataFileName);
     bool initialize();
     void print(const char* message);
-    void logEvent(unsigned long time, const char* message);
-    void logData(unsigned long time, float* data, size_t numFloats);
+    void logEvent(const char* message);
+    void logData(float* data, size_t numFloats);
     bool deleteFile(const char* fileName);
+
+    unsigned long currentTime = millis();
 
 private:
     const uint8_t chipSelectPin = 10;
+    char logBuffer = 100;
     const char* logFileName;
     const char* dataFileName;
     FsFile logFile;

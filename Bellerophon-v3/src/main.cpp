@@ -27,7 +27,7 @@ void setup() {
   
     // play start up sequence
     startUp();
-    
+
     // initilize classes
     logger.initialize();
 
@@ -61,7 +61,7 @@ void loop()
     sensorArray[8] = gyro[3];
 
     // log sensor data
-    logger.logData(millis(),sensorArray,9);
+    logger.logData(sensorArray,9);
 }
 
 

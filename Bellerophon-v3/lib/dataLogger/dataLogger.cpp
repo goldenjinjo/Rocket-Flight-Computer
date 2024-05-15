@@ -53,15 +53,17 @@ bool DataLogger::initialize() {
     return true;
 }
 
-void DataLogger::logEvent(unsigned long time, const char* message) {
-    char buffer[50]; // Adjust buffer size as needed
-    snprintf(buffer, sizeof(buffer), "%lu: %s\n", time, message);
+void DataLogger::logEvent(const char* message) {
+    currentTime = millis();
+    char buffer[logBuffer];
+    snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
     print(buffer);
 }
 
-void DataLogger::logData(unsigned long time, float* data, size_t numFloats) {
-    char buffer[200]; // Adjust buffer size as needed
-    int offset = snprintf(buffer, sizeof(buffer), "%lu,", time);
+void DataLogger::logData(float* data, size_t numFloats) {
+    currentTime = millis();
+    char buffer[logBuffer];
+    int offset = snprintf(buffer, sizeof(buffer), "%lu,", currentTime);
     for (size_t i = 0; i < numFloats; ++i) {
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
     }
