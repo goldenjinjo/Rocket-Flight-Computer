@@ -1,0 +1,76 @@
+/*
+ * Main File to be uploaded to Bellerophon Flight Computer
+ * 
+ */
+
+// Import Libraries
+#include "pinAssn.hpp"
+#include "deviceFunctions.hpp"
+#include "pressureSensor.hpp"
+#include "IMUSensor.hpp"
+#include "dataLogger.hpp"
+
+#include <BasicLinearAlgebra.h>
+#include "SparkFunMPL3115A2.h"
+
+
+// Class Declarations
+// set oversample rate (lower, faster)
+pressureSensor baro(1);
+// Change address to low or high based on PCB design
+IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
+DataLogger logger(logFileName, dataFileName);
+
+
+void setup() {
+
+    Wire.begin(); // Join i2c bus
+    Serial.begin(500000);
+    
+    // Set pin types and configure LEDs
+    peripheralInitialize();
+  
+    // play start up sequence
+    startUp();
+
+    // initilize classes
+    logger.initialize();
+
+    delay(2000);
+    imu.setPollRate(10);    
+}
+
+// MAIN LOOP
+void loop()
+{
+    if(DEBUG){
+        delay(2000);
+    }
+
+    // get IMU data
+    float* acc = imu.getAccelerometerData();
+    float* gyro = imu.getGyroscopeData();
+
+    float* sensorArray = new float[9];
+    
+    // put all sensors into sensor array
+    // TODO: Abstract this to dataLogger class
+    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
+    sensorArray[0] = baro.getPressure();
+    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
+    sensorArray[2] = acc[0];
+    sensorArray[3] = acc[1];
+    sensorArray[4] = acc[2];
+    sensorArray[5] = acc[3];
+    sensorArray[6] = gyro[1];
+    sensorArray[7] = gyro[2];
+    sensorArray[8] = gyro[3];
+
+    // log sensor data
+    logger.logData(sensorArray,9);
+
+}
+
+
+
+
