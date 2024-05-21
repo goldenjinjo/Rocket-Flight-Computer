@@ -40,6 +40,12 @@ public:
      */
     bool deleteFile(const char* fileName);
 
+     /**
+     * @brief  Reads data from the specified file and prints it to the serial monitor.
+     * @param  fileName The name of the file to be read.
+     */
+    void readDataFromFile(const char* fileName);
+
     // ------------------------- METHODS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
@@ -62,7 +68,7 @@ private:
      * @param  fileName  Name of the file to write to.
      * @param  message   Message to be written.
      */
-    void print(FsFile fileType, const char* fileName, const char* message);
+    void print(FsFile& fileType, const char* fileName, const char* message);
 };
 
 #endif //DATA_LOGGER_HPP

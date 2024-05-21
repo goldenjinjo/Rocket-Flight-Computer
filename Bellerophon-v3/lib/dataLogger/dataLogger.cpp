@@ -5,7 +5,7 @@ DataLogger::DataLogger(const char* logFileName, const char* dataFileName)
 
 
 // TODO: Assess the performance of opening the file in initialization and keeping it open for the duration of the program
-void DataLogger::print(FsFile fileType, const char* fileName, const char* message) {
+void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
     if (DEBUG) {
         Serial.print(message);
     }
@@ -73,4 +73,32 @@ bool DataLogger::deleteFile(const char* fileName) {
         logEvent("File not found, nothing deleted\n");
         return false;
     }
+}
+
+void DataLogger::readDataFromFile(const char* fileName) {
+    if (sd.exists(fileName)) {
+        Serial.println("Data File Exists");
+    } else {
+        Serial.println("Data file not found.");
+        logEvent("Data file not found.");
+        return;
+    }
+
+    FsFile file;
+    if (!file.open(fileName, O_READ)) {
+        sd.errorHalt("Opening for read failed");
+    }
+    Serial.println("----READING FLASH CHIP----:");
+
+    // Read from the file until there's nothing else in it
+    int data;
+    while ((data = file.read()) >= 0) {
+        Serial.write(data);
+    }
+
+    file.close();
+
+    Serial.println(" ");
+    Serial.println("---------------------END DATA FILE---------------------");
+    logEvent("Completed reading data file.");
 }
