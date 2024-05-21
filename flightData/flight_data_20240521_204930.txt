@@ -1,0 +1,45 @@
+5537: Warning! DEBUG Enabled.
+5539: Bellerophon v3.5 Online!
+time, pressure, temp, ax, ay, az gx, gy, gz
+5537: Warning! DEBUG Enabled.
+5541: Bellerophon v3.5 Online!
+5891: Warning! DEBUG Enabled.
+5895: Bellerophon v3.5 Online!
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+4899: Warning! DEBUG Enabled.
+4900: Bellerophon v3.5 Online!
+6992: Completed reading data file.
+4837: Warning! DEBUG Enabled.
+4838: Bellerophon v3.5 Online!
+4910: Warning! DEBUG Enabled.
+4911: Bellerophon v3.5 Online!
+6918: Data file not found.
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+5885: Warning! DEBUG Enabled.
+5890: Bellerophon v3.5 Online!
+247132: Data copied to USB mass storage.
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+7545: Data file not found.
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+7624: Data file not found.
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+7738: Completed reading data file.
+5537: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!
+4434: Warning! DEBUG Enabled.
+4436: Bellerophon v3.5 Online!
+5537: Warning! DEBUG Enabled.
+5540: Bellerophon v3.5 Online!
+5537: Warning! DEBUG Enabled.
+5539: Bellerophon v3.5 Online!
+5537: Warning! DEBUG Enabled.
+5539: Bellerophon v3.5 Online!
+5890: Warning! DEBUG Enabled.
+5975: Bellerophon v3.5 Online!
+5537: Warning! DEBUG Enabled.
+5539: Bellerophon v3.5 Online!

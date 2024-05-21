@@ -48,7 +48,7 @@ void loop()
             // do nothing
         
         case READING_MODE:
-            logger.readDataFromFile(dataFileName);
+            logger.readDataFromFile(logFileName);
             while (true) {
                 // Infinite loop to prevent further execution
                 delay(1000);

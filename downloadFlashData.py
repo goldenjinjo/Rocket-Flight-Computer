@@ -2,6 +2,8 @@ import serial
 from serial.tools import list_ports
 import sys
 import time
+import os
+from datetime import datetime
 
 # Function to find the COM port dynamically
 def find_com_port():
@@ -10,6 +12,20 @@ def find_com_port():
         if 'USB' in port.description:  # Adjust this condition based on your device's description
             return port.device
     return None
+
+# Function to ensure the directory exists
+def ensure_directory(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+# Directory where the output file will be stored
+script_directory = os.path.dirname(os.path.abspath(__file__))
+output_directory = os.path.join(script_directory, "flightData")
+ensure_directory(output_directory)
+
+# Generate the output file name with the current date and time
+current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+output_file_path = os.path.join(output_directory, f'flight_data_{current_time}.txt')
 
 # Find the COM port dynamically
 com_port = find_com_port()
@@ -25,7 +41,8 @@ ser = serial.Serial(com_port, 9600, timeout=1)
 
 try:
     # Open file for writing
-    with open('output_data.txt', 'w') as f:
+    with open(output_file_path, 'w') as f:
+        print(f"Writing data to {output_file_path}")
         print("Press Ctrl+C to stop the program.")
         while True:
             # Read data from serial port
