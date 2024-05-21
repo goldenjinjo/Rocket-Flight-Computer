@@ -1,7 +1,4 @@
 5537: Warning! DEBUG Enabled.
-5539: Bellerophon v3.5 Online!
-time, pressure, temp, ax, ay, az gx, gy, gz
-5537: Warning! DEBUG Enabled.
 5541: Bellerophon v3.5 Online!
 5891: Warning! DEBUG Enabled.
 5895: Bellerophon v3.5 Online!
@@ -43,3 +40,5 @@ time, pressure, temp, ax, ay, az gx, gy, gz
 5975: Bellerophon v3.5 Online!
 5537: Warning! DEBUG Enabled.
 5539: Bellerophon v3.5 Online!
+5536: Warning! DEBUG Enabled.
+5538: Bellerophon v3.5 Online!

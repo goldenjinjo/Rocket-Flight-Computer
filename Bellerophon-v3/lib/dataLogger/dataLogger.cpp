@@ -80,6 +80,19 @@ bool DataLogger::deleteFile(const char* fileName) {
 }
 
 void DataLogger::readDataFromFile(const char* fileName) {
+    // Wait for handshake message from the Python script
+    while (true) {
+        if (Serial.available()) {
+            String message = Serial.readStringUntil('\n');
+            if (message == "START_TRANSFER") {
+                // Send acknowledgment back to Python script
+                Serial.println("TRANSFER_ACK");
+                buzzerSuccess();
+                break;
+            }
+        }
+    }
+
     if (!sd.exists(fileName)) {
         Serial.println("Data file not found.");
         return;
@@ -97,4 +110,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     }
 
     file.close();
+
+    // Send end-of-transmission message
+    Serial.println("END_OF_TRANSMISSION");
 }

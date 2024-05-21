@@ -39,7 +39,31 @@ print(f"Connected to COM port: {com_port}")
 # Open serial port connection
 ser = serial.Serial(com_port, 9600, timeout=1)
 
+# Handshake messages
+handshake_message = "START_TRANSFER"
+ack_message = "TRANSFER_ACK"
+end_of_transmission_message = "END_OF_TRANSMISSION"
+timeout_seconds = 180 # 3 minutes
+
+def send_handshake():
+    ser.write(handshake_message.encode('utf-8'))
+    print(f"Sent handshake message: {handshake_message}")
+
 try:
+    # Repeatedly send the handshake message until acknowledgment is received or timeout occurs
+    start_time = time.time()
+    while True:
+        send_handshake()
+        time.sleep(1)
+        if ser.in_waiting > 0:
+            response = ser.readline().decode('utf-8').strip()
+            if response == ack_message:
+                print(f"Received acknowledgment: {ack_message}")
+                break
+        if time.time() - start_time > timeout_seconds:
+            print("Handshake timed out. Exiting...")
+            sys.exit()
+
     # Open file for writing
     with open(output_file_path, 'w') as f:
         print(f"Writing data to {output_file_path}")
@@ -47,6 +71,9 @@ try:
         while True:
             # Read data from serial port
             data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+            if data == end_of_transmission_message:
+                print("End of transmission received. Exiting...")
+                break
             if data:  # Check if data is not empty
                 # Write data to file
                 f.write(data + '\n')
