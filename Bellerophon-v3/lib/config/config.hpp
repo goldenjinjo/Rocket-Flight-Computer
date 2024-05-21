@@ -11,9 +11,13 @@ extern const char* dataFileName;
 
 // Mode configuration
 
-#define LOGGING_MODE 2
-#define READING_MODE 1
 #define STANDBY_MODE 0
+#define READING_MODE 1
+#define PURGE_MODE 2
+#define LOGGING_MODE 3
+
+
+
 extern int mode;
 
 // -----Deployment Settings-----

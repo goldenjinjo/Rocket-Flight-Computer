@@ -55,6 +55,15 @@ void loop()
                 delay(1000);
             }
             break;
+
+        case PURGE_MODE:
+            logger.deleteFile(dataFileName);
+            while (true) {
+                // Infinite loop to prevent further execution
+                delay(1000);
+            }
+            break;
+
         case LOGGING_MODE:
             
             if(DEBUG){

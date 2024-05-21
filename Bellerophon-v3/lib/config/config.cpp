@@ -9,7 +9,7 @@ const char* dataFileName = "flight_data.csv";
 // 0 - standby
 // 1 - read data
 // 2 - log data
-int mode = READING_MODE;
+int mode = PURGE_MODE;
 
 bool dualDeploy = false;
 float drogueDelay = 0;
