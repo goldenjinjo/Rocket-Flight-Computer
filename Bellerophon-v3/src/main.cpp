@@ -5,7 +5,6 @@
 
 // Import Libraries
 #include "pinAssn.hpp"
-#include "deviceFunctions.hpp"
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"

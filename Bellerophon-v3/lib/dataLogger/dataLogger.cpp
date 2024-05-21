@@ -68,10 +68,12 @@ void DataLogger::logData(float* data, size_t numFloats) {
 
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
+        buzzerSuccess();
         Serial.println("File Successfully Deleted");
         return sd.remove(fileName);
 
     } else {
+        buzzerFailure();
         logEvent("File not found, nothing deleted\n");
         return false;
     }
