@@ -6,13 +6,13 @@
 
 // buzzer patterns to indicate success or failure
 void buzzerSuccess() {
-  tone(BUZZER, 300, 500);
-  delay(500);
-  tone(BUZZER, 1100, 500);
-  delay(500);
-  tone(BUZZER, 300, 500);
-  delay(500);
-  tone(BUZZER, 1100, 500);
+  tone(BUZZER, 900, 200); // High tone
+  delay(200);
+  tone(BUZZER, 1300, 200); // Higher tone
+  delay(200);
+  tone(BUZZER, 900, 200); // High tone
+  delay(200);
+  tone(BUZZER, 1300, 200); // Higher tone
 }
 
 void buzzerFailure() {

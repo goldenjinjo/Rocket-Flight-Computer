@@ -4,6 +4,7 @@
 #include "SdFat.h"
 #include "config.hpp"
 #include "pinAssn.hpp"
+#include "deviceFunctions.hpp"
 
 class DataLogger {
 public:
