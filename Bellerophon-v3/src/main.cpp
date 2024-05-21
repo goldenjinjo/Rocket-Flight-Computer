@@ -43,7 +43,6 @@ void setup() {
 // MAIN LOOP
 void loop()
 {
-
     switch (mode) {
         case STANDBY_MODE:
             // standby
