@@ -76,11 +76,8 @@ bool DataLogger::deleteFile(const char* fileName) {
 }
 
 void DataLogger::readDataFromFile(const char* fileName) {
-    if (sd.exists(fileName)) {
-        Serial.println("Data File Exists");
-    } else {
+    if (!sd.exists(fileName)) {
         Serial.println("Data file not found.");
-        logEvent("Data file not found.");
         return;
     }
 
@@ -88,7 +85,6 @@ void DataLogger::readDataFromFile(const char* fileName) {
     if (!file.open(fileName, O_READ)) {
         sd.errorHalt("Opening for read failed");
     }
-    Serial.println("----READING FLASH CHIP----:");
 
     // Read from the file until there's nothing else in it
     int data;
@@ -97,8 +93,4 @@ void DataLogger::readDataFromFile(const char* fileName) {
     }
 
     file.close();
-
-    Serial.println(" ");
-    Serial.println("---------------------END DATA FILE---------------------");
-    logEvent("Completed reading data file.");
 }
