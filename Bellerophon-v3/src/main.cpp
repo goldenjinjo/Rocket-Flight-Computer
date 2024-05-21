@@ -48,7 +48,14 @@ void loop()
             // do nothing
         
         case READING_MODE:
-            logger.readDataFromFile(logFileName);
+        // TODOS:
+        // write method to see all files on flash
+        // write method to give unique file name on each boot
+        // on python side organise system to differeniate between data and log files (with .txt and .csv)
+        // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
+        // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
+        // add flight data files to .gitignore
+            logger.readDataFromFile(dataFileName);
             while (true) {
                 // Infinite loop to prevent further execution
                 delay(1000);
@@ -66,7 +73,7 @@ void loop()
         case LOGGING_MODE:
             
             if(DEBUG){
-                delay(2000);
+                delay(1000);
             }
 
             // get IMU data

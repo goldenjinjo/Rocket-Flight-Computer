@@ -37,7 +37,7 @@ if com_port is None:
 print(f"Connected to COM port: {com_port}")
 
 # Open serial port connection
-ser = serial.Serial(com_port, 9600, timeout=1)
+ser = serial.Serial(com_port, 20000, timeout=1)
 
 # Handshake messages
 handshake_message = "START_TRANSFER"
@@ -80,7 +80,6 @@ try:
 
                 # Optionally, print data to console
                 print(data)
-            time.sleep(0.1)  # Slight delay to allow interrupt
 
 except KeyboardInterrupt:
     print("\nProgram interrupted by user. Exiting...")
