@@ -43,32 +43,53 @@ void setup() {
 // MAIN LOOP
 void loop()
 {
-    if(DEBUG){
-        delay(2000);
+
+    switch (mode) {
+        case STANDBY_MODE:
+            // standby
+            // do nothing
+        
+        case READING_MODE:
+            logger.readDataFromFile(dataFileName);
+            while (true) {
+                // Infinite loop to prevent further execution
+                delay(1000);
+            }
+            break;
+        case LOGGING_MODE:
+            
+            if(DEBUG){
+                delay(2000);
+            }
+
+            // get IMU data
+            float* acc = imu.getAccelerometerData();
+            float* gyro = imu.getGyroscopeData();
+
+            float* sensorArray = new float[9];
+            
+            // put all sensors into sensor array
+            // TODO: Abstract this to dataLogger class
+            // TODO: improve speed. Last check, 13ms between loops. Way too slow.
+            sensorArray[0] = baro.getPressure();
+            sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
+            sensorArray[2] = acc[0];
+            sensorArray[3] = acc[1];
+            sensorArray[4] = acc[2];
+            sensorArray[5] = acc[3];
+            sensorArray[6] = gyro[1];
+            sensorArray[7] = gyro[2];
+            sensorArray[8] = gyro[3];
+
+            // log sensor data
+            logger.logData(sensorArray, 9);
+
+            delete[] sensorArray; // Don't forget to free the allocated memory
+            break;
+        default:
+            // Handle invalid mode
+            break;
     }
-
-    // get IMU data
-    float* acc = imu.getAccelerometerData();
-    float* gyro = imu.getGyroscopeData();
-
-    float* sensorArray = new float[9];
-    
-    // put all sensors into sensor array
-    // TODO: Abstract this to dataLogger class
-    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
-    sensorArray[0] = baro.getPressure();
-    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
-    sensorArray[2] = acc[0];
-    sensorArray[3] = acc[1];
-    sensorArray[4] = acc[2];
-    sensorArray[5] = acc[3];
-    sensorArray[6] = gyro[1];
-    sensorArray[7] = gyro[2];
-    sensorArray[8] = gyro[3];
-
-    // log sensor data
-    logger.logData(sensorArray,9);
-
 }
 
 

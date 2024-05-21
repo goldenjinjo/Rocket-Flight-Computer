@@ -9,6 +9,13 @@ extern bool DEBUG;
 extern const char* logFileName;
 extern const char* dataFileName;
 
+// Mode configuration
+
+#define LOGGING_MODE 2
+#define READING_MODE 1
+#define STANDBY_MODE 0
+extern int mode;
+
 // -----Deployment Settings-----
 // Whether computer should use dual or single deploy mode
 extern bool dualDeploy;
@@ -21,5 +28,5 @@ extern float mainDelay;
 // Altitude to deploy main parachutes when in dual deploy mode.
 extern float mainAltitude;
 
-
 #endif // CONFIG_HPP
+
