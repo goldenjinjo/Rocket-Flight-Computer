@@ -2,3 +2,7 @@
 .vscode
 #ignore .pio build created by platformio
 .pio
+
+#ignore files from flight data
+.csv
+.txt
