@@ -44,6 +44,9 @@ bool DataLogger::initialize() {
     // TODO: change dataLogger to input activated sensors and dynamically write this
     print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az gx, gy, gz \n");
 
+    // update the file list
+    updateFileList();
+
     return true;
 }
 
@@ -120,7 +123,7 @@ void DataLogger::scanFiles() {
     sd.ls(LS_R);
 }
 
-void DataLogger::getAllFiles(std::vector<std::string>& fileNames) {
+void DataLogger::updateFileList() {
     // Ensure the vector is empty before starting
     fileNames.clear();
 

@@ -58,11 +58,13 @@ public:
      * @brief  Scans all files on the SD card and stores their names in a vector.
      * @param  fileNames A vector to hold the names of the files.
      */
-    void getAllFiles(std::vector<std::string>& fileNames);
+    void updateFileList();
 
     // ------------------------- METHODS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
+    // Public member to hold file names
+    std::vector<std::string> fileNames;
 
 private:
     // ------------------------- MEMBERS ------------------------- //

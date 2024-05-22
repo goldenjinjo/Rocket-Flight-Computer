@@ -43,28 +43,20 @@ void setup() {
 void loop()
 {
     switch (mode) {
-        case STANDBY_MODE:
-            // standby
-            // do nothing
-            // Vector to hold file names
-            std::vector<std::string> fileNames;
+           case STANDBY_MODE:
+                // Standby mode
+                logger.updateFileList();
 
-            // Get all files on the SD card
-            logger.getAllFiles(fileNames);
-
-            // Print the file names
-            for (const auto& name : fileNames) {
-                Serial.println(name.c_str());
-            }
-            while (true)
-            {
-                delay(1000);
-            }
-            
+                // Print the file names
+                for (const auto& name : logger.fileNames) {
+                    Serial.println(name.c_str());
+                }
+                while (true) {
+                    delay(1000);
+                }
         
         case READING_MODE:
         // TODOS:
-        // write method to see all files on flash
         // write method to give unique file name on each boot
         // on python side organise system to differeniate between data and log files (with .txt and .csv)
         // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
