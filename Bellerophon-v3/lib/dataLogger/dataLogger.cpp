@@ -114,3 +114,32 @@ void DataLogger::readDataFromFile(const char* fileName) {
     // Send end-of-transmission message
     Serial.println("END_OF_TRANSMISSION");
 }
+
+void DataLogger::scanFiles() {
+    Serial.println("Scanning files on the SD card:");
+    sd.ls(LS_R);
+}
+
+void DataLogger::getAllFiles(std::vector<std::string>& fileNames) {
+    // Ensure the vector is empty before starting
+    fileNames.clear();
+
+    // Open the root directory
+    FsFile dir;
+    if (!dir.open("/", O_READ)) {
+        Serial.println("Failed to open root directory.");
+        return;
+    }
+
+    // Create a file object to hold each file entry
+    FsFile file;
+    while (file.openNext(&dir, O_READ)) {
+        char fileName[64];
+        file.getName(fileName, sizeof(fileName));
+        fileNames.push_back(std::string(fileName));
+        file.close();
+    }
+
+    // Close the directory
+    dir.close();
+}

@@ -46,6 +46,21 @@ void loop()
         case STANDBY_MODE:
             // standby
             // do nothing
+            // Vector to hold file names
+            std::vector<std::string> fileNames;
+
+            // Get all files on the SD card
+            logger.getAllFiles(fileNames);
+
+            // Print the file names
+            for (const auto& name : fileNames) {
+                Serial.println(name.c_str());
+            }
+            while (true)
+            {
+                delay(1000);
+            }
+            
         
         case READING_MODE:
         // TODOS:
@@ -55,6 +70,7 @@ void loop()
         // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
         // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
         // add flight data files to .gitignore
+        // add debug message to differeniate file types
             logger.readDataFromFile(dataFileName);
             while (true) {
                 // Infinite loop to prevent further execution

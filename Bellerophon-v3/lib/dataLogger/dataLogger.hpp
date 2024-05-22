@@ -5,6 +5,8 @@
 #include "config.hpp"
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
+#include <vector>
+#include <string>
 
 class DataLogger {
 public:
@@ -46,6 +48,17 @@ public:
      * @param  fileName The name of the file to be read.
      */
     void readDataFromFile(const char* fileName);
+
+    /**
+     * @brief  Scans all files on the SD card and prints their names to Serial.
+     */
+    void scanFiles();
+
+    /**
+     * @brief  Scans all files on the SD card and stores their names in a vector.
+     * @param  fileNames A vector to hold the names of the files.
+     */
+    void getAllFiles(std::vector<std::string>& fileNames);
 
     // ------------------------- METHODS ------------------------- //
     // Tracks time since program inception
