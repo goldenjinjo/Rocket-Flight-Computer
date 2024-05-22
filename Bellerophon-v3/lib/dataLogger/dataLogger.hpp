@@ -60,6 +60,12 @@ public:
      */
     void updateFileList();
 
+     /**
+     * @brief  Deletes all files by iterating through the fileNames vector
+     * @param  fileNames A vector to hold the names of the files.
+     */
+    void deleteAllFiles();
+
     // ------------------------- METHODS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();

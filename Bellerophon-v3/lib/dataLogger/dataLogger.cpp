@@ -69,18 +69,7 @@ void DataLogger::logData(float* data, size_t numFloats) {
 }
 
 
-bool DataLogger::deleteFile(const char* fileName) {
-    if (sd.exists(fileName)) {
-        buzzerSuccess();
-        Serial.println("File Successfully Deleted");
-        return sd.remove(fileName);
 
-    } else {
-        buzzerFailure();
-        logEvent("File not found, nothing deleted\n");
-        return false;
-    }
-}
 
 void DataLogger::readDataFromFile(const char* fileName) {
     // Wait for handshake message from the Python script
@@ -145,4 +134,35 @@ void DataLogger::updateFileList() {
 
     // Close the directory
     dir.close();
+}
+
+
+bool DataLogger::deleteFile(const char* fileName) {
+    if (sd.exists(fileName)) {
+        buzzerSuccess();
+        Serial.println("File Successfully Deleted");
+        return sd.remove(fileName);
+
+    } else {
+        buzzerFailure();
+        logEvent("File not found, nothing deleted\n");
+        return false;
+    }
+}
+
+void DataLogger::deleteAllFiles() {
+    // update fileNames array, just in case
+    updateFileList();
+
+    for (const auto& fileName : fileNames) {
+        Serial.print("Deleting file: ");
+        Serial.println(fileName.c_str());
+        if (!sd.remove(fileName.c_str())) {
+            Serial.println("Failed to delete file.");
+        }
+    }
+    Serial.println("All files deleted.");
+
+    // update fileNames array, which now should be empty
+    updateFileList();
 }

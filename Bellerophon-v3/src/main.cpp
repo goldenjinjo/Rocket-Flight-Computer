@@ -45,12 +45,7 @@ void loop()
     switch (mode) {
            case STANDBY_MODE:
                 // Standby mode
-                logger.updateFileList();
 
-                // Print the file names
-                for (const auto& name : logger.fileNames) {
-                    Serial.println(name.c_str());
-                }
                 while (true) {
                     delay(1000);
                 }
@@ -71,7 +66,9 @@ void loop()
             break;
 
         case PURGE_MODE:
-            logger.deleteFile(dataFileName);
+            // delete all files from flash memory
+            // TODO: add serial confirmation check
+            logger.deleteAllFiles();
             while (true) {
                 // Infinite loop to prevent further execution
                 delay(1000);
