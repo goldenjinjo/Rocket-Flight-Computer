@@ -70,9 +70,10 @@ public:
     void deleteAllFiles();
 
 
-void updateIndexFile();
-
-void loadIndexFile();
+    void updateIndexFile();
+    void loadIndexFile();
+    void createNewLogFile();
+    void createNewDataFile();
 
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
@@ -80,8 +81,8 @@ void loadIndexFile();
     // Member to hold array of file names
     std::vector<std::string> fileNames;
     // Member variables for file names
-    const char* logFileName;
-    const char* dataFileName;
+    char logFileName[20];
+    char dataFileName[20];
     // TODO: make this private after testing
     const char* indexFileName = "index.dat";
     

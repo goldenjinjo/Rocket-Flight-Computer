@@ -26,6 +26,10 @@ void setup() {
     Wire.begin(); // Join i2c bus
     Serial.begin(500000);
     
+    if(DEBUG){
+        delay(1000);
+    }
+
     // Set pin types and configure LEDs
     peripheralInitialize();
   
@@ -47,8 +51,7 @@ void loop()
                 // Standby mode
 
                 
-                Serial.println(logger.dataFileCounter);
-                Serial.println(logger.logFileCounter); 
+                logger.scanFiles();
                 
                 while (true) {
                     delay(1000);

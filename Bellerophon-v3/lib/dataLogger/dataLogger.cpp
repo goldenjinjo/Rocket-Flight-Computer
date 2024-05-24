@@ -2,16 +2,6 @@
 
 DataLogger::DataLogger() {}
 
-void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
-    if (DEBUG) {
-        Serial.print(message);
-    }
-
-    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
-    fileType.print(message);
-    fileType.close();
-}
-
 bool DataLogger::initialize() {
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
         Serial.println("SD card initialization failed.\n");
@@ -20,14 +10,13 @@ bool DataLogger::initialize() {
 
     // Load the index file and read the counters
     loadIndexFile();
+    
 
-    logFileCounter++;
-    dataFileCounter++;
+    // Initialize log and data file names
+    createNewLogFile();
+    createNewDataFile();
+
     updateIndexFile();
-
-    logFileName = "log_000001.txt";
-    dataFileName = "data_000001.csv";
-
     
 
     // Print debug warning
@@ -98,6 +87,19 @@ void DataLogger::readDataFromFile(const char* fileName) {
     Serial.println("END_OF_TRANSMISSION");
 }
 
+
+// helper
+void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
+    if (DEBUG) {
+        Serial.print(message);
+    }
+
+    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+    fileType.print(message);
+    fileType.close();
+}
+
+// file directory reading
 void DataLogger::scanFiles() {
     Serial.println("Scanning files on the SD card:");
     sd.ls(LS_R);
@@ -127,6 +129,8 @@ void DataLogger::updateFileList() {
     dir.close();
 }
 
+
+// deleting files
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
         buzzerSuccess();
@@ -157,6 +161,9 @@ void DataLogger::deleteAllFiles() {
     updateFileList();
 }
 
+
+// file name creation
+// TODO: generalise this for arbitary numver of possible variables
 void DataLogger::loadIndexFile() {
     // Open the index file
     if (indexFile.open(indexFileName, O_RDWR)) {
@@ -198,4 +205,41 @@ void DataLogger::initializeIndexFile() {
     indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
     indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
     indexFile.close();
+}
+
+void DataLogger::createNewLogFile() {
+  
+    // Generate the new log file name based on the counter
+    sprintf(logFileName, "%s%06d%s", logFilePrefix, logFileCounter, logFileSuffix);
+    // Print debug message
+    if (DEBUG) {
+        Serial.print("New log file created: ");
+        Serial.println(logFileName);
+    }
+
+    // Increment the log file counter
+    logFileCounter++;
+    // update index file for next file creation
+    updateIndexFile();
+
+}
+
+void DataLogger::createNewDataFile() {
+   
+    // Generate the new data file name based on the counter
+    sprintf(dataFileName, "%s%06d%s", dataFilePrefix, dataFileCounter, dataFileSuffix);
+
+    // Print debug message
+    if (DEBUG) {
+        Serial.print("New data file created: ");
+        Serial.println(dataFileName);
+    }
+
+    // Increment the log file counter
+    dataFileCounter++;
+    // update index file for next file creation
+    updateIndexFile();
+
+    // Write header to the new data file
+    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
 }
