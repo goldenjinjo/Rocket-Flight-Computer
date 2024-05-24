@@ -23,6 +23,9 @@ extern const char* logFilePrefix;
 extern const char* logFileSuffix;
 extern const char* dataFilePrefix;
 extern const char* dataFileSuffix;
+extern const char* debugPrefix;
+extern const uint8_t zeroPadding;
+
 
 // Deployment Settings
 // Whether computer should use dual or single deploy mode

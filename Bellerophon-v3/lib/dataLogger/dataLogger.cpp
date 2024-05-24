@@ -18,18 +18,10 @@ bool DataLogger::initialize() {
 
     updateIndexFile();
     
-
     // Print debug warning
     if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
     }
-    // Format log file
-    logEvent("Bellerophon v3.5 Online!\n");
-
-    // Write header to data file
-    // TODO: dynamically write this based on activated sensors
-    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az gx, gy, gz \n");
-
     return true;
 }
 
@@ -161,7 +153,6 @@ void DataLogger::deleteAllFiles() {
     updateFileList();
 }
 
-
 // file name creation
 // TODO: generalise this for arbitary numver of possible variables
 void DataLogger::loadIndexFile() {
@@ -208,13 +199,19 @@ void DataLogger::initializeIndexFile() {
 }
 
 void DataLogger::createNewLogFile() {
+    char tempFileName[maxFileNameLength];
   
-    // Generate the new log file name based on the counter
-    sprintf(logFileName, "%s%06d%s", logFilePrefix, logFileCounter, logFileSuffix);
+    // Generate the new data file name based on the counter
+    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", logFilePrefix, zeroPadding, \
+     logFileCounter, logFileSuffix);
     // Print debug message
     if (DEBUG) {
+        // add a debug prefix to the file name
+        snprintf(logFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
         Serial.print("New log file created: ");
         Serial.println(logFileName);
+    } else {
+        strcpy(logFileName, tempFileName);
     }
 
     // Increment the log file counter
@@ -225,14 +222,19 @@ void DataLogger::createNewLogFile() {
 }
 
 void DataLogger::createNewDataFile() {
-   
-    // Generate the new data file name based on the counter
-    sprintf(dataFileName, "%s%06d%s", dataFilePrefix, dataFileCounter, dataFileSuffix);
+    char tempFileName[maxFileNameLength];
 
-    // Print debug message
+    // Generate the new data file name based on the counter
+    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", dataFilePrefix, zeroPadding, \
+     dataFileCounter, dataFileSuffix);
+
     if (DEBUG) {
+        // add a debug prefix to the file name
+        snprintf(dataFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
         Serial.print("New data file created: ");
         Serial.println(dataFileName);
+    } else {
+        strcpy(dataFileName, tempFileName);
     }
 
     // Increment the log file counter
@@ -243,3 +245,4 @@ void DataLogger::createNewDataFile() {
     // Write header to the new data file
     print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
 }
+

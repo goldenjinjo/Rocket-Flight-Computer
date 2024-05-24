@@ -81,15 +81,12 @@ public:
     // Member to hold array of file names
     std::vector<std::string> fileNames;
     // Member variables for file names
-    char logFileName[20];
-    char dataFileName[20];
-    // TODO: make this private after testing
-    const char* indexFileName = "index.dat";
+    static const uint8_t maxFileNameLength = 30;
+    char logFileName[maxFileNameLength];
+    char dataFileName[maxFileNameLength];
     
-    //TODO: make private
-    uint32_t logFileCounter;
-    //TODO: make private
-    uint32_t dataFileCounter;
+    
+
 
 private:
     // ------------------------- MEMBERS ------------------------- //
@@ -100,6 +97,11 @@ private:
     FsFile indexFile; // File for tracking file naming counters
     // SD card instance
     SdFs sd;
+
+    uint32_t logFileCounter;
+    uint32_t dataFileCounter;
+
+    const char* indexFileName = "index.dat";
 
     
    
