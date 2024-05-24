@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-bool DEBUG = true;
+bool DEBUG = false;
 
 
 // Mode configurations
@@ -8,7 +8,7 @@ bool DEBUG = true;
 // 1 - read data
 // 2 - delete data
 // 3 - log data
-int mode = STANDBY_MODE;
+int mode = READING_MODE;
 
 
 // data file management

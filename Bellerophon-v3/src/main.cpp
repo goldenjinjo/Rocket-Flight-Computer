@@ -48,11 +48,7 @@ void loop()
 {
     switch (mode) {
            case STANDBY_MODE:
-                // Standby mode
-
-                
-                logger.scanFiles();
-                
+                // Standby mode     
                 while (true) {
                     delay(1000);
                 }
@@ -63,6 +59,8 @@ void loop()
         // on python side organise system to differeniate between data and log files (with .txt and .csv)
         // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
         // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
+            logger.scanFiles();
+            logger.readDataFromFile(logger.logFileName);
             logger.readDataFromFile(logger.dataFileName);
             while (true) {
                 // Infinite loop to prevent further execution

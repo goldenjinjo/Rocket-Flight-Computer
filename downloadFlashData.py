@@ -64,22 +64,46 @@ try:
             print("Handshake timed out. Exiting...")
             sys.exit()
 
-    # Open file for writing
-    with open(output_file_path, 'w') as f:
-        print(f"Writing data to {output_file_path}")
-        print("Press Ctrl+C to stop the program.")
-        while True:
-            # Read data from serial port
-            data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
-            if data == end_of_transmission_message:
-                print("End of transmission received. Exiting...")
+    # Receive file name from flight computer
+    file_name_received = False
+    file_name = ""
+    while True:
+        if ser.in_waiting > 0:
+            response = ser.readline().decode('utf-8').strip()
+            if response.startswith("FILE_NAME:"):
+                file_name = response[len("FILE_NAME:"):]
+                file_name_received = True
                 break
-            if data:  # Check if data is not empty
-                # Write data to file
-                f.write(data + '\n')
 
-                # Optionally, print data to console
-                print(data)
+    if file_name_received:
+        # Organize file into appropriate folder based on prefix
+        file_prefix = file_name.split('_')[0]
+        if file_prefix == "log":
+            file_directory = os.path.join(output_directory, "logFiles")
+        elif file_prefix == "data":
+            file_directory = os.path.join(output_directory, "dataFiles")
+        else:
+            file_directory = os.path.join(output_directory, "miscFiles")
+
+        ensure_directory(file_directory)
+        output_file_path = os.path.join(file_directory, file_name)
+
+        # Open file for writing
+        with open(output_file_path, 'w') as f:
+            print(f"Writing data to {output_file_path}")
+            print("Press Ctrl+C to stop the program.")
+            while True:
+                # Read data from serial port
+                data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+                if data == end_of_transmission_message:
+                    print("End of transmission received. Exiting...")
+                    break
+                if data:  # Check if data is not empty
+                    # Write data to file
+                    f.write(data + '\n')
+
+                    # Optionally, print data to console
+                    print(data)
 
 except KeyboardInterrupt:
     print("\nProgram interrupted by user. Exiting...")

@@ -81,7 +81,7 @@ public:
     // Member to hold array of file names
     std::vector<std::string> fileNames;
     // Member variables for file names
-    static const uint8_t maxFileNameLength = 30;
+    static const uint8_t maxFileNameLength = 30; // TODO: make this dynamically sized
     char logFileName[maxFileNameLength];
     char dataFileName[maxFileNameLength];
     

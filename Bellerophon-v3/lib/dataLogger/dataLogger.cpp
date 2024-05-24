@@ -21,6 +21,8 @@ bool DataLogger::initialize() {
     // Print debug warning
     if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
+    } else {
+        logEvent("Start LOG FILE");
     }
     return true;
 }
@@ -44,6 +46,12 @@ void DataLogger::logData(float* data, size_t numFloats) {
 }
 
 void DataLogger::readDataFromFile(const char* fileName) {
+    
+    if (!sd.exists(fileName)) {
+    Serial.println("Data file not found.");
+    return;
+    }
+
     // Wait for handshake message from the Python script
     while (true) {
         if (Serial.available()) {
@@ -56,11 +64,9 @@ void DataLogger::readDataFromFile(const char* fileName) {
             }
         }
     }
-
-    if (!sd.exists(fileName)) {
-        Serial.println("Data file not found.");
-        return;
-    }
+    // Send file name to Python script
+    Serial.print("FILE_NAME:");
+    Serial.println(fileName);
 
     FsFile file;
     if (!file.open(fileName, O_READ)) {
@@ -78,6 +84,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     // Send end-of-transmission message
     Serial.println("END_OF_TRANSMISSION");
 }
+
 
 
 // helper
@@ -200,7 +207,7 @@ void DataLogger::initializeIndexFile() {
 
 void DataLogger::createNewLogFile() {
     char tempFileName[maxFileNameLength];
-  
+
     // Generate the new data file name based on the counter
     snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", logFilePrefix, zeroPadding, \
      logFileCounter, logFileSuffix);
