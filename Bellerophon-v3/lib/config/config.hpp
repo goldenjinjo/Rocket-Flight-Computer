@@ -1,26 +1,30 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+
+#include <string>
+
 // DEBUG setting. Set to false for flight!!
 // Primary purpose is to print logfile messages to serial
 extern bool DEBUG;
 
-// file configuration
-extern const char* logFileName;
-extern const char* dataFileName;
+
 
 // Mode configuration
-
 #define STANDBY_MODE 0
 #define READING_MODE 1
 #define PURGE_MODE 2
 #define LOGGING_MODE 3
 
-
-
 extern int mode;
 
-// -----Deployment Settings-----
+// File naming configuration
+extern const char* logFilePrefix;
+extern const char* logFileSuffix;
+extern const char* dataFilePrefix;
+extern const char* dataFileSuffix;
+
+// Deployment Settings
 // Whether computer should use dual or single deploy mode
 extern bool dualDeploy;
 
@@ -32,5 +36,6 @@ extern float mainDelay;
 // Altitude to deploy main parachutes when in dual deploy mode.
 extern float mainAltitude;
 
-#endif // CONFIG_HPP
 
+
+#endif // CONFIG_HPP

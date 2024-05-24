@@ -18,7 +18,7 @@
 pressureSensor baro(1);
 // Change address to low or high based on PCB design
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
-DataLogger logger(logFileName, dataFileName);
+DataLogger logger;
 
 
 void setup() {
@@ -46,6 +46,10 @@ void loop()
            case STANDBY_MODE:
                 // Standby mode
 
+                
+                Serial.println(logger.dataFileCounter);
+                Serial.println(logger.logFileCounter); 
+                
                 while (true) {
                     delay(1000);
                 }
@@ -58,7 +62,7 @@ void loop()
         // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
         // add flight data files to .gitignore
         // add debug message to differeniate file types
-            logger.readDataFromFile(dataFileName);
+            logger.readDataFromFile(logger.dataFileName);
             while (true) {
                 // Infinite loop to prevent further execution
                 delay(1000);

@@ -7,6 +7,9 @@
 #include "deviceFunctions.hpp"
 #include <vector>
 #include <string>
+#include <cstring>
+#include <cstdlib>
+#include <ctime>
 
 class DataLogger {
 public:
@@ -15,7 +18,7 @@ public:
      * @param  logFileName Name of the log file.
      * @param  dataFileName Name of the data file.
      */
-    DataLogger(const char* logFileName, const char* dataFileName);
+    DataLogger();
     
     /**
      * @brief  Initializes the data logger.
@@ -66,22 +69,39 @@ public:
      */
     void deleteAllFiles();
 
-    // ------------------------- METHODS ------------------------- //
+
+void updateIndexFile();
+
+void loadIndexFile();
+
+    // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
-    // Public member to hold file names
+    // Member to hold array of file names
     std::vector<std::string> fileNames;
+    // Member variables for file names
+    const char* logFileName;
+    const char* dataFileName;
+    // TODO: make this private after testing
+    const char* indexFileName = "index.dat";
+    
+    //TODO: make private
+    uint32_t logFileCounter;
+    //TODO: make private
+    uint32_t dataFileCounter;
 
 private:
     // ------------------------- MEMBERS ------------------------- //
     char logBuffer = 100; // Size of the log buffer
-    const char* logFileName; // Name of the log file
-    const char* dataFileName; // Name of the data file
     // Two file instances so they may be written to concurrently
     FsFile logFile;  // File for logging events
     FsFile dataFile; // File for logging data
+    FsFile indexFile; // File for tracking file naming counters
     // SD card instance
-    SdFs sd; 
+    SdFs sd;
+
+    
+   
 
     // ------------------------- METHODS ------------------------- //
     /**
@@ -91,6 +111,8 @@ private:
      * @param  message   Message to be written.
      */
     void print(FsFile& fileType, const char* fileName, const char* message);
+
+    void initializeIndexFile();
 };
 
 #endif //DATA_LOGGER_HPP

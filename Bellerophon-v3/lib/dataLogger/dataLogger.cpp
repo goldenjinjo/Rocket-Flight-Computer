@@ -1,10 +1,7 @@
 #include "dataLogger.hpp"
 
-DataLogger::DataLogger(const char* logFileName, const char* dataFileName) 
-    : logFileName(logFileName), dataFileName(dataFileName) {}
+DataLogger::DataLogger() {}
 
-
-// TODO: Assess the performance of opening the file in initialization and keeping it open for the duration of the program
 void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
     if (DEBUG) {
         Serial.print(message);
@@ -13,39 +10,36 @@ void DataLogger::print(FsFile& fileType, const char* fileName, const char* messa
     fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
     fileType.print(message);
     fileType.close();
-    }
+}
 
 bool DataLogger::initialize() {
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
-        logEvent("SD card initialization failed.\n");
+        Serial.println("SD card initialization failed.\n");
         return false;
     }
 
-    // Create or append to the data file
-    if (!dataFile.open(dataFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        logEvent("Failed to open data file.\n");
-        return false;
-    }
+    // Load the index file and read the counters
+    loadIndexFile();
 
-    // Append to the log file
-    if (!logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        logEvent("Failed to open log file.\n");
-        return false;
-    }
+    logFileCounter++;
+    dataFileCounter++;
+    updateIndexFile();
+
+    logFileName = "log_000001.txt";
+    dataFileName = "data_000001.csv";
+
+    
 
     // Print debug warning
-    if(DEBUG){
+    if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
     }
     // Format log file
     logEvent("Bellerophon v3.5 Online!\n");
 
     // Write header to data file
-    // TODO: change dataLogger to input activated sensors and dynamically write this
+    // TODO: dynamically write this based on activated sensors
     print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az gx, gy, gz \n");
-
-    // update the file list
-    updateFileList();
 
     return true;
 }
@@ -67,9 +61,6 @@ void DataLogger::logData(float* data, size_t numFloats) {
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
     print(dataFile, dataFileName, buffer);
 }
-
-
-
 
 void DataLogger::readDataFromFile(const char* fileName) {
     // Wait for handshake message from the Python script
@@ -136,7 +127,6 @@ void DataLogger::updateFileList() {
     dir.close();
 }
 
-
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
         buzzerSuccess();
@@ -165,4 +155,47 @@ void DataLogger::deleteAllFiles() {
 
     // update fileNames array, which now should be empty
     updateFileList();
+}
+
+void DataLogger::loadIndexFile() {
+    // Open the index file
+    if (indexFile.open(indexFileName, O_RDWR)) {
+        // Read the counters from the index file
+        indexFile.read((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+        indexFile.read((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+        indexFile.close();
+    } else {
+        // If the index file doesn't exist, initialize counters to 0
+        initializeIndexFile();
+    }
+}
+
+void DataLogger::updateIndexFile() {
+    // Open the index file
+    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
+        // If the index file doesn't exist, create it and initialize counters to 0
+        initializeIndexFile();
+    }
+
+    // Write the updated counters to the index file
+    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+    indexFile.close();
+}
+
+void DataLogger::initializeIndexFile() {
+    // Open the index file for writing
+    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
+        // If unable to open or create the file, handle error (e.g., log error message)
+        return;
+    }
+
+    // Initialize counters to 0
+    logFileCounter = 0;
+    dataFileCounter = 0;
+
+    // Write the initialized counters to the index file
+    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+    indexFile.close();
 }

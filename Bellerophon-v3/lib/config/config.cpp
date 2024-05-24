@@ -2,8 +2,6 @@
 
 bool DEBUG = true;
 
-const char* logFileName = "flight_log.txt";
-const char* dataFileName = "flight_data.csv";
 
 // Mode configurations
 // 0 - standby
@@ -11,6 +9,11 @@ const char* dataFileName = "flight_data.csv";
 // 2 - delete data
 // 3 - log data
 int mode = STANDBY_MODE;
+
+const char* logFilePrefix = "log_";
+const char* logFileSuffix = ".txt";
+const char* dataFilePrefix = "data_";
+const char* dataFileSuffix = ".csv";
 
 bool dualDeploy = false;
 float drogueDelay = 0;
