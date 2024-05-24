@@ -4,5 +4,4 @@
 .pio
 
 #ignore files from flight data
-.csv
-.txt
+flightData/
