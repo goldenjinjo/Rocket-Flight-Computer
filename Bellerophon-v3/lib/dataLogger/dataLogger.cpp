@@ -117,6 +117,7 @@ void DataLogger::sendAllFiles() {
 
 
 
+
 // helper
 void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
     if (DEBUG) {

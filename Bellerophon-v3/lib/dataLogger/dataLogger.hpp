@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <CRC32.h>
 
 class DataLogger {
 public:
@@ -101,6 +102,8 @@ private:
     FsFile indexFile; // File for tracking file naming counters
     // SD card instance
     SdFs sd;
+
+    CRC32 crc; // CRC32 object for checksum calculation
 
     uint32_t logFileCounter;
     uint32_t dataFileCounter;
