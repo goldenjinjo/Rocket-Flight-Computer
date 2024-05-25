@@ -94,7 +94,6 @@ void DataLogger::sendAllFiles() {
         // Check if the file name is the index file and skip it if so
         if (strcmp(fileName.c_str(), indexFileName) == 0) {
             buzzerFailure(); // Indicate skipping of the index file
-            Serial.print("Skipping file: ");
             Serial.println(fileName.c_str());
             continue; // Skip this iteration and move to the next file
         }
@@ -185,13 +184,18 @@ void DataLogger::deleteAllFiles() {
     updateFileList();
 
     for (const auto& fileName : fileNames) {
-        Serial.print("Deleting file: ");
-        Serial.println(fileName.c_str());
-        if (!sd.remove(fileName.c_str())) {
-            Serial.println("Failed to delete file.");
+
+        // Check if the file name is the index file and skip it if so
+        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+            Serial.println(fileName.c_str());
+            continue; // Skip this iteration and move to the next file
         }
+
+        deleteFile(fileName.c_str());
     }
+        
     Serial.println("All files deleted.");
+    LEDBlink();
 
     // update fileNames array, which now should be empty
     updateFileList();

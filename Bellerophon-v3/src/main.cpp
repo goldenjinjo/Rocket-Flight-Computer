@@ -48,7 +48,8 @@ void loop()
 {
     switch (mode) {
            case STANDBY_MODE:
-                // Standby mode     
+                // Standby mode
+                logger.scanFiles();   
                 while (true) {
                     delay(1000);
                 }

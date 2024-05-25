@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-bool DEBUG = true;
+bool DEBUG = false;
 
 
 // Mode configurations
