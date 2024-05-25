@@ -24,7 +24,7 @@ DataLogger logger;
 void setup() {
 
     Wire.begin(); // Join i2c bus
-    Serial.begin(500000);
+    Serial.begin(2000000);
     
     if(DEBUG){
         delay(1000);
@@ -39,7 +39,7 @@ void setup() {
     // initilize classes
     logger.initialize();
 
-    delay(2000);
+    delay(1000);
     imu.setPollRate(10);    
 }
 
@@ -57,13 +57,11 @@ void loop()
         case READING_MODE:
         // TODOS:
         // create struct for unique file types (log and data files for right now)
-        // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
         // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
             // logger.readDataFromFile(logger.dataFileName);
             logger.sendAllFiles();
             while (true) {
                 // Infinite loop to prevent further execution
-                delay(1000);
             }
             break;
 

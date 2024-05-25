@@ -13,7 +13,7 @@ END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK"
 ALL_FILES_SENT = "ALL_FILES_SENT"
 ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK"
 TIMEOUT_SECONDS = 180  # 3 minutes
-BAUD_RATE = 20000
+BAUD_RATE = 2000000  # 2 Mbps
 
 # Directory and file naming
 OUTPUT_DIRECTORY = "flightData"
@@ -85,6 +85,7 @@ try:
         file_name = ""
 
         while True:
+            
             if ser.in_waiting > 0:
                 response = ser.readline().decode('utf-8').strip()
                 print_debug(f"Received response: {response}")
@@ -99,7 +100,6 @@ try:
                     print_debug("All files have been sent. Sending acknowledgment...")
                     ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
                     sys.exit();
-
 
 
         if file_name_received:
@@ -124,9 +124,6 @@ try:
                     print_debug(f"Received data: {data}")
                     if data == END_OF_TRANSMISSION_MESSAGE:
                         print_debug(f"End of transmission for {file_name} received.")
-                        ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
-                        print_debug("Sent Response: " + END_OF_TRANSMISSION_ACK)
-                        # time.sleep(0.01)  # Add a short delay to avoid message concatenation
                         break
                     if data:  # Check if data is not empty
                         # Write data to file

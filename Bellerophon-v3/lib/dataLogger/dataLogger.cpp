@@ -97,24 +97,20 @@ void DataLogger::sendAllFiles() {
 
         // Read the data from the current file and send it over Serial
         readDataFromFile(fileName.c_str());
-
-        // Wait for the end-of-transmission acknowledgment before proceeding to the next file
-        if (!waitForMessage("END_OF_TRANSMISSION_ACK", timeout)) {
-            // Handle timeout (optional)
-            buzzerFailure();
-            return;
-        }  
     }
-    LEDBlink();
-    delay(2000);
+    
     // Send the end-of-transmission acknowledgment
     sendSerialMessage("ALL_FILES_SENT");
+   
 
     // Wait for the next file to be sent
     if (!waitForMessage("ALL_FILES_SENT_ACK", timeout)) {
         // Handle timeout (optional)
         buzzerFailure();
         return;
+    } else {
+        buzzerSuccess();
+        LEDBlink();
     }
 }
 
