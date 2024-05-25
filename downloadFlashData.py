@@ -5,6 +5,21 @@ import time
 import os
 from datetime import datetime
 
+# Constants
+HANDSHAKE_MESSAGE = "START_TRANSFER"
+ACK_MESSAGE = "TRANSFER_ACK"
+END_OF_TRANSMISSION_MESSAGE = "END_OF_TRANSMISSION"
+TIMEOUT_SECONDS = 180  # 3 minutes
+BAUD_RATE = 20000
+
+# Directory and file naming
+OUTPUT_DIRECTORY = "flightData"
+LOG_FOLDER = "logFiles"
+DATA_FOLDER = "dataFiles"
+MISC_FOLDER = "miscFiles"
+DEFAULT_FILE_PREFIX = "flight_data_"
+DEBUG = False  # Set this to True if you want to debug
+
 # Function to find the COM port dynamically
 def find_com_port():
     ports = list_ports.comports()
@@ -18,14 +33,19 @@ def ensure_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-# Directory where the output file will be stored
+# Ensure the main output directory exists
 script_directory = os.path.dirname(os.path.abspath(__file__))
-output_directory = os.path.join(script_directory, "flightData")
+output_directory = os.path.join(script_directory, OUTPUT_DIRECTORY)
 ensure_directory(output_directory)
 
-# Generate the output file name with the current date and time
+# Ensure the misc folder exists
+misc_directory = os.path.join(output_directory, MISC_FOLDER)
+ensure_directory(misc_directory)
+
+# Generate the default output file name with the current date and time
 current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-output_file_path = os.path.join(output_directory, f'flight_data_{current_time}.txt')
+default_file_name = f'{DEFAULT_FILE_PREFIX}{current_time}.txt'
+default_output_file_path = os.path.join(misc_directory, default_file_name)
 
 # Find the COM port dynamically
 com_port = find_com_port()
@@ -37,17 +57,11 @@ if com_port is None:
 print(f"Connected to COM port: {com_port}")
 
 # Open serial port connection
-ser = serial.Serial(com_port, 20000, timeout=1)
-
-# Handshake messages
-handshake_message = "START_TRANSFER"
-ack_message = "TRANSFER_ACK"
-end_of_transmission_message = "END_OF_TRANSMISSION"
-timeout_seconds = 180 # 3 minutes
+ser = serial.Serial(com_port, BAUD_RATE, timeout=1)
 
 def send_handshake():
-    ser.write(handshake_message.encode('utf-8'))
-    print(f"Sent handshake message: {handshake_message}")
+    ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
+    print(f"Sent handshake message: {HANDSHAKE_MESSAGE}")
 
 try:
     # Repeatedly send the handshake message until acknowledgment is received or timeout occurs
@@ -57,10 +71,10 @@ try:
         time.sleep(1)
         if ser.in_waiting > 0:
             response = ser.readline().decode('utf-8').strip()
-            if response == ack_message:
-                print(f"Received acknowledgment: {ack_message}")
+            if response == ACK_MESSAGE:
+                print(f"Received acknowledgment: {ACK_MESSAGE}")
                 break
-        if time.time() - start_time > timeout_seconds:
+        if time.time() - start_time > TIMEOUT_SECONDS:
             print("Handshake timed out. Exiting...")
             sys.exit()
 
@@ -79,31 +93,33 @@ try:
         # Organize file into appropriate folder based on prefix
         file_prefix = file_name.split('_')[0]
         if file_prefix == "log":
-            file_directory = os.path.join(output_directory, "logFiles")
+            file_directory = os.path.join(output_directory, LOG_FOLDER)
         elif file_prefix == "data":
-            file_directory = os.path.join(output_directory, "dataFiles")
+            file_directory = os.path.join(output_directory, DATA_FOLDER)
         else:
-            file_directory = os.path.join(output_directory, "miscFiles")
+            file_directory = misc_directory
 
         ensure_directory(file_directory)
         output_file_path = os.path.join(file_directory, file_name)
+    else:
+        output_file_path = default_output_file_path
 
-        # Open file for writing
-        with open(output_file_path, 'w') as f:
-            print(f"Writing data to {output_file_path}")
-            print("Press Ctrl+C to stop the program.")
-            while True:
-                # Read data from serial port
-                data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
-                if data == end_of_transmission_message:
-                    print("End of transmission received. Exiting...")
-                    break
-                if data:  # Check if data is not empty
-                    # Write data to file
-                    f.write(data + '\n')
+    # Open file for writing
+    with open(output_file_path, 'w') as f:
+        print(f"Writing data to {output_file_path}")
+        print("Press Ctrl+C to stop the program.")
+        while True:
+            # Read data from serial port
+            data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+            if data == END_OF_TRANSMISSION_MESSAGE:
+                print("End of transmission received. Exiting...")
+                break
+            if data:  # Check if data is not empty
+                # Write data to file
+                f.write(data + '\n')
 
-                    # Optionally, print data to console
-                    print(data)
+                # Optionally, print data to console
+                print(data)
 
 except KeyboardInterrupt:
     print("\nProgram interrupted by user. Exiting...")
