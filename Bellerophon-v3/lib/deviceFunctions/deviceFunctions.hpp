@@ -9,6 +9,7 @@ void buzzerSuccess();
 void buzzerFailure();
 void startUp();
 void peripheralInitialize();
+void LEDBlink();
 
 
 #endif //DEVICE_FUNCTIONS_HPP

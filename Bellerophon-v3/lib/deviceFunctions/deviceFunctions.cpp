@@ -5,6 +5,27 @@
 
 
 // buzzer patterns to indicate success or failure
+
+void peripheralInitialize() {
+  pinMode(R_LED, OUTPUT);
+  pinMode(G_LED, OUTPUT);
+  pinMode(B_LED, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  // Set LEDS to low in case previous program left it HIGH
+  digitalWrite(R_LED, LOW);
+  digitalWrite(G_LED, LOW);
+  digitalWrite(B_LED, LOW);
+}
+
+/// TODO: set this for different colors and delays
+/// TODO: make multithreaded
+void LEDBlink() {
+  digitalWrite(B_LED, HIGH);
+  delay(500);
+  digitalWrite(B_LED, LOW);
+}
+
 void buzzerSuccess() {
   tone(BUZZER, 900, 200); // High tone
   delay(200);
@@ -23,19 +44,6 @@ void buzzerFailure() {
   tone(BUZZER, 100, 500);
   delay(500);
   tone(BUZZER, 400, 500);
-}
-
-
-void peripheralInitialize() {
-  pinMode(R_LED, OUTPUT);
-  pinMode(G_LED, OUTPUT);
-  pinMode(B_LED, OUTPUT);
-  pinMode(BUZZER, OUTPUT);
-
-  // Set LEDS to low in case previous program left it HIGH
-  digitalWrite(R_LED, LOW);
-  digitalWrite(G_LED, LOW);
-  digitalWrite(B_LED, LOW);
 }
 
 void startUp() {
