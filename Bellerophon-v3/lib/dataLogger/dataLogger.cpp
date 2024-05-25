@@ -93,8 +93,6 @@ void DataLogger::sendAllFiles() {
     for (const auto& fileName : fileNames) {
         // Check if the file name is the index file and skip it if so
         if (strcmp(fileName.c_str(), indexFileName) == 0) {
-            buzzerFailure(); // Indicate skipping of the index file
-            Serial.println(fileName.c_str());
             continue; // Skip this iteration and move to the next file
         }
 
@@ -106,9 +104,7 @@ void DataLogger::sendAllFiles() {
         while (true) {
             if (Serial.available()) {
                 String message = Serial.readStringUntil('\n');
-                delay(1);
                 if (message == "END_OF_TRANSMISSION_ACK") {
-                    Serial.println("moving to next file...");
                     break; // Break the while loop
                 }
             }
@@ -187,7 +183,6 @@ void DataLogger::deleteAllFiles() {
 
         // Check if the file name is the index file and skip it if so
         if (strcmp(fileName.c_str(), indexFileName) == 0) {
-            Serial.println(fileName.c_str());
             continue; // Skip this iteration and move to the next file
         }
 
