@@ -77,6 +77,8 @@ public:
 
     void sendAllFiles();
 
+    
+
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
@@ -118,6 +120,10 @@ private:
     void print(FsFile& fileType, const char* fileName, const char* message);
 
     void initializeIndexFile();
+
+    bool waitForMessage(const String& expectedMessage, uint32_t timeout);
+
+    void sendSerialMessage(const String& message);
 };
 
 #endif //DATA_LOGGER_HPP

@@ -73,20 +73,19 @@ void DataLogger::readDataFromFile(const char* fileName) {
 }
 
 void DataLogger::sendAllFiles() {
+    uint32_t timeout = 10000; // 10-second timeout
+
     // Update the file list to ensure we have the latest list of files
     updateFileList();
 
     // Wait for handshake message from the Python script
-    while (true) {
-        if (Serial.available()) {
-            String message = Serial.readStringUntil('\n');
-            if (message == "START_TRANSFER") {
-                // Send acknowledgment back to Python script
-                Serial.println("TRANSFER_ACK");
-                buzzerSuccess();
-                break;
-            }
-        }
+    if (waitForMessage("START_TRANSFER", timeout)) {
+        sendSerialMessage("TRANSFER_ACK");
+        buzzerSuccess();
+    } else {
+        // Handle timeout (optional)
+        buzzerFailure();
+        return;
     }
 
     // Iterate through each file name in the list
@@ -98,22 +97,25 @@ void DataLogger::sendAllFiles() {
 
         // Read the data from the current file and send it over Serial
         readDataFromFile(fileName.c_str());
-        
 
         // Wait for the end-of-transmission acknowledgment before proceeding to the next file
-        while (true) {
-            if (Serial.available()) {
-                String message = Serial.readStringUntil('\n');
-                if (message == "END_OF_TRANSMISSION_ACK") {
-                    break; // Break the while loop
-                }
-            }
-        }
+        if (!waitForMessage("END_OF_TRANSMISSION_ACK", timeout)) {
+            // Handle timeout (optional)
+            buzzerFailure();
+            return;
+        }  
     }
+    LEDBlink();
+    delay(2000);
+    // Send the end-of-transmission acknowledgment
+    sendSerialMessage("ALL_FILES_SENT");
 
-    // Send a final message to indicate that all files have been sent
-    Serial.println("ALL_FILES_SENT");
-    buzzerSuccess();
+    // Wait for the next file to be sent
+    if (!waitForMessage("ALL_FILES_SENT_ACK", timeout)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+        return;
+    }
 }
 
 
@@ -128,6 +130,23 @@ void DataLogger::print(FsFile& fileType, const char* fileName, const char* messa
     fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
     fileType.print(message);
     fileType.close();
+}
+
+void DataLogger::sendSerialMessage(const String& message) {
+    Serial.println(message);
+}
+
+bool DataLogger::waitForMessage(const String& expectedMessage, uint32_t timeout) {
+    uint32_t startTime = millis();
+    while (millis() - startTime < timeout) {
+        if (Serial.available()) {
+            String message = Serial.readStringUntil('\n');
+            if (message == expectedMessage) {
+                return true;
+            }
+        }
+    }
+    return false; // Timeout
 }
 
 // file directory reading
