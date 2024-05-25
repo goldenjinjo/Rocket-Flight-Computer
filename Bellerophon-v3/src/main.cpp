@@ -56,12 +56,10 @@ void loop()
         case READING_MODE:
         // TODOS:
         // create struct for unique file types (log and data files for right now)
-        // on python side organise system to differeniate between data and log files (with .txt and .csv)
         // on both sides set it up so it can handle multiple file transfers (upload both logs and flight data)
         // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
-            logger.scanFiles();
-            logger.readDataFromFile(logger.logFileName);
-            logger.readDataFromFile(logger.dataFileName);
+            // logger.readDataFromFile(logger.dataFileName);
+            logger.sendAllFiles();
             while (true) {
                 // Infinite loop to prevent further execution
                 delay(1000);

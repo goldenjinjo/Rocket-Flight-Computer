@@ -46,24 +46,11 @@ void DataLogger::logData(float* data, size_t numFloats) {
 }
 
 void DataLogger::readDataFromFile(const char* fileName) {
-    
     if (!sd.exists(fileName)) {
-    Serial.println("Data file not found.");
-    return;
+        Serial.println("Data file not found.");
+        return;
     }
 
-    // Wait for handshake message from the Python script
-    while (true) {
-        if (Serial.available()) {
-            String message = Serial.readStringUntil('\n');
-            if (message == "START_TRANSFER") {
-                // Send acknowledgment back to Python script
-                Serial.println("TRANSFER_ACK");
-                buzzerSuccess();
-                break;
-            }
-        }
-    }
     // Send file name to Python script
     Serial.print("FILE_NAME:");
     Serial.println(fileName);
@@ -84,6 +71,56 @@ void DataLogger::readDataFromFile(const char* fileName) {
     // Send end-of-transmission message
     Serial.println("END_OF_TRANSMISSION");
 }
+
+void DataLogger::sendAllFiles() {
+    // Update the file list to ensure we have the latest list of files
+    updateFileList();
+
+    // Wait for handshake message from the Python script
+    while (true) {
+        if (Serial.available()) {
+            String message = Serial.readStringUntil('\n');
+            if (message == "START_TRANSFER") {
+                // Send acknowledgment back to Python script
+                Serial.println("TRANSFER_ACK");
+                buzzerSuccess();
+                break;
+            }
+        }
+    }
+
+    // Iterate through each file name in the list
+    for (const auto& fileName : fileNames) {
+        // Check if the file name is the index file and skip it if so
+        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+            buzzerFailure(); // Indicate skipping of the index file
+            Serial.print("Skipping file: ");
+            Serial.println(fileName.c_str());
+            continue; // Skip this iteration and move to the next file
+        }
+
+        // Read the data from the current file and send it over Serial
+        readDataFromFile(fileName.c_str());
+        
+
+        // Wait for the end-of-transmission acknowledgment before proceeding to the next file
+        while (true) {
+            if (Serial.available()) {
+                String message = Serial.readStringUntil('\n');
+                delay(1);
+                if (message == "END_OF_TRANSMISSION_ACK") {
+                    Serial.println("moving to next file...");
+                    break; // Break the while loop
+                }
+            }
+        }
+    }
+
+    // Send a final message to indicate that all files have been sent
+    Serial.println("ALL_FILES_SENT");
+    buzzerSuccess();
+}
+
 
 
 

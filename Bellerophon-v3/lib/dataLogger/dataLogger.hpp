@@ -75,6 +75,8 @@ public:
     void createNewLogFile();
     void createNewDataFile();
 
+    void sendAllFiles();
+
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
