@@ -57,7 +57,10 @@ void loop()
         case READING_MODE:
         // TODOS:
         // create struct for unique file types (log and data files for right now)
-        // TODO properly define communication messages
+        /// TODO: properly define communication messages in the config
+        /// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
+        /// TODO: Add back in handshake between file transfers, it may be faster with the new switch case set up
+        /// TODO: Move the switch case into
             
             // Loop indefinitely
             while(true) {
