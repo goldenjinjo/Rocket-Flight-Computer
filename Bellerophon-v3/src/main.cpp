@@ -27,7 +27,7 @@ void setup() {
     Serial.begin(2000000);
     
     if(DEBUG){
-        delay(1000);
+        delay(100);
     }
 
     // Set pin types and configure LEDs
@@ -39,7 +39,7 @@ void setup() {
     // initilize classes
     logger.initialize();
 
-    delay(1000);
+    delay(100);
     imu.setPollRate(10);    
 }
 
@@ -57,11 +57,22 @@ void loop()
         case READING_MODE:
         // TODOS:
         // create struct for unique file types (log and data files for right now)
-            logger.sendAllFiles();
-            while (true) {
-                // Infinite loop to prevent further execution
+        // TODO properly define communication messages
+            
+            // Loop indefinitely
+            while(true) {
+
+            LEDBlinkRED();
+            delay(2000);
+
+            if (Serial.available()){
+                String message = Serial.readStringUntil('\n');
+                if (message == "REQUEST_FILE_DOWNLOAD"){
+                    LEDBlink();
+                    logger.sendAllFiles();
+                }
             }
-            break;
+        }
 
         case PURGE_MODE:
             // delete all files from flash memory

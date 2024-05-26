@@ -10,6 +10,6 @@ void buzzerFailure();
 void startUp();
 void peripheralInitialize();
 void LEDBlink();
-
+void LEDBlinkRED();
 
 #endif //DEVICE_FUNCTIONS_HPP

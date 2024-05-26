@@ -7,13 +7,14 @@ import zlib  # For CRC32
 from datetime import datetime
 
 # Constants
-HANDSHAKE_MESSAGE = "START_TRANSFER"
+HANDSHAKE_MESSAGE = "START_TRANSFER\n"
 ACK_MESSAGE = "TRANSFER_ACK"
 END_OF_TRANSMISSION_MESSAGE = "END_OF_TRANSMISSION"
-END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK"
-FILE_COPY_MESSAGE = "FILE_ALREADY_RECIEVED"
+END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK\n"
+FILE_COPY_MESSAGE = "FILE_ALREADY_RECEIVED\n"
 ALL_FILES_SENT = "ALL_FILES_SENT"
-ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK"
+ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK\n"
+REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD\n"
 TIMEOUT_SECONDS = 180  # 3 minutes
 BAUD_RATE = 115200  # Increase baud rate for faster communication
 
@@ -90,11 +91,24 @@ def write_time_to_str():
     # Format the current time as a string
     return time.strftime("%Y%m%d_%H%M%S", current_time)
 
-
+def request_file_download():
+    user_input = input("Would you like to request a file download? (yes/no): ").strip().lower()
+    if user_input == 'yes':
+        ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
+        print("File download request sent.")
+        # wait as not to overwhelm
+        time.sleep(1)
+        data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+        print_debug(f"Received data: {data}")
+    else:
+        print("No file download request sent.")
 
 
 
 try:
+
+    request_file_download()
+
     # Send handshake message and wait for acknowledgment
     send_handshake()
     start_time = time.time()

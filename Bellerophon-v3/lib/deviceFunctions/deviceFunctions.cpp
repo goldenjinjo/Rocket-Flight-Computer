@@ -26,6 +26,13 @@ void LEDBlink() {
   digitalWrite(B_LED, LOW);
 }
 
+void LEDBlinkRED() {
+  digitalWrite(R_LED, HIGH);
+  delay(2000);
+  digitalWrite(R_LED, LOW);
+}
+
+
 void buzzerSuccess() {
   tone(BUZZER, 900, 200); // High tone
   delay(200);
