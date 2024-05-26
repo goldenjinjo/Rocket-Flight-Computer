@@ -3,6 +3,7 @@ from serial.tools import list_ports
 import sys
 import time
 import os
+import zlib  # For CRC32
 from datetime import datetime
 
 # Constants
@@ -13,7 +14,7 @@ END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK"
 ALL_FILES_SENT = "ALL_FILES_SENT"
 ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK"
 TIMEOUT_SECONDS = 180  # 3 minutes
-BAUD_RATE = 2000000  # 2 Mbps
+BAUD_RATE = 115200  # Increase baud rate for faster communication
 
 # Directory and file naming
 OUTPUT_DIRECTORY = "flightData"
@@ -25,7 +26,7 @@ DEBUG = True  # Set this to True for debugging
 
 def print_debug(message):
     if DEBUG:
-        print(message)
+        print(f"{datetime.now()}: {message}")
 
 # Function to find the COM port dynamically
 def find_com_port():
@@ -59,7 +60,7 @@ if com_port is None:
 print_debug(f"Connected to COM port: {com_port}")
 
 # Open serial port connection
-ser = serial.Serial(com_port, BAUD_RATE, timeout=1)
+ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
 
 def send_handshake():
     ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
@@ -83,9 +84,9 @@ try:
     while True:
         file_name_received = False
         file_name = ""
+        checksum = 0
 
         while True:
-            
             if ser.in_waiting > 0:
                 response = ser.readline().decode('utf-8').strip()
                 print_debug(f"Received response: {response}")
@@ -93,16 +94,19 @@ try:
                     file_name = response[len("FILE_NAME:"):]
                     print_debug(f"Received file name: {file_name}")
                     file_name_received = True
+                elif response.startswith("CHECKSUM:"):
+                    checksum = int(response[len("CHECKSUM:"):])
+                    print_debug(f"Received checksum: {checksum}")
                     break
 
-                # exit out of code loop after recieving message
+                # Exit out of code loop after receiving message
                 if response == ALL_FILES_SENT:
                     print_debug("All files have been sent. Sending acknowledgment...")
                     ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
-                    sys.exit();
-
+                    sys.exit()
 
         if file_name_received:
+            file_crc = 0
             # Organize file into appropriate folder based on prefix
             file_prefix = file_name.split('_')[0]
             if file_prefix == "log":
@@ -118,22 +122,28 @@ try:
             # Open file for writing
             with open(output_file_path, 'w') as f:
                 print_debug(f"Writing data to {output_file_path}")
+                crc = 0
                 while True:
                     # Read data from serial port
                     data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
                     print_debug(f"Received data: {data}")
                     if data == END_OF_TRANSMISSION_MESSAGE:
                         print_debug(f"End of transmission for {file_name} received.")
+                        # ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
+                        # print_debug("Sent Response: " + END_OF_TRANSMISSION_ACK)
                         break
                     if data:  # Check if data is not empty
                         # Write data to file
                         f.write(data + '\n')
+                        crc = zlib.crc32(data.encode('utf-8'), crc)
 
                         # Optionally, print data to console
-                        print_debug(data)
-        else:
-            break
-           
+                        # print_debug(data)
+
+            if crc != checksum:
+                print_debug(f"Checksum mismatch for {file_name}: {crc} != {checksum}")
+            else:
+                print_debug(f"Checksum verified for {file_name}")
 
 except KeyboardInterrupt:
     print_debug("\nProgram interrupted by user. Exiting...")

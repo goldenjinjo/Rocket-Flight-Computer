@@ -45,25 +45,41 @@ void DataLogger::logData(float* data, size_t numFloats) {
     print(dataFile, dataFileName, buffer);
 }
 
+// Method to read data from a specific file and send it over serial
 void DataLogger::readDataFromFile(const char* fileName) {
     if (!sd.exists(fileName)) {
         Serial.println("Data file not found.");
         return;
     }
 
-    // Send file name to Python script
-    Serial.print("FILE_NAME:");
-    Serial.println(fileName);
-
+    // Calculate CRC32 checksum
+    crc.reset(); // Reset CRC32 object before calculating a new checksum
     FsFile file;
     if (!file.open(fileName, O_READ)) {
         sd.errorHalt("Opening for read failed");
     }
 
-    // Read from the file until there's nothing else in it
     int data;
     while ((data = file.read()) >= 0) {
-        Serial.write(data);
+        crc.update(data); // Update the CRC32 checksum with each byte of data
+    }
+    uint32_t checksum = crc.finalize(); // Finalize the checksum calculation
+    file.close();
+
+    // Send file name and checksum to Python script
+    Serial.print("FILE_NAME:");
+    Serial.println(fileName);
+    Serial.print("CHECKSUM:");
+    Serial.println(checksum);
+
+    // Open the file again for reading data
+    if (!file.open(fileName, O_READ)) {
+        sd.errorHalt("Opening for read failed");
+    }
+
+    // Read from the file until there's nothing else in it
+    while ((data = file.read()) >= 0) {
+        Serial.write(data); // Send each byte of data over serial
     }
 
     file.close();
