@@ -3,8 +3,8 @@ from serial.tools import list_ports
 import sys
 import time
 import os
-import zlib  # For CRC32
 from datetime import datetime
+import zlib
 
 # Constants
 HANDSHAKE_MESSAGE = "START_TRANSFER\n"
@@ -16,7 +16,7 @@ ALL_FILES_SENT = "ALL_FILES_SENT"
 ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK\n"
 REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD\n"
 TIMEOUT_SECONDS = 180  # 3 minutes
-BAUD_RATE = 115200  # Increase baud rate for faster communication
+BAUD_RATE = 115200  # Ensure this matches the flight computer's baud rate
 
 # Directory and file naming
 OUTPUT_DIRECTORY = "flightData"
@@ -69,7 +69,7 @@ ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
 
 def send_handshake():
     ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
-    print(f"Sent handshake message: {HANDSHAKE_MESSAGE}")
+    print(f"Sent handshake message: {HANDSHAKE_MESSAGE.strip()}")
 
 def sort_file(file_name):
     # Organize file into appropriate folder based on prefix
@@ -94,20 +94,17 @@ def write_time_to_str():
 def request_file_download():
     user_input = input("Would you like to request a file download? (yes/no): ").strip().lower()
     if user_input == 'yes':
-        ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
+        ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))  # Ensure newline character is included
         print("File download request sent.")
-        # wait as not to overwhelm
-        time.sleep(1)
-        data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
-        print_debug(f"Received data: {data}")
     else:
         print("No file download request sent.")
 
-
-
 try:
-
+    # Prompt user to request file download
     request_file_download()
+
+    # Clear the serial buffer
+    ser.reset_input_buffer()
 
     # Send handshake message and wait for acknowledgment
     send_handshake()
@@ -124,68 +121,55 @@ try:
             sys.exit()
 
     while True:
-        # set default file name in case none is given
-        current_time = write_time_to_str()
-        file_name = f"{DEFAULT_FILE_PREFIX}_{current_time}.txt"
+        file_name_received = False
+        file_name = ""
         checksum = 0
     
         while True:
-        
             if ser.in_waiting > 0:
                 response = ser.readline().decode('utf-8').strip()
                 print_debug(f"Received response: {response}")
                 
                 if response.startswith("FILE_NAME:"):
                     file_name = response[len("FILE_NAME:"):]
+                    file_name_received = True
                     print_debug(f"Received file name: {file_name}")
                 elif response.startswith("CHECKSUM:"):
                     checksum = int(response[len("CHECKSUM:"):])
                     print_debug(f"Received checksum: {checksum}")
                     break
                 elif response == ALL_FILES_SENT:
-                # Exit out of code loop after receiving message
+                    # Exit out of code loop after receiving message
                     print_debug("All files have been sent. Sending acknowledgment...")
                     ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
                     sys.exit()
-                else:
-                    # move on, even if file name and checksum is not given
-                    print_debug("no file name given")
-                    break
 
-        print(file_name)
-        file_crc = 0
-        output_file_path = sort_file(file_name)
+        if file_name_received:
+            print(file_name)
+            file_crc = 0
+            output_file_path = sort_file(file_name)
 
-        # Does not write to file if it is found to already exist
-        if os.path.exists(output_file_path):
+            # Does not write to file if it is found to already exist
+            if os.path.exists(output_file_path):
                 print_debug(f"File {file_name} already exists. Skipping download.")
                 ser.write(FILE_COPY_MESSAGE.encode('utf-8'))
-        else:
-        # Open file for writing
-            with open(output_file_path, 'w') as f:
-                print_debug(f"Writing data to {output_file_path}")
-                crc = 0
-                while True:
-                    # Read data from serial port
-                    data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
-                    print_debug(f"Received data: {data}")
-                    if data == END_OF_TRANSMISSION_MESSAGE:
-                        print_debug(f"End of transmission for {file_name} received.")
-                        break
-                    if data:  # Check if data is not empty
-                        # Write data to file
-                        f.write(data + '\n')
-                        crc = zlib.crc32(data.encode('utf-8'), crc)
-
-                        # Optionally, print data to console
-                        # print_debug(data)
-
-                    if crc != checksum:
-                        print_debug(f"Checksum mismatch for {file_name}: {crc} != {checksum}")
-                    else:
-                        print_debug(f"Checksum verified for {file_name}")
-
-
+            else:
+                # Open file for writing
+                with open(output_file_path, 'w') as f:
+                    print_debug(f"Writing data to {output_file_path}")
+                    crc = 0
+                    while True:
+                        # Read data from serial port
+                        data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+                        print_debug(f"Received data: {data}")
+                        if data == END_OF_TRANSMISSION_MESSAGE.strip():
+                            print_debug(f"End of transmission for {file_name} received.")
+                            ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
+                            break
+                        if data:  # Check if data is not empty
+                            # Write data to file
+                            f.write(data + '\n')
+                            crc = zlib.crc32(data.encode('utf-8'), crc)
 
 except KeyboardInterrupt:
     print_debug("\nProgram interrupted by user. Exiting...")
