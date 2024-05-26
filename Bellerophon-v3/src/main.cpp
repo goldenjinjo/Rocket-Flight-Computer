@@ -57,8 +57,6 @@ void loop()
         case READING_MODE:
         // TODOS:
         // create struct for unique file types (log and data files for right now)
-        // give file name to python, python will then check and if it has already been uploaded, it will not upload it again
-            // logger.readDataFromFile(logger.dataFileName);
             logger.sendAllFiles();
             while (true) {
                 // Infinite loop to prevent further execution

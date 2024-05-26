@@ -11,6 +11,7 @@ HANDSHAKE_MESSAGE = "START_TRANSFER"
 ACK_MESSAGE = "TRANSFER_ACK"
 END_OF_TRANSMISSION_MESSAGE = "END_OF_TRANSMISSION"
 END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK"
+FILE_COPY_MESSAGE = "FILE_ALREADY_RECIEVED"
 ALL_FILES_SENT = "ALL_FILES_SENT"
 ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK"
 TIMEOUT_SECONDS = 180  # 3 minutes
@@ -22,6 +23,9 @@ LOG_FOLDER = "logFiles"
 DATA_FOLDER = "dataFiles"
 MISC_FOLDER = "miscFiles"
 DEFAULT_FILE_PREFIX = "flight_data_"
+LOG_FILE_PREFIX = "log"
+DATA_FILE_PREFIX = "data"
+
 DEBUG = True  # Set this to True for debugging
 
 def print_debug(message):
@@ -53,18 +57,42 @@ ensure_directory(misc_directory)
 # Find the COM port dynamically
 com_port = find_com_port()
 if com_port is None:
-    print_debug("No USB serial port found. Make sure your device is connected.")
+    print("No USB serial port found. Make sure your device is connected.")
     sys.exit()
 
 # Print the connected COM port
-print_debug(f"Connected to COM port: {com_port}")
+print(f"Connected to COM port: {com_port}")
 
 # Open serial port connection
 ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
 
 def send_handshake():
     ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
-    print_debug(f"Sent handshake message: {HANDSHAKE_MESSAGE}")
+    print(f"Sent handshake message: {HANDSHAKE_MESSAGE}")
+
+def sort_file(file_name):
+    # Organize file into appropriate folder based on prefix
+    file_prefix = file_name.split('_')[0]
+    if file_prefix == LOG_FILE_PREFIX:
+        file_directory = os.path.join(output_directory, LOG_FOLDER)
+    elif file_prefix == DATA_FILE_PREFIX:
+        file_directory = os.path.join(output_directory, DATA_FOLDER)
+    else:
+        file_directory = misc_directory
+
+    ensure_directory(file_directory)
+    
+    return os.path.join(file_directory, file_name)
+
+def write_time_to_str():
+    # Get the current time as a time.struct_time object
+    current_time = time.localtime()
+    # Format the current time as a string
+    return time.strftime("%Y%m%d_%H%M%S", current_time)
+
+
+
+
 
 try:
     # Send handshake message and wait for acknowledgment
@@ -82,44 +110,44 @@ try:
             sys.exit()
 
     while True:
-        file_name_received = False
-        file_name = ""
+        # set default file name in case none is given
+        current_time = write_time_to_str()
+        file_name = f"{DEFAULT_FILE_PREFIX}_{current_time}.txt"
         checksum = 0
-
+    
         while True:
+        
             if ser.in_waiting > 0:
                 response = ser.readline().decode('utf-8').strip()
                 print_debug(f"Received response: {response}")
+                
                 if response.startswith("FILE_NAME:"):
                     file_name = response[len("FILE_NAME:"):]
                     print_debug(f"Received file name: {file_name}")
-                    file_name_received = True
                 elif response.startswith("CHECKSUM:"):
                     checksum = int(response[len("CHECKSUM:"):])
                     print_debug(f"Received checksum: {checksum}")
                     break
-
+                elif response == ALL_FILES_SENT:
                 # Exit out of code loop after receiving message
-                if response == ALL_FILES_SENT:
                     print_debug("All files have been sent. Sending acknowledgment...")
                     ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
                     sys.exit()
+                else:
+                    # move on, even if file name and checksum is not given
+                    print_debug("no file name given")
+                    break
 
-        if file_name_received:
-            file_crc = 0
-            # Organize file into appropriate folder based on prefix
-            file_prefix = file_name.split('_')[0]
-            if file_prefix == "log":
-                file_directory = os.path.join(output_directory, LOG_FOLDER)
-            elif file_prefix == "data":
-                file_directory = os.path.join(output_directory, DATA_FOLDER)
-            else:
-                file_directory = misc_directory
+        print(file_name)
+        file_crc = 0
+        output_file_path = sort_file(file_name)
 
-            ensure_directory(file_directory)
-            output_file_path = os.path.join(file_directory, file_name)
-
-            # Open file for writing
+        # Does not write to file if it is found to already exist
+        if os.path.exists(output_file_path):
+                print_debug(f"File {file_name} already exists. Skipping download.")
+                ser.write(FILE_COPY_MESSAGE.encode('utf-8'))
+        else:
+        # Open file for writing
             with open(output_file_path, 'w') as f:
                 print_debug(f"Writing data to {output_file_path}")
                 crc = 0
@@ -129,8 +157,6 @@ try:
                     print_debug(f"Received data: {data}")
                     if data == END_OF_TRANSMISSION_MESSAGE:
                         print_debug(f"End of transmission for {file_name} received.")
-                        # ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
-                        # print_debug("Sent Response: " + END_OF_TRANSMISSION_ACK)
                         break
                     if data:  # Check if data is not empty
                         # Write data to file
@@ -140,10 +166,12 @@ try:
                         # Optionally, print data to console
                         # print_debug(data)
 
-            if crc != checksum:
-                print_debug(f"Checksum mismatch for {file_name}: {crc} != {checksum}")
-            else:
-                print_debug(f"Checksum verified for {file_name}")
+                    if crc != checksum:
+                        print_debug(f"Checksum mismatch for {file_name}: {crc} != {checksum}")
+                    else:
+                        print_debug(f"Checksum verified for {file_name}")
+
+
 
 except KeyboardInterrupt:
     print_debug("\nProgram interrupted by user. Exiting...")

@@ -57,6 +57,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     FsFile file;
     if (!file.open(fileName, O_READ)) {
         sd.errorHalt("Opening for read failed");
+        return;
     }
 
     int data;
@@ -77,6 +78,18 @@ void DataLogger::readDataFromFile(const char* fileName) {
         sd.errorHalt("Opening for read failed");
     }
 
+    // if (Serial.available()) {
+    //     String message = Serial.readStringUntil('\n');
+    //     // return method call if file has already been downloaded
+    //     if (message == "FILE_ALREADY_RECIEVED"){
+    //         return;
+    //     }
+    // }
+
+    if (waitForMessage("FILE_ALREADY_RECIEVED", 100)){
+        return;
+    }
+
     // Read from the file until there's nothing else in it
     while ((data = file.read()) >= 0) {
         Serial.write(data); // Send each byte of data over serial
@@ -89,7 +102,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
 }
 
 void DataLogger::sendAllFiles() {
-    uint32_t timeout = 10000; // 10-second timeout
+    uint32_t timeout = 1800*1000; // 30 minute timeout
 
     // Update the file list to ensure we have the latest list of files
     updateFileList();
@@ -101,6 +114,7 @@ void DataLogger::sendAllFiles() {
     } else {
         // Handle timeout (optional)
         buzzerFailure();
+        Serial.println("TIME OUT");
         return;
     }
 
@@ -151,6 +165,7 @@ void DataLogger::sendSerialMessage(const String& message) {
 
 bool DataLogger::waitForMessage(const String& expectedMessage, uint32_t timeout) {
     uint32_t startTime = millis();
+   
     while (millis() - startTime < timeout) {
         if (Serial.available()) {
             String message = Serial.readStringUntil('\n');
@@ -196,7 +211,6 @@ void DataLogger::updateFileList() {
 // deleting files
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
-        buzzerSuccess();
         Serial.println("File Successfully Deleted");
         return sd.remove(fileName);
 
