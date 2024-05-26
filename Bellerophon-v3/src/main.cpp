@@ -62,9 +62,6 @@ void loop()
             // Loop indefinitely
             while(true) {
 
-            LEDBlinkRED();
-            delay(2000);
-
             if (Serial.available()){
                 String message = Serial.readStringUntil('\n');
                 if (message == "REQUEST_FILE_DOWNLOAD"){
