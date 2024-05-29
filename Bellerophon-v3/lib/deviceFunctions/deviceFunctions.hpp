@@ -11,5 +11,6 @@ void startUp();
 void peripheralInitialize();
 void LEDBlink();
 void LEDBlinkRED();
+void buzzerModeSelect(int mode);
 
 #endif //DEVICE_FUNCTIONS_HPP

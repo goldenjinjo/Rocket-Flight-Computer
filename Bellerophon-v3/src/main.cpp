@@ -39,13 +39,21 @@ void setup() {
     // initilize classes
     logger.initialize();
 
-    delay(100);
-    imu.setPollRate(10);    
-}
+    imu.setPollRate(10);  
 
+    
+}
+// keep track of previous tones
+int previousMode = -1;  
 // MAIN LOOP
 void loop()
 {
+    // Play a tone to indicate mode of operation
+    if (mode != previousMode) {
+        buzzerModeSelect(mode);
+        previousMode = mode;
+    }
+
     switch (mode) {
            case STANDBY_MODE:
                 // Standby mode
@@ -60,7 +68,7 @@ void loop()
         /// TODO: properly define communication messages in the config
         /// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
         /// TODO: Add back in handshake between file transfers, it may be faster with the new switch case set up
-        /// TODO: Move the switch case into
+        /// TODO: Move the while loop into the dataLogger class, or a new class entirely for this kind of thing
             
             // Loop indefinitely
             while(true) {
