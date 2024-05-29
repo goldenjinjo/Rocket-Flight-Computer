@@ -6,7 +6,8 @@
 /// TODO: properly set up data integrity checks (checksum incorrectly figured right now)
 /// TODO: set up system to automatically suggest file deletion after successful download
 /// TODO: configure data files only to generate in logging mode
-/// TODO: call sensors inside dataLogger rather than main  
+/// TODO: call sensors inside dataLogger rather than main
+/// TODO: remove magic numbers (e.g. maxFileLength and logBuffer)
 
 DataLogger::DataLogger() {}
 
@@ -153,6 +154,7 @@ void DataLogger::sendAllFiles() {
 }
 
 void DataLogger::serialFileTransfer() {
+    // Check for incoming serial message
     if (Serial.available()){
         String message = Serial.readStringUntil('\n');
         if (message == "REQUEST_FILE_DOWNLOAD"){
