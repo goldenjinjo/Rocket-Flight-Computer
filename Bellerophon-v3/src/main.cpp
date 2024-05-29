@@ -5,7 +5,6 @@
 
 // Import Libraries
 #include "pinAssn.hpp"
-#include "deviceFunctions.hpp"
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
@@ -19,14 +18,18 @@
 pressureSensor baro(1);
 // Change address to low or high based on PCB design
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
-DataLogger logger(logFileName, dataFileName);
+DataLogger logger;
 
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
-    Serial.begin(500000);
+    Serial.begin(2000000);
     
+    if(DEBUG){
+        delay(100);
+    }
+
     // Set pin types and configure LEDs
     peripheralInitialize();
   
@@ -36,39 +39,79 @@ void setup() {
     // initilize classes
     logger.initialize();
 
-    delay(2000);
-    imu.setPollRate(10);    
-}
+    imu.setPollRate(10);  
 
+    
+}
+// keep track of previous tones
+int previousMode = -1;  
 // MAIN LOOP
 void loop()
 {
-    if(DEBUG){
-        delay(2000);
+    // Play a tone to indicate mode of operation
+    if (mode != previousMode) {
+        buzzerModeSelect(mode);
+        previousMode = mode;
     }
 
-    // get IMU data
-    float* acc = imu.getAccelerometerData();
-    float* gyro = imu.getGyroscopeData();
-
-    float* sensorArray = new float[9];
+    switch (mode) {
+        case STANDBY_MODE:
+            // Standby mode
+            logger.scanFiles();   
+            while (true) {
+                delay(1000);
+            }
     
-    // put all sensors into sensor array
-    // TODO: Abstract this to dataLogger class
-    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
-    sensorArray[0] = baro.getPressure();
-    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
-    sensorArray[2] = acc[0];
-    sensorArray[3] = acc[1];
-    sensorArray[4] = acc[2];
-    sensorArray[5] = acc[3];
-    sensorArray[6] = gyro[1];
-    sensorArray[7] = gyro[2];
-    sensorArray[8] = gyro[3];
+        case READING_MODE:
+            // Loop indefinitely
+            while(true) {
+                logger.serialFileTransfer();
+            }
 
-    // log sensor data
-    logger.logData(sensorArray,9);
+        case PURGE_MODE:
+            // delete all files from flash memory
+            // TODO: add serial confirmation check
+            logger.deleteAllFiles();
+            while (true) {
+                // Infinite loop to prevent further execution
+                delay(1000);
+            }
+            break;
 
+        case LOGGING_MODE:
+            
+            if(DEBUG){
+                delay(1000);
+            }
+
+            // get IMU data
+            float* acc = imu.getAccelerometerData();
+            float* gyro = imu.getGyroscopeData();
+
+            float* sensorArray = new float[9];
+            
+            // put all sensors into sensor array
+            // TODO: Abstract this to dataLogger class
+            // TODO: improve speed. Last check, 13ms between loops. Way too slow.
+            sensorArray[0] = baro.getPressure();
+            sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
+            sensorArray[2] = acc[0];
+            sensorArray[3] = acc[1];
+            sensorArray[4] = acc[2];
+            sensorArray[5] = acc[3];
+            sensorArray[6] = gyro[1];
+            sensorArray[7] = gyro[2];
+            sensorArray[8] = gyro[3];
+
+            // log sensor data
+            logger.logData(sensorArray, 9);
+
+            delete[] sensorArray; // Don't forget to free the allocated memory
+            break;
+        default:
+            // Handle invalid mode
+            break;
+    }
 }
 
 

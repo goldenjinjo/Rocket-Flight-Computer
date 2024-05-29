@@ -1,49 +1,38 @@
 #include "dataLogger.hpp"
 
-DataLogger::DataLogger(const char* logFileName, const char* dataFileName) 
-    : logFileName(logFileName), dataFileName(dataFileName) {}
+/// TODO: create struct for unique file types (log and data files for right now)
+/// TODO: properly define communication messages in the config
+/// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
+/// TODO: properly set up data integrity checks (checksum incorrectly figured right now)
+/// TODO: set up system to automatically suggest file deletion after successful download
+/// TODO: configure data files only to generate in logging mode
+/// TODO: call sensors inside dataLogger rather than main
+/// TODO: remove magic numbers (e.g. maxFileLength and logBuffer)
 
-
-// TODO: Assess the performance of opening the file in initialization and keeping it open for the duration of the program
-void DataLogger::print(FsFile fileType, const char* fileName, const char* message) {
-    if (DEBUG) {
-        Serial.print(message);
-    }
-
-    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
-    fileType.print(message);
-    fileType.close();
-    }
+DataLogger::DataLogger() {}
 
 bool DataLogger::initialize() {
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
-        logEvent("SD card initialization failed.\n");
+        Serial.println("SD card initialization failed.\n");
         return false;
     }
 
-    // Create or append to the data file
-    if (!dataFile.open(dataFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        logEvent("Failed to open data file.\n");
-        return false;
-    }
+    // Load the index file and read the counters
+    loadIndexFile();
+    
 
-    // Append to the log file
-    if (!logFile.open(logFileName, O_RDWR | O_CREAT | O_AT_END)) {
-        logEvent("Failed to open log file.\n");
-        return false;
-    }
+    // Initialize log and data file names
+    createNewLogFile();
+    createNewDataFile();
 
+    updateIndexFile();
+    
     // Print debug warning
-    if(DEBUG){
+    if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
+    } else {
+        logEvent("Start LOG FILE");
     }
-    // Format log file
-    logEvent("Bellerophon v3.5 Online!\n");
-
-    // Write header to data file
-    // TODO: change dataLogger to input activated sensors and dynamically write this
-    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az gx, gy, gz \n");
-
     return true;
 }
 
@@ -65,12 +54,298 @@ void DataLogger::logData(float* data, size_t numFloats) {
     print(dataFile, dataFileName, buffer);
 }
 
+// Method to read data from a specific file and send it over serial
+void DataLogger::readDataFromFile(const char* fileName) {
+    if (!sd.exists(fileName)) {
+        Serial.println("Data file not found.");
+        return;
+    }
 
+    // Calculate CRC32 checksum
+    crc.reset(); // Reset CRC32 object before calculating a new checksum
+    FsFile file;
+    if (!file.open(fileName, O_READ)) {
+        sd.errorHalt("Opening for read failed");
+        return;
+    }
+
+    int data;
+    while ((data = file.read()) >= 0) {
+        crc.update(data); // Update the CRC32 checksum with each byte of data
+    }
+    uint32_t checksum = crc.finalize(); // Finalize the checksum calculation
+    file.close();
+
+    // Send file name and checksum to Python script
+    Serial.print("FILE_NAME:");
+    Serial.println(fileName);
+    Serial.print("CHECKSUM:");
+    Serial.println(checksum);
+
+    // Open the file again for reading data
+    if (!file.open(fileName, O_READ)) {
+        sd.errorHalt("Opening for read failed");
+    }
+
+    // Skip File read if serial comm sends this message
+    if (waitForMessage("FILE_ALREADY_RECEIVED", 100)){
+        return;
+    }
+
+    // Read from the file until there's nothing else in it
+    while ((data = file.read()) >= 0) {
+        Serial.write(data); // Send each byte of data over serial
+    }
+
+    file.close();
+
+    // Send end-of-transmission message
+    Serial.println("END_OF_TRANSMISSION");
+
+    // handshake to finish file transfer
+    if (!waitForMessage("END_OF_TRANSMISSION_ACK", 1000)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+        return;
+    }
+}
+
+void DataLogger::sendAllFiles() {
+    uint32_t timeout = 1800*1000; // 30 minute timeout
+
+    // Update the file list to ensure we have the latest list of files
+    updateFileList();
+
+    // Wait for handshake message from the Python script
+    if (waitForMessage("START_TRANSFER", timeout)) {
+        sendSerialMessage("TRANSFER_ACK");
+        buzzerSuccess();
+    } else {
+        // Handle timeout (optional)
+        buzzerFailure();
+        Serial.println("TIME OUT");
+        return;
+    }
+
+    // Iterate through each file name in the list
+    for (const auto& fileName : fileNames) {
+        // Check if the file name is the index file and skip it if so
+        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+            continue; // Skip this iteration and move to the next file
+        }
+
+        // Read the data from the current file and send it over Serial
+        readDataFromFile(fileName.c_str());
+    }
+    
+    // Send the end-of-transmission acknowledgment
+    sendSerialMessage("ALL_FILES_SENT");
+   
+
+    // Wait for the next file to be sent
+    if (!waitForMessage("ALL_FILES_SENT_ACK", timeout)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+        return;
+    } else {
+        buzzerSuccess();
+        LEDBlink();
+    }
+}
+
+void DataLogger::serialFileTransfer() {
+    // Check for incoming serial message
+    if (Serial.available()){
+        String message = Serial.readStringUntil('\n');
+        if (message == "REQUEST_FILE_DOWNLOAD"){
+            LEDBlink();
+            sendAllFiles();
+        }
+    }
+}
+
+void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
+    if (DEBUG) {
+        Serial.print(message);
+    }
+
+    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+    fileType.print(message);
+    fileType.close();
+}
+
+void DataLogger::sendSerialMessage(const String& message) {
+    Serial.println(message);
+}
+
+bool DataLogger::waitForMessage(const String& expectedMessage, uint32_t timeout) {
+    uint32_t startTime = millis();
+   
+    while (millis() - startTime < timeout) {
+        if (Serial.available()) {
+            String message = Serial.readStringUntil('\n');
+            if (message == expectedMessage) {
+                return true;
+            }
+        }
+    }
+    return false; // Timeout
+}
+
+// file directory reading
+void DataLogger::scanFiles() {
+    Serial.println("Scanning files on the SD card:");
+    sd.ls(LS_R);
+}
+
+void DataLogger::updateFileList() {
+    // Ensure the vector is empty before starting
+    fileNames.clear();
+
+    // Open the root directory
+    FsFile dir;
+    if (!dir.open("/", O_READ)) {
+        Serial.println("Failed to open root directory.");
+        return;
+    }
+
+    // Create a file object to hold each file entry
+    FsFile file;
+    while (file.openNext(&dir, O_READ)) {
+        char fileName[64];
+        file.getName(fileName, sizeof(fileName));
+        fileNames.push_back(std::string(fileName));
+        file.close();
+    }
+
+    // Close the directory
+    dir.close();
+}
+
+// deleting files
 bool DataLogger::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
+        Serial.println("File Successfully Deleted");
         return sd.remove(fileName);
+
     } else {
+        buzzerFailure();
         logEvent("File not found, nothing deleted\n");
         return false;
     }
 }
+
+void DataLogger::deleteAllFiles() {
+    // update fileNames array, just in case
+    updateFileList();
+
+    for (const auto& fileName : fileNames) {
+
+        // Check if the file name is the index file and skip it if so
+        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+            continue; // Skip this iteration and move to the next file
+        }
+
+        deleteFile(fileName.c_str());
+    }
+        
+    Serial.println("All files deleted.");
+    LEDBlink();
+
+    // update fileNames array, which now should be empty
+    updateFileList();
+}
+
+// file name creation
+// TODO: generalise this for arbitary numver of possible variables
+void DataLogger::loadIndexFile() {
+    // Open the index file
+    if (indexFile.open(indexFileName, O_RDWR)) {
+        // Read the counters from the index file
+        indexFile.read((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+        indexFile.read((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+        indexFile.close();
+    } else {
+        // If the index file doesn't exist, initialize counters to 0
+        initializeIndexFile();
+    }
+}
+
+void DataLogger::updateIndexFile() {
+    // Open the index file
+    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
+        // If the index file doesn't exist, create it and initialize counters to 0
+        initializeIndexFile();
+    }
+
+    // Write the updated counters to the index file
+    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+    indexFile.close();
+}
+
+void DataLogger::initializeIndexFile() {
+    // Open the index file for writing
+    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
+        // If unable to open or create the file, handle error (e.g., log error message)
+        return;
+    }
+
+    // Initialize counters to 0
+    logFileCounter = 0;
+    dataFileCounter = 0;
+
+    // Write the initialized counters to the index file
+    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
+    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
+    indexFile.close();
+}
+
+void DataLogger::createNewLogFile() {
+    char tempFileName[maxFileNameLength];
+
+    // Generate the new data file name based on the counter
+    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", logFilePrefix, zeroPadding, \
+     logFileCounter, logFileSuffix);
+    // Print debug message
+    if (DEBUG) {
+        // add a debug prefix to the file name
+        snprintf(logFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
+        Serial.print("New log file created: ");
+        Serial.println(logFileName);
+    } else {
+        strcpy(logFileName, tempFileName);
+    }
+
+    // Increment the log file counter
+    logFileCounter++;
+    // update index file for next file creation
+    updateIndexFile();
+
+}
+
+void DataLogger::createNewDataFile() {
+    char tempFileName[maxFileNameLength];
+
+    // Generate the new data file name based on the counter
+    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", dataFilePrefix, zeroPadding, \
+     dataFileCounter, dataFileSuffix);
+
+    if (DEBUG) {
+        // add a debug prefix to the file name
+        snprintf(dataFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
+        Serial.print("New data file created: ");
+        Serial.println(dataFileName);
+    } else {
+        strcpy(dataFileName, tempFileName);
+    }
+
+    // Increment the log file counter
+    dataFileCounter++;
+    // update index file for next file creation
+    updateIndexFile();
+
+    // Write header to the new data file
+    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+}
+
