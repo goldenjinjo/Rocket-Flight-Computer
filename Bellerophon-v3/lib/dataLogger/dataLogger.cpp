@@ -78,15 +78,8 @@ void DataLogger::readDataFromFile(const char* fileName) {
         sd.errorHalt("Opening for read failed");
     }
 
-    // if (Serial.available()) {
-    //     String message = Serial.readStringUntil('\n');
-    //     // return method call if file has already been downloaded
-    //     if (message == "FILE_ALREADY_RECIEVED"){
-    //         return;
-    //     }
-    // }
-
-    if (waitForMessage("FILE_ALREADY_RECIEVED", 100)){
+    // Skip File read if serial comm sends this message
+    if (waitForMessage("FILE_ALREADY_RECEIVED", 100)){
         return;
     }
 
@@ -99,6 +92,13 @@ void DataLogger::readDataFromFile(const char* fileName) {
 
     // Send end-of-transmission message
     Serial.println("END_OF_TRANSMISSION");
+
+    // handshake to finish file transfer
+    if (!waitForMessage("END_OF_TRANSMISSION_ACK", 1000)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+        return;
+    }
 }
 
 void DataLogger::sendAllFiles() {
