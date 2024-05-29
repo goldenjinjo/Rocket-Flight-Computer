@@ -55,32 +55,18 @@ void loop()
     }
 
     switch (mode) {
-           case STANDBY_MODE:
-                // Standby mode
-                logger.scanFiles();   
-                while (true) {
-                    delay(1000);
-                }
-        
+        case STANDBY_MODE:
+            // Standby mode
+            logger.scanFiles();   
+            while (true) {
+                delay(1000);
+            }
+    
         case READING_MODE:
-        // TODOS:
-        // create struct for unique file types (log and data files for right now)
-        /// TODO: properly define communication messages in the config
-        /// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
-        /// TODO: Add back in handshake between file transfers, it may be faster with the new switch case set up
-        /// TODO: Move the while loop into the dataLogger class, or a new class entirely for this kind of thing
-            
             // Loop indefinitely
             while(true) {
-
-            if (Serial.available()){
-                String message = Serial.readStringUntil('\n');
-                if (message == "REQUEST_FILE_DOWNLOAD"){
-                    LEDBlink();
-                    logger.sendAllFiles();
-                }
+                logger.serialFileTransfer();
             }
-        }
 
         case PURGE_MODE:
             // delete all files from flash memory

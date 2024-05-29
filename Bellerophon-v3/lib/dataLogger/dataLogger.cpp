@@ -1,5 +1,13 @@
 #include "dataLogger.hpp"
 
+/// TODO: create struct for unique file types (log and data files for right now)
+/// TODO: properly define communication messages in the config
+/// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
+/// TODO: properly set up data integrity checks (checksum incorrectly figured right now)
+/// TODO: set up system to automatically suggest file deletion after successful download
+/// TODO: configure data files only to generate in logging mode
+/// TODO: call sensors inside dataLogger rather than main  
+
 DataLogger::DataLogger() {}
 
 bool DataLogger::initialize() {
@@ -144,11 +152,16 @@ void DataLogger::sendAllFiles() {
     }
 }
 
+void DataLogger::serialFileTransfer() {
+    if (Serial.available()){
+        String message = Serial.readStringUntil('\n');
+        if (message == "REQUEST_FILE_DOWNLOAD"){
+            LEDBlink();
+            sendAllFiles();
+        }
+    }
+}
 
-
-
-
-// helper
 void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
     if (DEBUG) {
         Serial.print(message);
@@ -206,7 +219,6 @@ void DataLogger::updateFileList() {
     // Close the directory
     dir.close();
 }
-
 
 // deleting files
 bool DataLogger::deleteFile(const char* fileName) {

@@ -78,6 +78,8 @@ public:
 
     void sendAllFiles();
 
+    void serialFileTransfer();
+
     
 
     // ------------------------- MEMBERS ------------------------- //
