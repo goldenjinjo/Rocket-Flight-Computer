@@ -58,7 +58,17 @@ void loop()
             // Standby mode
             logger.scanFiles();   
             while (true) {
+                LEDBlink(pressureSensorLED, 1000);
                 delay(1000);
+                LEDBlink(IMUSensorLED, 1000);
+                delay(1000);
+                LEDBlink(flashMemoryLED, 1000);
+                delay(1000);
+                LEDBlink(R_LED, 1000);
+                delay(1000);
+                LEDBlink(G_LED, 1000);
+                delay(1000);
+                LEDBlink(B_LED, 1000);
             }
     
         case READING_MODE:

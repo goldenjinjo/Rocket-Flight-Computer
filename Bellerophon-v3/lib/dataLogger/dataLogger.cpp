@@ -149,7 +149,7 @@ void DataLogger::sendAllFiles() {
         return;
     } else {
         buzzerSuccess();
-        LEDBlink();
+        LEDBlink(G_LED, 1000);
     }
 }
 
@@ -158,7 +158,7 @@ void DataLogger::serialFileTransfer() {
     if (Serial.available()){
         String message = Serial.readStringUntil('\n');
         if (message == "REQUEST_FILE_DOWNLOAD"){
-            LEDBlink();
+            LEDBlink(G_LED, 300);
             sendAllFiles();
         }
     }
@@ -250,7 +250,7 @@ void DataLogger::deleteAllFiles() {
     }
         
     Serial.println("All files deleted.");
-    LEDBlink();
+    LEDBlink(R_LED, 2000);
 
     // update fileNames array, which now should be empty
     updateFileList();
