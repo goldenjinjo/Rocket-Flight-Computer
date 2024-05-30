@@ -21,9 +21,9 @@ void peripheralInitialize() {
 /// TODO: set this for different colors and delays
 /// TODO: make multithreaded
 void LEDBlink(uint8_t LED_PIN, uint32_t blinkTime) {
-  digitalWrite(B_LED, HIGH);
+  digitalWrite(LED_PIN, HIGH);
   delay(blinkTime);
-  digitalWrite(B_LED, LOW);
+  digitalWrite(LED_PIN, LOW);
 }
 
 void LEDBlinkRED() {
