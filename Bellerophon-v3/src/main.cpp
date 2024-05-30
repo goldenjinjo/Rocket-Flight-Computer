@@ -8,7 +8,6 @@
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
-
 #include <BasicLinearAlgebra.h>
 #include "SparkFunMPL3115A2.h"
 

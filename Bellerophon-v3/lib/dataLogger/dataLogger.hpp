@@ -5,6 +5,8 @@
 #include <CRC32.h>
 #include <vector>
 #include <string>
+#include "deviceFunctions.hpp"
+#include "config.hpp"
 
 /**
  * @file dataLogger.hpp
