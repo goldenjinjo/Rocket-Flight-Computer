@@ -96,7 +96,7 @@ void buzzerModeSelect(int mode) {
         delay(500); // Pause between double beeps
       }
       break;
-      
+
       case FIN_CONTROL_MODE:
           // Fin control mode: Rapid short beeps
           for (int i = 0; i < 5; i++) {
@@ -171,5 +171,23 @@ void startUp() {
     tone(BUZZER, 700, 500);
     delay(500);
     digitalWrite(R_LED,LOW);
+  }
+}
+
+// create functionality for switching between serial modes
+void checkSerialforMode() {
+  // Check for mode change command from serial input
+  /// TODO: create interface with python for this
+  if (Serial.available()) {
+      String input = Serial.readStringUntil('\n');
+      input.trim(); // Remove any leading/trailing whitespace
+
+      /// TODO: fix magic numbers, iterate over a mode array instead
+      if (input.startsWith("mode:")) {
+          char newMode = input.charAt(5); // Get the mode character
+          if (newMode >= '0' && newMode <= '4') {
+              mode = newMode - '0';  // Convert char to int
+          }
+      }
   }
 }

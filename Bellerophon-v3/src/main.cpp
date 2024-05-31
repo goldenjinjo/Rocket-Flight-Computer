@@ -44,20 +44,9 @@ int previousMode = -1;
 // MAIN LOOP
 void loop()
 {
-    // Check for mode change command from serial input
-    /// TODO: create interface with python for this
-    if (Serial.available()) {
-        String input = Serial.readStringUntil('\n');
-        input.trim(); // Remove any leading/trailing whitespace
-
-        /// TODO: fix magic numbers, iterate over a mode array instead
-        if (input.startsWith("mode:")) {
-            char newMode = input.charAt(5); // Get the mode character
-            if (newMode >= '0' && newMode <= '4') {
-                mode = newMode - '0';  // Convert char to int
-            }
-        }
-    }
+    // Read serial monitor and change mode if input is given as:
+    // mode:MODE_NUM
+    checkSerialforMode();
 
     // Play a tone to indicate mode of operation
     if (mode != previousMode) {
