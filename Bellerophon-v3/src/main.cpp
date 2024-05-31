@@ -44,6 +44,21 @@ int previousMode = -1;
 // MAIN LOOP
 void loop()
 {
+    // Check for mode change command from serial input
+    /// TODO: create interface with python for this
+    if (Serial.available()) {
+        String input = Serial.readStringUntil('\n');
+        input.trim(); // Remove any leading/trailing whitespace
+
+        /// TODO: fix magic numbers, iterate over a mode array instead
+        if (input.startsWith("mode:")) {
+            char newMode = input.charAt(5); // Get the mode character
+            if (newMode >= '0' && newMode <= '4') {
+                mode = newMode - '0';  // Convert char to int
+            }
+        }
+    }
+
     // Play a tone to indicate mode of operation
     if (mode != previousMode) {
         buzzerModeSelect(mode);
@@ -55,6 +70,8 @@ void loop()
 
             // Cycle through all LEDS in 1 second flashes
             // cycleLEDS(500);
+            delay(500);
+
             break;
             
         case READING_MODE:
@@ -65,6 +82,7 @@ void loop()
         case PURGE_MODE:
             // delete all files from flash memory
             // TODO: add serial confirmation check
+            /// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
             logger.deleteAllFiles();
             break;
         

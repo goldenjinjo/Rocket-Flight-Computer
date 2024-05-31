@@ -160,6 +160,8 @@ void DataLogger::serialFileTransfer() {
         if (message == "REQUEST_FILE_DOWNLOAD"){
             LEDBlink(G_LED, 300);
             sendAllFiles();
+        } else {
+            return;
         }
     }
 }
