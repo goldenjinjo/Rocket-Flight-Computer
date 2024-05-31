@@ -46,7 +46,7 @@ void loop()
 {
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
-    checkSerialforMode();
+    // checkSerialforMode();
 
     // Play a tone to indicate mode of operation
     if (mode != previousMode) {
@@ -55,27 +55,28 @@ void loop()
     }
 
     switch (mode) {
-        case STANDBY_MODE:
-
+        case STANDBY_MODE: {
             // Cycle through all LEDS in 1 second flashes
             // cycleLEDS(500);
             delay(500);
-
             break;
+        }
             
-        case READING_MODE:
+        case READING_MODE: {
             // communicate with python serial to download flash data
             logger.serialFileTransfer();
             break;
+        } 
             
-        case PURGE_MODE:
+        case PURGE_MODE: {
             // delete all files from flash memory
             // TODO: add serial confirmation check
             /// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
             logger.deleteAllFiles();
             break;
+        }
         
-        case LOGGING_MODE:
+        case LOGGING_MODE: {
             if(DEBUG){
                 delay(1000);
             }
@@ -103,16 +104,18 @@ void loop()
             delete[] sensorArray; // Don't forget to free the allocated memory
             
             break;
+        }
 
-        case FIN_CONTROL_MODE:
-        // Move fins based on serial input
-        controlFins.moveServosFromSerial();
-        
-        break;
+        case FIN_CONTROL_MODE: {
+            // Move fins based on serial input
+            controlFins.moveServosFromSerial();
+            break;
+        }
 
-        default:
+        default: {
             // Handle invalid mode
             break;
+        }
     }
 }
 

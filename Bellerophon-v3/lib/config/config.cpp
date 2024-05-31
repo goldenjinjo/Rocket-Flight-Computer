@@ -8,7 +8,8 @@ bool DEBUG = true;
 // 1 - read data
 // 2 - delete data
 // 3 - log data
-int mode = STANDBY_MODE;
+// 4 - manual fin control
+int mode = FIN_CONTROL_MODE;
 
 
 // data file management

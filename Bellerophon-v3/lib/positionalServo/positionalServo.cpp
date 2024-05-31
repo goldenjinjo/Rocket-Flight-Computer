@@ -61,6 +61,13 @@ void PositionalServo::moveServosFromSerial() {
         String input = Serial.readStringUntil('\n');
         input.trim(); // Remove any leading/trailing whitespace
 
+        Serial.println("testServo");
+        Serial.println(input);
+        if (DEBUG) {
+            Serial.print("Received input: ");
+            Serial.println(input);
+        }
+
         int len = input.length(); // Get the length of the input string
         int i = 0; // Initialize the index to parse the input
 
@@ -77,6 +84,13 @@ void PositionalServo::moveServosFromSerial() {
             // Convert the position substring to an integer
             int position = input.substring(positionStart, i).toInt();
 
+            if (DEBUG) {
+                Serial.print("Servo ");
+                Serial.print(servoID);
+                Serial.print(": Moving to position ");
+                Serial.println(position);
+            }
+
             // Move the corresponding servo to the specified position
             switch (servoID) {
                 case 'A':
@@ -92,6 +106,10 @@ void PositionalServo::moveServosFromSerial() {
                     move(servos[3], position); // Move servo D
                     break;
                 default:
+                    if (DEBUG) {
+                        Serial.print("Invalid servo ID: ");
+                        Serial.println(servoID);
+                    }
                     // Handle invalid servoID if necessary
                     break;
             }
@@ -103,6 +121,8 @@ void PositionalServo::moveServosFromSerial() {
         }
     }
 }
+
+
 
 
 
