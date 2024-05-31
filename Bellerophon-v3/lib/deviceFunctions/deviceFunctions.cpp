@@ -10,6 +10,9 @@ void peripheralInitialize() {
   pinMode(R_LED, OUTPUT);
   pinMode(G_LED, OUTPUT);
   pinMode(B_LED, OUTPUT);
+  pinMode(PRESSURE_LED, OUTPUT);
+  pinMode(IMU_LED, OUTPUT);
+  pinMode(FLASH_LED, OUTPUT);
   pinMode(BUZZER, OUTPUT);
 
   // Set LEDS to low in case previous program left it HIGH
@@ -23,6 +26,7 @@ void peripheralInitialize() {
 
 // Cycle through all LEDs
 void cycleLEDS(uint32_t blinkTime) {
+    delay(blinkTime);
     LEDBlink(PRESSURE_LED, blinkTime);
     delay(blinkTime);
     LEDBlink(IMU_LED, blinkTime);

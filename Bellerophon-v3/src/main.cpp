@@ -36,6 +36,7 @@ void setup() {
     // initilize classes
     logger.initialize();
     imu.setPollRate(10);  
+
 }
 
 // keep track of previous tones
@@ -53,7 +54,7 @@ void loop()
         case STANDBY_MODE:
 
             // Cycle through all LEDS in 1 second flashes
-            cycleLEDS(500);
+            // cycleLEDS(500);
             break;
             
         case READING_MODE:
