@@ -13,10 +13,7 @@
 
 
 // Class Declarations
-// set oversample rate (lower, faster)
-pressureSensor baro(1);
-// Change address to low or high based on PCB design
-IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
+
 DataLogger logger;
 PositionalServo controlFins;
 
@@ -35,7 +32,7 @@ void setup() {
 
     // initilize classes
     logger.initialize();
-    imu.setPollRate(10);  
+     
 
 }
 
@@ -46,6 +43,7 @@ void loop()
 {
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
+    /// TODO: create universal serial interface in python. There are timing issues with this configuration
     checkSerialforMode();
 
     // Play a tone to indicate mode of operation
@@ -60,52 +58,24 @@ void loop()
             // cycleLEDS(500);
             delay(500);
             break;
-        }
-            
+        }    
         case READING_MODE: {
             // communicate with python serial to download flash data
             logger.serialFileTransfer();
             break;
         } 
-            
         case PURGE_MODE: {
             // delete all files from flash memory
-            // TODO: add serial confirmation check
+            /// TODO: add serial confirmation check
             /// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
             logger.deleteAllFiles();
             break;
         }
-        
         case LOGGING_MODE: {
-            if(DEBUG){
-                delay(1000);
-            }
-            // get IMU data
-            float* acc = imu.getAccelerometerData();
-            float* gyro = imu.getGyroscopeData();
-
-            float* sensorArray = new float[9];
-            
-            // put all sensors into sensor array
-            // TODO: Abstract this to dataLogger class
-            // TODO: improve speed. Last check, 13ms between loops. Way too slow.
-            sensorArray[0] = baro.getPressure();
-            sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
-            sensorArray[2] = acc[0];
-            sensorArray[3] = acc[1];
-            sensorArray[4] = acc[2];
-            sensorArray[5] = acc[3];
-            sensorArray[6] = gyro[1];
-            sensorArray[7] = gyro[2];
-            sensorArray[8] = gyro[3];
-            // log sensor data
-            logger.logData(sensorArray, 9);
-
-            delete[] sensorArray; // Don't forget to free the allocated memory
-            
+            // log data to data file
+            logger.logData();
             break;
         }
-
         case FIN_CONTROL_MODE: {
             // Move fins based on serial input
             // type "start" to enter mode, otherwise does nothing
@@ -113,7 +83,6 @@ void loop()
             controlFins.moveServosFromSerial();
             break;
         }
-
         default: {
             // Handle invalid mode
             break;

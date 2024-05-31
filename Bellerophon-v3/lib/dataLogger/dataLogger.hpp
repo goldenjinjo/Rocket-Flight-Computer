@@ -8,6 +8,10 @@
 #include "deviceFunctions.hpp"
 #include "config.hpp"
 
+// sensors
+#include "pressureSensor.hpp"
+#include "IMUSensor.hpp"
+
 /**
  * @file dataLogger.hpp
  * @brief This file contains the declaration of the DataLogger class, which is responsible for managing 
@@ -99,6 +103,11 @@ public:
      */
     void serialFileTransfer();
 
+    
+    void logData();
+
+    bool fileExists(const char* fileName);
+
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
@@ -108,6 +117,13 @@ public:
     static const uint8_t maxFileNameLength = 30; // Maximum length for file names
     char logFileName[maxFileNameLength];         // Name of the log file
     char dataFileName[maxFileNameLength];        // Name of the data file
+
+
+    // Sensor Objects
+    // set oversample rate (lower, faster)
+    pressureSensor baro;
+    // Change address to low or high based on PCB design
+    IMUSensor imu;
 
 private:
     // ------------------------- MEMBERS ------------------------- //
@@ -148,6 +164,7 @@ private:
      * @param  message The message to be sent.
      */
     void sendSerialMessage(const String& message);
+
 };
 
 #endif //DATA_LOGGER_HPP
