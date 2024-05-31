@@ -18,7 +18,21 @@ void peripheralInitialize() {
   digitalWrite(B_LED, LOW);
 }
 
-/// TODO: set this for different colors and delays
+// Cycle through all LEDs
+void cycleLEDS(uint32_t blinkTime) {
+    LEDBlink(pressureSensorLED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(IMUSensorLED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(flashMemoryLED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(R_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(G_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(B_LED, blinkTime);
+}
+
 /// TODO: make multithreaded
 void LEDBlink(uint8_t LED_PIN, uint32_t blinkTime) {
   digitalWrite(LED_PIN, HIGH);
