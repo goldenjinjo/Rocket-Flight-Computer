@@ -3,6 +3,11 @@
 class PositionalServo {
     private:
 
+    Servo servoA;
+    Servo servoB;
+    S
+
+
 
     public:
     

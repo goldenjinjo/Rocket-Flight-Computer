@@ -20,11 +20,11 @@ void peripheralInitialize() {
 
 // Cycle through all LEDs
 void cycleLEDS(uint32_t blinkTime) {
-    LEDBlink(pressureSensorLED, blinkTime);
+    LEDBlink(PRESSURE_LED, blinkTime);
     delay(blinkTime);
-    LEDBlink(IMUSensorLED, blinkTime);
+    LEDBlink(IMU_LED, blinkTime);
     delay(blinkTime);
-    LEDBlink(flashMemoryLED, blinkTime);
+    LEDBlink(FLASH_LED, blinkTime);
     delay(blinkTime);
     LEDBlink(R_LED, blinkTime);
     delay(blinkTime);

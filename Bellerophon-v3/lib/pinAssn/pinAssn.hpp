@@ -24,15 +24,15 @@
 #define B_LED 2
 #define G_LED 1
 #define R_LED 0
-#define pressureSensorLED 14
-#define IMUSensorLED 6
-#define flashMemoryLED 9
+#define PRESSURE_LED 14
+#define IMU_LED 6
+#define FLASH_LED 9
 
 // servoMotor pins (directly soldered to Teensy in v3.5)
-#define servoA 3
-#define servoB 4
-#define servoC 5 // NOTE: This is the same pin as PYRO 4
-#define servoD 6 // NOTE: This is the same pin as PYRO 3
+#define SERVO_PIN_A 3
+#define SERVO_PIN_B 4
+#define SERVO_PIN_C 5 // NOTE: This is the same pin as PYRO 4
+#define SERVO_PIN_D 6 // NOTE: This is the same pin as PYRO 3
 
 
 #endif // PIN_ASSN_HPP
