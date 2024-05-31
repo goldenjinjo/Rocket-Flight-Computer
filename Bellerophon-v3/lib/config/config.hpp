@@ -15,6 +15,7 @@ extern bool DEBUG;
 #define READING_MODE 1
 #define PURGE_MODE 2
 #define LOGGING_MODE 3
+#define FIN_CONTROL_MODE 4
 
 extern int mode;
 

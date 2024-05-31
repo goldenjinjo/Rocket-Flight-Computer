@@ -8,8 +8,8 @@
 #include "pressureSensor.hpp"
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
+#include "positionalServo.hpp"
 #include <BasicLinearAlgebra.h>
-#include "SparkFunMPL3115A2.h"
 
 
 // Class Declarations
@@ -18,16 +18,14 @@ pressureSensor baro(1);
 // Change address to low or high based on PCB design
 IMUSensor imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000);
 DataLogger logger;
+PositionalServo controlFins;
+
 
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
     Serial.begin(2000000);
-    
-    if(DEBUG){
-        delay(100);
-    }
 
     // Set pin types and configure LEDs
     peripheralInitialize();
@@ -37,11 +35,9 @@ void setup() {
 
     // initilize classes
     logger.initialize();
-
     imu.setPollRate(10);  
-
-    
 }
+
 // keep track of previous tones
 int previousMode = -1;  
 // MAIN LOOP
@@ -61,13 +57,11 @@ void loop()
                 // Cycle through all LEDS in 1 second flashes
                 cycleLEDS(1000);
             }
-    
         case READING_MODE:
             // Loop indefinitely
             while(true) {
                 logger.serialFileTransfer();
             }
-
         case PURGE_MODE:
             // delete all files from flash memory
             // TODO: add serial confirmation check
@@ -77,13 +71,10 @@ void loop()
                 delay(1000);
             }
             break;
-
         case LOGGING_MODE:
-            
             if(DEBUG){
                 delay(1000);
             }
-
             // get IMU data
             float* acc = imu.getAccelerometerData();
             float* gyro = imu.getGyroscopeData();
@@ -102,12 +93,18 @@ void loop()
             sensorArray[6] = gyro[1];
             sensorArray[7] = gyro[2];
             sensorArray[8] = gyro[3];
-
             // log sensor data
             logger.logData(sensorArray, 9);
 
             delete[] sensorArray; // Don't forget to free the allocated memory
+            
             break;
+
+        case FIN_CONTROL_MODE:
+        // Move fins based on serial input
+        controlFins.moveServosFromSerial();
+        break;
+
         default:
             // Handle invalid mode
             break;
