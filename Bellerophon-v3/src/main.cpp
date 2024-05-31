@@ -35,7 +35,6 @@ void setup() {
      
 
 }
-
 // keep track of previous tones
 int previousMode = -1;  
 // MAIN LOOP
@@ -61,6 +60,7 @@ void loop()
         }    
         case READING_MODE: {
             // communicate with python serial to download flash data
+            delay(100);
             logger.serialFileTransfer();
             break;
         } 

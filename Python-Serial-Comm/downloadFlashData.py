@@ -15,6 +15,7 @@ FILE_COPY_MESSAGE = "FILE_ALREADY_RECEIVED\n"
 ALL_FILES_SENT = "ALL_FILES_SENT"
 ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK\n"
 REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD\n"
+GO_TO_STANDBY = "mode:0"
 TIMEOUT_SECONDS = 180  # 3 minutes
 BAUD_RATE = 115200  # Ensure this matches the flight computer's baud rate
 
@@ -132,6 +133,8 @@ def communicate_with_serial():
                         # Exit out of code loop after receiving message
                         print_debug("All files have been sent. Sending acknowledgment...")
                         ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
+                        time.sleep(1)
+                        ser.write(GO_TO_STANDBY.encode('utf-8'))
                         sys.exit()
 
             if file_name_received:
