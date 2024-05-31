@@ -96,6 +96,16 @@ void buzzerModeSelect(int mode) {
         delay(500); // Pause between double beeps
       }
       break;
+      
+      case FIN_CONTROL_MODE:
+          // Fin control mode: Rapid short beeps
+          for (int i = 0; i < 5; i++) {
+              tone(BUZZER, 2000, 100); // 2kHz tone for 0.1 seconds
+              delay(100);
+              noTone(BUZZER);
+              delay(100); // Short pause between beeps
+          }
+          break;
 
     default:
       // No mode selected or invalid mode
