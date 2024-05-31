@@ -1,6 +1,7 @@
 #include <Servo.h>
 #include "pinAssn.hpp"
 #include <array>
+#include <Arduino.h>
 
 class PositionalServo {
 private:
@@ -59,6 +60,13 @@ public:
      * @param servoObj The servo object to be stopped.
      */
     void stop(ServoObject& servoObj);
+
+    /**
+     * @brief Moves the servos to specified positions based on serial input.
+     * The expected input format is any combination of commands: "A90", "D30 B45", "A90 C120", etc.
+     * where the letter represents the servo and the number represents the position.
+     */
+    void moveServosFromSerial();
 };
 
 
