@@ -51,26 +51,22 @@ void loop()
 
     switch (mode) {
         case STANDBY_MODE:
-            // Standby mode
-            logger.scanFiles();   
-            while (true) {
-                // Cycle through all LEDS in 1 second flashes
-                cycleLEDS(1000);
-            }
+
+            // Cycle through all LEDS in 1 second flashes
+            cycleLEDS(500);
+            break;
+            
         case READING_MODE:
             // Loop indefinitely
-            while(true) {
-                logger.serialFileTransfer();
-            }
+            logger.serialFileTransfer();
+            break;
+            
         case PURGE_MODE:
             // delete all files from flash memory
             // TODO: add serial confirmation check
             logger.deleteAllFiles();
-            while (true) {
-                // Infinite loop to prevent further execution
-                delay(1000);
-            }
             break;
+        
         case LOGGING_MODE:
             if(DEBUG){
                 delay(1000);
@@ -103,6 +99,7 @@ void loop()
         case FIN_CONTROL_MODE:
         // Move fins based on serial input
         controlFins.moveServosFromSerial();
+        
         break;
 
         default:
