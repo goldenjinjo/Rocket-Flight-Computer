@@ -3,6 +3,7 @@
 #include <array>
 #include <Arduino.h>
 #include "config.hpp"
+#include "deviceFunctions.hpp"
 
 class PositionalServo {
 private:
@@ -19,6 +20,8 @@ private:
     std::array<ServoObject, 4> servos;
     // Default position for servo
     uint8_t servoZeroValue = 0;
+    // bool to determine while loop lock for servo control
+    bool serialServoControlState = false;
 
 public:
     /**

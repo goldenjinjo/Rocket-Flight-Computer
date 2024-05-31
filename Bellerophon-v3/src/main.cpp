@@ -46,7 +46,7 @@ void loop()
 {
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
-    // checkSerialforMode();
+    checkSerialforMode();
 
     // Play a tone to indicate mode of operation
     if (mode != previousMode) {
@@ -108,6 +108,8 @@ void loop()
 
         case FIN_CONTROL_MODE: {
             // Move fins based on serial input
+            // type "start" to enter mode, otherwise does nothing
+            // type "end" to exit
             controlFins.moveServosFromSerial();
             break;
         }

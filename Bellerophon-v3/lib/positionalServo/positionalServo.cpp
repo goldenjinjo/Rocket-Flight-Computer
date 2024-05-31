@@ -55,68 +55,87 @@ void PositionalServo::stop(ServoObject& servoObj) {
 }
 
 void PositionalServo::moveServosFromSerial() {
-    // Check if data is available on the Serial port
+    
     if (Serial.available()) {
-        // Read the incoming data until a newline character is encountered
         String input = Serial.readStringUntil('\n');
-        input.trim(); // Remove any leading/trailing whitespace
-
-        Serial.println("testServo");
-        Serial.println(input);
-        if (DEBUG) {
-            Serial.print("Received input: ");
-            Serial.println(input);
+        if(input == "start"){
+            serialServoControlState = true;
+            LEDBlink(G_LED, 500);
+            Serial.println("Entering Servo Control Mode. Type: {end} to exit control state");
         }
+    }
 
-        int len = input.length(); // Get the length of the input string
-        int i = 0; // Initialize the index to parse the input
-
-        // Loop through the input string
-        while (i < len) {
-            char servoID = input[i]; // Get the servo identifier (e.g., 'A', 'B', 'C', 'D')
-            int positionStart = ++i; // Move to the next character which should be the start of the position number
-
-            // Find the end of the position number
-            while (i < len && isDigit(input[i])) {
-                i++; // Increment index until a non-digit character is found
+    while(serialServoControlState) {
+        // Check if data is available on the Serial port
+        if (Serial.available()) {
+            // Read the incoming data until a newline character is encountered
+            String input = Serial.readStringUntil('\n');
+            input.trim(); // Remove any leading/trailing whitespace
+            if(input == "end"){
+                serialServoControlState = false;
+                LEDBlink(R_LED, 1000);
+                Serial.println("Exiting Servo Control Mode. Type: {start} to restart control");
+                break;
             }
+            
 
-            // Convert the position substring to an integer
-            int position = input.substring(positionStart, i).toInt();
-
+            Serial.println("testServo");
+            Serial.println(input);
             if (DEBUG) {
-                Serial.print("Servo ");
-                Serial.print(servoID);
-                Serial.print(": Moving to position ");
-                Serial.println(position);
+                Serial.print("Received input: ");
+                Serial.println(input);
             }
 
-            // Move the corresponding servo to the specified position
-            switch (servoID) {
-                case 'A':
-                    move(servos[0], position); // Move servo A
-                    break;
-                case 'B':
-                    move(servos[1], position); // Move servo B
-                    break;
-                case 'C':
-                    move(servos[2], position); // Move servo C
-                    break;
-                case 'D':
-                    move(servos[3], position); // Move servo D
-                    break;
-                default:
-                    if (DEBUG) {
-                        Serial.print("Invalid servo ID: ");
-                        Serial.println(servoID);
-                    }
-                    // Handle invalid servoID if necessary
-                    break;
-            }
+            int len = input.length(); // Get the length of the input string
+            int i = 0; // Initialize the index to parse the input
 
-            // Skip any spaces between commands
-            while (i < len && input[i] == ' ') {
-                i++; // Increment index to skip spaces
+            // Loop through the input string
+            while (i < len) {
+                char servoID = input[i]; // Get the servo identifier (e.g., 'A', 'B', 'C', 'D')
+                int positionStart = ++i; // Move to the next character which should be the start of the position number
+
+                // Find the end of the position number
+                while (i < len && isDigit(input[i])) {
+                    i++; // Increment index until a non-digit character is found
+                }
+
+                // Convert the position substring to an integer
+                int position = input.substring(positionStart, i).toInt();
+
+                if (DEBUG) {
+                    Serial.print("Servo ");
+                    Serial.print(servoID);
+                    Serial.print(": Moving to position ");
+                    Serial.println(position);
+                }
+
+                // Move the corresponding servo to the specified position
+                switch (servoID) {
+                    case 'A':
+                        move(servos[0], position); // Move servo A
+                        break;
+                    case 'B':
+                        move(servos[1], position); // Move servo B
+                        break;
+                    case 'C':
+                        move(servos[2], position); // Move servo C
+                        break;
+                    case 'D':
+                        move(servos[3], position); // Move servo D
+                        break;
+                    default:
+                        if (DEBUG) {
+                            Serial.print("Invalid servo ID: ");
+                            Serial.println(servoID);
+                        }
+                        // Handle invalid servoID if necessary
+                        break;
+                }
+
+                // Skip any spaces between commands
+                while (i < len && input[i] == ' ') {
+                    i++; // Increment index to skip spaces
+                }
             }
         }
     }
