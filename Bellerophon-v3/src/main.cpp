@@ -57,7 +57,7 @@ void loop()
             break;
             
         case READING_MODE:
-            // Loop indefinitely
+            // communicate with python serial to download flash data
             logger.serialFileTransfer();
             break;
             

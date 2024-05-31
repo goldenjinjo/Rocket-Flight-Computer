@@ -16,6 +16,9 @@ void peripheralInitialize() {
   digitalWrite(R_LED, LOW);
   digitalWrite(G_LED, LOW);
   digitalWrite(B_LED, LOW);
+  digitalWrite(PRESSURE_LED, LOW);
+  digitalWrite(IMU_LED, LOW);
+  digitalWrite(FLASH_LED, LOW);
 }
 
 // Cycle through all LEDs
