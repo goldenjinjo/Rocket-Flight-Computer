@@ -60,7 +60,6 @@ void loop()
         }    
         case READING_MODE: {
             // communicate with python serial to download flash data
-            delay(100);
             logger.serialFileTransfer();
             break;
         } 

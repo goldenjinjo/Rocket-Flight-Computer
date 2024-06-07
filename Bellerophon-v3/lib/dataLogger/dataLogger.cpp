@@ -166,6 +166,8 @@ void DataLogger::serialFileTransfer() {
             LEDBlink(G_LED, 300);
             sendAllFiles();
         } else {
+            LEDBlink(R_LED, 500);
+            Serial.println(message);
             return;
         }
     }

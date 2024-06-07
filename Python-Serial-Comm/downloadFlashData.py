@@ -5,30 +5,9 @@ import time
 import os
 from datetime import datetime
 import zlib
+from constants import *
+from config import *
 
-# Constants
-HANDSHAKE_MESSAGE = "START_TRANSFER\n"
-ACK_MESSAGE = "TRANSFER_ACK"
-END_OF_TRANSMISSION_MESSAGE = "END_OF_TRANSMISSION"
-END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK\n"
-FILE_COPY_MESSAGE = "FILE_ALREADY_RECEIVED\n"
-ALL_FILES_SENT = "ALL_FILES_SENT"
-ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK\n"
-REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD\n"
-GO_TO_STANDBY = "mode:0"
-TIMEOUT_SECONDS = 180  # 3 minutes
-BAUD_RATE = 115200  # Ensure this matches the flight computer's baud rate
-
-# Directory and file naming
-OUTPUT_DIRECTORY = "flightData"
-LOG_FOLDER = "logFiles"
-DATA_FOLDER = "dataFiles"
-MISC_FOLDER = "miscFiles"
-DEFAULT_FILE_PREFIX = "flight_data_"
-LOG_FILE_PREFIX = "log"
-DATA_FILE_PREFIX = "data"
-
-DEBUG = True  # Set this to True for debugging
 
 def print_debug(message):
     if DEBUG:
@@ -37,6 +16,16 @@ def print_debug(message):
 def ensure_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+def configure_directory():
+    # Ensure the main output directory exists
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    output_directory = os.path.join(script_directory, OUTPUT_DIRECTORY)
+    ensure_directory(output_directory)
+
+    # Ensure the misc folder exists
+    misc_directory = os.path.join(output_directory, MISC_FOLDER)
+    ensure_directory(misc_directory)
 
 def sort_file(file_name):
     # Organize file into appropriate folder based on prefix
@@ -69,15 +58,7 @@ def send_handshake(ser):
     ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
     print(f"Sent handshake message: {HANDSHAKE_MESSAGE.strip()}")
 
-def communicate_with_serial():
-    # Ensure the main output directory exists
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_directory = os.path.join(script_directory, OUTPUT_DIRECTORY)
-    ensure_directory(output_directory)
-
-    # Ensure the misc folder exists
-    misc_directory = os.path.join(output_directory, MISC_FOLDER)
-    ensure_directory(misc_directory)
+def communicate_with_serial(string):
 
     # Find the COM port dynamically
     com_port = find_com_port()
@@ -91,8 +72,25 @@ def communicate_with_serial():
     # Open serial port connection
     ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
 
-    ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
+    select_serial_action(string, ser)
+    
 
+def select_serial_action(string, ser):
+
+    if string == REQUEST_FILE_DOWNLOAD:
+        ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
+        time.sleep(1)
+        download_flash_data(ser)
+    elif string == GO_TO_READ:
+        ser.write(GO_TO_READ.encode('utf-8'))
+    else:
+        print(string)
+        print('failure')
+
+def download_flash_data(ser):
+    
+    configure_directory()
+    
     try:
         # Clear the serial buffer
         ser.reset_input_buffer()
