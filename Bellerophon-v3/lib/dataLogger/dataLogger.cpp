@@ -9,6 +9,7 @@
 /// TODO: call sensors inside dataLogger rather than main
 /// TODO: remove magic numbers (e.g. maxFileLength and logBuffer)
 /// TODO: break this up into more files / classes. It is getting too big.
+/// TODO: add unique identifers for different Bellerophons in file name
 
 DataLogger::DataLogger() : baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
 
