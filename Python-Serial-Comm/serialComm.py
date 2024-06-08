@@ -61,6 +61,7 @@ def continuous_serial(ser):
         print("Stopping the serial interface...")
         # artifact from broken method
         ser.write("stop/n".encode('utf-8'))
+        ser.write(GO_TO_STANDBY.encode('utf-8'))
         stop_threads = True
     finally:
         # Close the serial port
@@ -115,13 +116,8 @@ def select_serial_action(string, ser):
         print("Begin Logging Sequence")
     
     if string == GO_TO_FINS:
-        user_input = input("Would you like to activate manual fin control? (yes/no): ").strip().lower()
-        if user_input == 'yes':
-            ser.write("start\n".encode('utf-8'))
-            continuous_serial(ser)
-        else:
-            print("Fins will not move. Returning to standby.")
-            ser.write(GO_TO_STANDBY.encode('utf-8'))
+        ser.write("start\n".encode('utf-8'))
+        continuous_serial(ser)
         
         
        

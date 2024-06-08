@@ -5,7 +5,7 @@ from constants import *
 from helperFunc import *
 
 
-# TO DO: restructure this to select modes or whatever
+# TO DO: re add in handshake before starting any serial comms
 if __name__ == "__main__":
     
     while True:
