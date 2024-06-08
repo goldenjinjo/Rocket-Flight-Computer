@@ -1,17 +1,12 @@
-import serial
-from serial.tools import list_ports
 import sys
 import time
 import os
-from datetime import datetime
 import zlib
+import time
 from constants import *
 from config import *
+from helperFunc import *
 
-
-def print_debug(message):
-    if DEBUG:
-        print(f"{datetime.now()}: {message}")
 
 def ensure_directory(directory):
     if not os.path.exists(directory):
@@ -40,52 +35,6 @@ def sort_file(file_name):
     ensure_directory(file_directory)
     
     return os.path.join(file_directory, file_name)
-
-def write_time_to_str():
-    # Get the current time as a time.struct_time object
-    current_time = time.localtime()
-    # Format the current time as a string
-    return time.strftime("%Y%m%d_%H%M%S", current_time)
-
-def find_com_port():
-    ports = serial.tools.list_ports.comports()
-    for port in ports:
-        if 'USB' in port.description:  # Adjust this condition based on your device's description
-            return port.device
-    return None
-
-def send_handshake(ser):
-    ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
-    print(f"Sent handshake message: {HANDSHAKE_MESSAGE.strip()}")
-
-def communicate_with_serial(string):
-
-    # Find the COM port dynamically
-    com_port = find_com_port()
-    if com_port is None:
-        print("No USB serial port found. Make sure your device is connected.")
-        sys.exit()
-
-    # Print the connected COM port
-    print(f"Connected to COM port: {com_port}")
-
-    # Open serial port connection
-    ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
-
-    select_serial_action(string, ser)
-    
-
-def select_serial_action(string, ser):
-
-    if string == REQUEST_FILE_DOWNLOAD:
-        ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
-        time.sleep(1)
-        download_flash_data(ser)
-    elif string == GO_TO_READ:
-        ser.write(GO_TO_READ.encode('utf-8'))
-    else:
-        print(string)
-        print('failure')
 
 def download_flash_data(ser):
     
