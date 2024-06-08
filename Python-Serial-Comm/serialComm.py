@@ -37,6 +37,38 @@ def write_to_serial(ser):
         except EOFError:
             stop_threads = True
 
+
+def continuous_serial(ser):
+    global stop_threads
+    try:
+        # Create threads for reading and writing
+        read_thread = threading.Thread(target=read_from_serial, args=(ser,))
+        write_thread = threading.Thread(target=write_to_serial, args=(ser,))
+
+        # Start the threads
+        read_thread.start()
+        write_thread.start()
+
+        # Keep the main thread running while handling KeyboardInterrupt
+        while not stop_threads:
+            time.sleep(0.1)
+
+        # Join the threads to the main thread
+        read_thread.join()
+        write_thread.join()
+
+    except KeyboardInterrupt:
+        print("Stopping the serial interface...")
+        # artifact from broken method
+        ser.write("stop/n".encode('utf-8'))
+        stop_threads = True
+    finally:
+        # Close the serial port
+        if ser.is_open:
+            ser.close()
+        print("Serial port closed.")
+
+
 def communicate_with_serial(string):
     
     # Find the COM port dynamically
@@ -52,7 +84,8 @@ def communicate_with_serial(string):
     ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
 
     select_serial_action(string, ser)
-    
+
+
 
 def select_serial_action(string, ser):
     global stop_threads
@@ -70,7 +103,7 @@ def select_serial_action(string, ser):
             ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
             download_flash_data(ser)
         else:
-            print("Files will not be downloaded.")
+            print("Files will not be downloaded. Returning to standby.")
     
     if string == GO_TO_STANDBY:
         print("Going to standby")
@@ -82,32 +115,15 @@ def select_serial_action(string, ser):
         print("Begin Logging Sequence")
     
     if string == GO_TO_FINS:
-        ser.write("start\n".encode('utf-8'))
-        try:
-            # Create threads for reading and writing
-            read_thread = threading.Thread(target=read_from_serial, args=(ser,))
-            write_thread = threading.Thread(target=write_to_serial, args=(ser,))
-
-            # Start the threads
-            read_thread.start()
-            write_thread.start()
-
-            # Keep the main thread running while handling KeyboardInterrupt
-            while not stop_threads:
-                time.sleep(0.1)
-
-            # Join the threads to the main thread
-            read_thread.join()
-            write_thread.join()
-
-        except KeyboardInterrupt:
-            print("Stopping the serial interface...")
-            ser.write("stop/n".encode('utf-8'))
-            stop_threads = True
-        finally:
-            # Close the serial port
-            if ser.is_open:
-                ser.close()
-            print("Serial port closed.")
+        user_input = input("Would you like to activate manual fin control? (yes/no): ").strip().lower()
+        if user_input == 'yes':
+            ser.write("start\n".encode('utf-8'))
+            continuous_serial(ser)
+        else:
+            print("Fins will not move. Returning to standby.")
+            ser.write(GO_TO_STANDBY.encode('utf-8'))
+        
+        
+       
     
 
