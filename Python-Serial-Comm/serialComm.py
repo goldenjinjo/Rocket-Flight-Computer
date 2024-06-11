@@ -36,6 +36,7 @@ def write_to_serial(ser):
             ser.write((message + '\n').encode('utf-8'))
         except EOFError:
             stop_threads = True
+            print_debug("Message failed to send")
 
 
 def continuous_serial(ser):
@@ -60,7 +61,9 @@ def continuous_serial(ser):
     except KeyboardInterrupt:
         print("Stopping the serial interface...")
         # artifact from broken method
-        ser.write("stop/n".encode('utf-8'))
+        time.sleep(0.5)
+        ser.write("end\n".encode('utf-8'))
+        time.sleep(0.5)
         ser.write(GO_TO_STANDBY.encode('utf-8'))
         stop_threads = True
     finally:
@@ -105,6 +108,8 @@ def select_serial_action(string, ser):
             download_flash_data(ser)
         else:
             print("Files will not be downloaded. Returning to standby.")
+            time.sleep(3)
+            ser.write(GO_TO_STANDBY.encode('utf-8'))
     
     if string == GO_TO_STANDBY:
         print("Going to standby")
@@ -116,6 +121,8 @@ def select_serial_action(string, ser):
         print("Begin Logging Sequence")
     
     if string == GO_TO_FINS:
+        # reenable threads
+        stop_threads = False
         ser.write("start\n".encode('utf-8'))
         continuous_serial(ser)
         

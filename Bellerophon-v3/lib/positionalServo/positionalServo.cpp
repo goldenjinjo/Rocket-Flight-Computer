@@ -61,7 +61,6 @@ void PositionalServo::moveServosFromSerial() {
         if(input == "start"){
             serialServoControlState = true;
             LEDBlink(G_LED, 500);
-            Serial.println("Entering Servo Control Mode. Type: {end} to exit control state");
         }
     }
 
@@ -74,16 +73,7 @@ void PositionalServo::moveServosFromSerial() {
             if(input == "end"){
                 serialServoControlState = false;
                 LEDBlink(R_LED, 1000);
-                Serial.println("Exiting Servo Control Mode. Type: {start} to restart control");
                 break;
-            }
-            
-
-            Serial.println("testServo");
-            Serial.println(input);
-            if (DEBUG) {
-                Serial.print("Received input: ");
-                Serial.println(input);
             }
 
             int len = input.length(); // Get the length of the input string

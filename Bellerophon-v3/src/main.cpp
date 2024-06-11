@@ -67,6 +67,7 @@ void loop()
             // delete all files from flash memory
             /// TODO: add serial confirmation check
             /// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
+            /// TODO: create new new public method for serial based deletion, either individual files or all files and make this one private
             logger.deleteAllFiles();
             break;
         }
