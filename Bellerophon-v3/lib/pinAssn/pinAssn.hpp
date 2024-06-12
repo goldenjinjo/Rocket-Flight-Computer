@@ -32,7 +32,7 @@
 #define SERVO_PIN_A 3
 #define SERVO_PIN_B 4
 #define SERVO_PIN_C 5 // NOTE: This is the same pin as PYRO 4
-#define SERVO_PIN_D 6 // NOTE: This is the same pin as PYRO 3
+#define SERVO_PIN_D 8 // NOTE: This is the same pin as PYRO 3
 
 
 #endif // PIN_ASSN_HPP
