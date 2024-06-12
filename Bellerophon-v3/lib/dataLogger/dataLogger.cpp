@@ -8,8 +8,10 @@
 /// TODO: configure data files only to generate in logging mode
 /// TODO: call sensors inside dataLogger rather than main
 /// TODO: remove magic numbers (e.g. maxFileLength and logBuffer)
+/// TODO: break this up into more files / classes. It is getting too big.
+/// TODO: add unique identifers for different Bellerophons in file name
 
-DataLogger::DataLogger() {}
+DataLogger::DataLogger() : baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
 
 bool DataLogger::initialize() {
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
@@ -33,6 +35,10 @@ bool DataLogger::initialize() {
     } else {
         logEvent("Start LOG FILE");
     }
+
+    // Sensor config
+    imu.setPollRate(10); 
+
     return true;
 }
 
@@ -149,7 +155,7 @@ void DataLogger::sendAllFiles() {
         return;
     } else {
         buzzerSuccess();
-        LEDBlink();
+        LEDBlink(G_LED, 1000);
     }
 }
 
@@ -158,8 +164,12 @@ void DataLogger::serialFileTransfer() {
     if (Serial.available()){
         String message = Serial.readStringUntil('\n');
         if (message == "REQUEST_FILE_DOWNLOAD"){
-            LEDBlink();
+            LEDBlink(G_LED, 300);
             sendAllFiles();
+        } else {
+            LEDBlink(R_LED, 500);
+            Serial.println(message);
+            return;
         }
     }
 }
@@ -250,7 +260,7 @@ void DataLogger::deleteAllFiles() {
     }
         
     Serial.println("All files deleted.");
-    LEDBlink();
+    LEDBlink(R_LED, 2000);
 
     // update fileNames array, which now should be empty
     updateFileList();
@@ -345,7 +355,46 @@ void DataLogger::createNewDataFile() {
     // update index file for next file creation
     updateIndexFile();
 
-    // Write header to the new data file
-    print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+    
+}
+
+bool DataLogger::fileExists(const char* fileName) {
+    return sd.exists(fileName);
+}
+
+// SENSOR logging - logging mode
+void DataLogger::logData() {
+    
+    // Write header to the new data file on first run of loop
+    if (!fileExists(dataFileName)) {
+        print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+
+    }
+
+    if(DEBUG){
+        delay(1000);
+    }
+    // get IMU data
+    float* acc = imu.getAccelerometerData();
+    float* gyro = imu.getGyroscopeData();
+
+    float* sensorArray = new float[9];
+
+    // put all sensors into sensor array
+    // TODO: Abstract this to dataLogger class
+    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
+    sensorArray[0] = baro.getPressure();
+    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
+    sensorArray[2] = acc[0];
+    sensorArray[3] = acc[1];
+    sensorArray[4] = acc[2];
+    sensorArray[5] = acc[3];
+    sensorArray[6] = gyro[1];
+    sensorArray[7] = gyro[2];
+    sensorArray[8] = gyro[3];
+    // log sensor data
+    logData(sensorArray, 9);
+
+    delete[] sensorArray; // Don't forget to free the allocated memory
 }
 

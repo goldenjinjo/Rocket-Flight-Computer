@@ -10,20 +10,41 @@ void peripheralInitialize() {
   pinMode(R_LED, OUTPUT);
   pinMode(G_LED, OUTPUT);
   pinMode(B_LED, OUTPUT);
+  pinMode(PRESSURE_LED, OUTPUT);
+  pinMode(IMU_LED, OUTPUT);
+  pinMode(FLASH_LED, OUTPUT);
   pinMode(BUZZER, OUTPUT);
 
   // Set LEDS to low in case previous program left it HIGH
   digitalWrite(R_LED, LOW);
   digitalWrite(G_LED, LOW);
   digitalWrite(B_LED, LOW);
+  digitalWrite(PRESSURE_LED, LOW);
+  digitalWrite(IMU_LED, LOW);
+  digitalWrite(FLASH_LED, LOW);
 }
 
-/// TODO: set this for different colors and delays
+// Cycle through all LEDs
+void cycleLEDS(uint32_t blinkTime) {
+    delay(blinkTime);
+    LEDBlink(PRESSURE_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(IMU_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(FLASH_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(R_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(G_LED, blinkTime);
+    delay(blinkTime);
+    LEDBlink(B_LED, blinkTime);
+}
+
 /// TODO: make multithreaded
-void LEDBlink() {
-  digitalWrite(B_LED, HIGH);
-  delay(500);
-  digitalWrite(B_LED, LOW);
+void LEDBlink(uint8_t LED_PIN, uint32_t blinkTime) {
+  digitalWrite(LED_PIN, HIGH);
+  delay(blinkTime);
+  digitalWrite(LED_PIN, LOW);
 }
 
 void LEDBlinkRED() {
@@ -75,6 +96,16 @@ void buzzerModeSelect(int mode) {
         delay(500); // Pause between double beeps
       }
       break;
+
+      case FIN_CONTROL_MODE:
+          // Fin control mode: Rapid short beeps
+          for (int i = 0; i < 5; i++) {
+              tone(BUZZER, 2000, 100); // 2kHz tone for 0.1 seconds
+              delay(100);
+              noTone(BUZZER);
+              delay(100); // Short pause between beeps
+          }
+          break;
 
     default:
       // No mode selected or invalid mode
@@ -140,5 +171,23 @@ void startUp() {
     tone(BUZZER, 700, 500);
     delay(500);
     digitalWrite(R_LED,LOW);
+  }
+}
+
+// create functionality for switching between serial modes
+void checkSerialforMode() {
+  // Check for mode change command from serial input
+  /// TODO: create interface with python for this
+  if (Serial.available()) {
+      String input = Serial.readStringUntil('\n');
+      input.trim(); // Remove any leading/trailing whitespace
+
+      /// TODO: fix magic numbers, iterate over a mode array instead
+      if (input.startsWith("mode:")) {
+          char newMode = input.charAt(5); // Get the mode character
+          if (newMode >= '0' && newMode <= '4') {
+              mode = newMode - '0';  // Convert char to int
+          }
+      }
   }
 }

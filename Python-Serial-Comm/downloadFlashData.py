@@ -1,41 +1,26 @@
-import serial
-from serial.tools import list_ports
 import sys
 import time
 import os
-from datetime import datetime
 import zlib
+import time
+from constants import *
+from config import *
+from helperFunc import *
 
-# Constants
-HANDSHAKE_MESSAGE = "START_TRANSFER\n"
-ACK_MESSAGE = "TRANSFER_ACK"
-END_OF_TRANSMISSION_MESSAGE = "END_OF_TRANSMISSION"
-END_OF_TRANSMISSION_ACK = "END_OF_TRANSMISSION_ACK\n"
-FILE_COPY_MESSAGE = "FILE_ALREADY_RECEIVED\n"
-ALL_FILES_SENT = "ALL_FILES_SENT"
-ALL_FILES_SENT_ACK = "ALL_FILES_SENT_ACK\n"
-REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD\n"
-TIMEOUT_SECONDS = 180  # 3 minutes
-BAUD_RATE = 115200  # Ensure this matches the flight computer's baud rate
-
-# Directory and file naming
-OUTPUT_DIRECTORY = "flightData"
-LOG_FOLDER = "logFiles"
-DATA_FOLDER = "dataFiles"
-MISC_FOLDER = "miscFiles"
-DEFAULT_FILE_PREFIX = "flight_data_"
-LOG_FILE_PREFIX = "log"
-DATA_FILE_PREFIX = "data"
-
-DEBUG = True  # Set this to True for debugging
-
-def print_debug(message):
-    if DEBUG:
-        print(f"{datetime.now()}: {message}")
 
 def ensure_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+def configure_directory():
+    # Ensure the main output directory exists
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    output_directory = os.path.join(script_directory, OUTPUT_DIRECTORY)
+    ensure_directory(output_directory)
+
+    # Ensure the misc folder exists
+    misc_directory = os.path.join(output_directory, MISC_FOLDER)
+    ensure_directory(misc_directory)
 
 def sort_file(file_name):
     # Organize file into appropriate folder based on prefix
@@ -51,47 +36,10 @@ def sort_file(file_name):
     
     return os.path.join(file_directory, file_name)
 
-def write_time_to_str():
-    # Get the current time as a time.struct_time object
-    current_time = time.localtime()
-    # Format the current time as a string
-    return time.strftime("%Y%m%d_%H%M%S", current_time)
-
-def find_com_port():
-    ports = serial.tools.list_ports.comports()
-    for port in ports:
-        if 'USB' in port.description:  # Adjust this condition based on your device's description
-            return port.device
-    return None
-
-def send_handshake(ser):
-    ser.write(HANDSHAKE_MESSAGE.encode('utf-8'))
-    print(f"Sent handshake message: {HANDSHAKE_MESSAGE.strip()}")
-
-def communicate_with_serial():
-    # Ensure the main output directory exists
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    output_directory = os.path.join(script_directory, OUTPUT_DIRECTORY)
-    ensure_directory(output_directory)
-
-    # Ensure the misc folder exists
-    misc_directory = os.path.join(output_directory, MISC_FOLDER)
-    ensure_directory(misc_directory)
-
-    # Find the COM port dynamically
-    com_port = find_com_port()
-    if com_port is None:
-        print("No USB serial port found. Make sure your device is connected.")
-        sys.exit()
-
-    # Print the connected COM port
-    print(f"Connected to COM port: {com_port}")
-
-    # Open serial port connection
-    ser = serial.Serial(com_port, BAUD_RATE, timeout=0.1)
-
-    ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
-
+def download_flash_data(ser):
+    
+    configure_directory()
+    
     try:
         # Clear the serial buffer
         ser.reset_input_buffer()
@@ -132,6 +80,8 @@ def communicate_with_serial():
                         # Exit out of code loop after receiving message
                         print_debug("All files have been sent. Sending acknowledgment...")
                         ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
+                        time.sleep(1)
+                        ser.write(GO_TO_STANDBY.encode('utf-8'))
                         sys.exit()
 
             if file_name_received:
