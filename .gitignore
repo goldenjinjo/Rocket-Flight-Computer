@@ -5,3 +5,6 @@
 
 #ignore files from flight data
 flightData/
+
+# ignore python stuff
+__pycache__/
