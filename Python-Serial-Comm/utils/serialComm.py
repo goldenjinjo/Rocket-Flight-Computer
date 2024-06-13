@@ -38,12 +38,12 @@ def read_from_serial(ser):
                 print_debug("Stopping read thread due to an error.")
                 break
 
-def write_to_serial(ser):
+def user_input_to_serial(ser):
     global stop_threads
     while not stop_threads:
         try:
             message = input("Enter message to send: ")
-            ser.write((message + '\n').encode('utf-8'))
+            write_to_serial(ser, message)
         except EOFError:
             stop_threads = True
             print_debug("EOFError: Message failed to send")
@@ -62,7 +62,7 @@ def continuous_serial(ser):
     global stop_threads
     try:
         read_thread = threading.Thread(target=read_from_serial, args=(ser,))
-        write_thread = threading.Thread(target=write_to_serial, args=(ser,))
+        write_thread = threading.Thread(target=user_input_to_serial, args=(ser,))
 
         read_thread.start()
         write_thread.start()
@@ -81,9 +81,9 @@ def continuous_serial(ser):
         stop_threads = True
     finally:
         try:
-            ser.write("end\n".encode('utf-8'))
+            write_to_serial(ser,"end")
             time.sleep(0.5)
-            ser.write(GO_TO_STANDBY.encode('utf-8'))
+            write_to_serial(ser, GO_TO_STANDBY)
         except Exception as e:
             print_debug(f"Error during shutdown: {e}")
         if ser.is_open:
@@ -111,7 +111,7 @@ def select_serial_action(string, ser):
 
     if string in MODE_MSG_ARRAY:
         try:
-            ser.write(string.encode('utf-8'))
+            write_to_serial(ser, string)
         except serial.SerialException as e:
             print_debug(f"Error writing to serial port: {e}")
             return
@@ -126,7 +126,7 @@ def select_serial_action(string, ser):
         user_input = input("Would you like to request a file download? (yes/no): ").strip().lower()
         if user_input == 'yes':
             try:
-                ser.write(REQUEST_FILE_DOWNLOAD.encode('utf-8'))
+                write_to_serial(ser, REQUEST_FILE_DOWNLOAD)
                 download_flash_data(ser)
             except serial.SerialException as e:
                 print_debug(f"Error during file download: {e}")
@@ -136,7 +136,7 @@ def select_serial_action(string, ser):
             print("Files will not be downloaded. Returning to standby.")
             time.sleep(3)
             try:
-                ser.write(GO_TO_STANDBY.encode('utf-8'))
+                write_to_serial(ser, GO_TO_STANDBY)
             except Exception as e:
                 print_debug(f"Error writing to serial port: {e}")
     
@@ -152,7 +152,7 @@ def select_serial_action(string, ser):
     if string == GO_TO_FINS:
         stop_threads = False
         try:
-            ser.write("start\n".encode('utf-8'))
+            write_to_serial(ser, "start")
             continuous_serial(ser)
         except serial.SerialException as e:
             print_debug(f"Error during fins control: {e}")

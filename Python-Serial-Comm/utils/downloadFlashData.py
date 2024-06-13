@@ -77,9 +77,9 @@ def download_flash_data(ser):
                     elif response == ALL_FILES_SENT:
                         # Exit out of code loop after receiving message
                         print_debug("All files have been sent. Sending acknowledgment...")
-                        ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
+                        write_to_serial(ser, ALL_FILES_SENT)
                         time.sleep(1)
-                        ser.write(GO_TO_STANDBY.encode('utf-8'))
+                        write_to_serial(ser, GO_TO_STANDBY)
                         sys.exit()
 
             if file_name_received:
@@ -90,7 +90,7 @@ def download_flash_data(ser):
                 # Does not write to file if it is found to already exist
                 if os.path.exists(output_file_path):
                     print_debug(f"File {file_name} already exists. Skipping download.")
-                    ser.write(FILE_COPY_MESSAGE.encode('utf-8'))
+                    write_to_serial(ser, FILE_COPY_MESSAGE)
                 else:
                     # Open file for writing
                     with open(output_file_path, 'w') as f:
@@ -102,7 +102,7 @@ def download_flash_data(ser):
                             print_debug(f"Received data: {data}")
                             if data == END_OF_TRANSMISSION_MESSAGE.strip():
                                 print_debug(f"End of transmission for {file_name} received.")
-                                ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
+                                write_to_serial(ser, END_OF_TRANSMISSION_ACK)
                                 break
                             if data:  # Check if data is not empty
                                 # Write data to file
