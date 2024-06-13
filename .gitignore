@@ -8,3 +8,4 @@ flightData/
 
 # ignore python stuff
 __pycache__/
+venv/

@@ -1,8 +1,7 @@
 # main.py
-
-from serialComm import communicate_with_serial
-from constants import *
-from helperFunc import *
+from utils.serialComm import communicate_with_serial
+from constants.constants import *
+from utils.helperFunc import *
 
 
 # TO DO: re add in handshake before starting any serial comms

@@ -5,10 +5,10 @@ from datetime import datetime
 import time
 import sys
 import threading
-from constants import *
-from config import *
-from helperFunc import *
-from downloadFlashData import download_flash_data
+from constants.constants import *
+from config.config import *
+from utils.helperFunc import *
+from utils.downloadFlashData import download_flash_data
 
 
 stop_threads = False

@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
-from config import DEBUG
-from constants import *
+from config.config import DEBUG
+from constants.constants import *
 
 
 def print_debug(message):

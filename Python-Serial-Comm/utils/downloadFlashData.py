@@ -2,11 +2,9 @@ import sys
 import time
 import os
 import zlib
-import time
-from constants import *
-from config import *
-from helperFunc import *
-
+from constants.constants import *
+from config.config import *
+from utils.helperFunc import *
 
 def ensure_directory(directory):
     if not os.path.exists(directory):
