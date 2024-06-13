@@ -94,7 +94,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     }
 
     // Skip File read if serial comm sends this message
-    if (waitForMessage("FILE_ALREADY_RECEIVED", 100)){
+    if (waitForMessage(FILE_COPY_MESSAGE, 100)){
         return;
     }
 
@@ -106,10 +106,10 @@ void DataLogger::readDataFromFile(const char* fileName) {
     file.close();
 
     // Send end-of-transmission message
-    Serial.println("END_OF_TRANSMISSION");
+    Serial.println(END_OF_TRANSMISSION_ACK);
 
     // handshake to finish file transfer
-    if (!waitForMessage("END_OF_TRANSMISSION_ACK", 1000)) {
+    if (!waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {
         // Handle timeout (optional)
         buzzerFailure();
         return;
@@ -123,8 +123,8 @@ void DataLogger::sendAllFiles() {
     updateFileList();
 
     // Wait for handshake message from the Python script
-    if (waitForMessage("START_TRANSFER", timeout)) {
-        sendSerialMessage("TRANSFER_ACK");
+    if (waitForMessage(HANDSHAKE_MESSAGE, timeout)) {
+        sendSerialMessage(ACK_MESSAGE);
         buzzerSuccess();
     } else {
         // Handle timeout (optional)
@@ -145,11 +145,11 @@ void DataLogger::sendAllFiles() {
     }
     
     // Send the end-of-transmission acknowledgment
-    sendSerialMessage("ALL_FILES_SENT");
+    sendSerialMessage(ALL_FILES_SENT);
    
 
     // Wait for the next file to be sent
-    if (!waitForMessage("ALL_FILES_SENT_ACK", timeout)) {
+    if (!waitForMessage(ALL_FILES_SENT_ACK, timeout)) {
         // Handle timeout (optional)
         buzzerFailure();
         return;
@@ -163,7 +163,7 @@ void DataLogger::serialFileTransfer() {
     // Check for incoming serial message
     if (Serial.available()){
         String message = Serial.readStringUntil('\n');
-        if (message == "REQUEST_FILE_DOWNLOAD"){
+        if (message == REQUEST_FILE_DOWNLOAD){
             LEDBlink(G_LED, 300);
             sendAllFiles();
         } else {

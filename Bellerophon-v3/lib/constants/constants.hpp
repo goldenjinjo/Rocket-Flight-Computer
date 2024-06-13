@@ -3,6 +3,20 @@
 
 // for declaring constants and measured values
 
+#define HANDSHAKE_MESSAGE "START_TRANSFER"
+#define ACK_MESSAGE "TRANSFER_ACK"
+#define END_OF_TRANSMISSION_MESSAGE "END_OF_TRANSMISSION"
+#define END_OF_TRANSMISSION_ACK "END_OF_TRANSMISSION_ACK"
+#define FILE_COPY_MESSAGE "FILE_ALREADY_RECEIVED"
+#define ALL_FILES_SENT "ALL_FILES_SENT"
+#define ALL_FILES_SENT_ACK "ALL_FILES_SENT_ACK"
+#define REQUEST_FILE_DOWNLOAD "REQUEST_FILE_DOWNLOAD"
+
+
+
+
+
+
 #define SPI_SPEED SD_SCK_MHZ(4)
 
 // Standard deviation of the model, aka model error

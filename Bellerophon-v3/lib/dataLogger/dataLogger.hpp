@@ -7,6 +7,7 @@
 #include <string>
 #include "deviceFunctions.hpp"
 #include "config.hpp"
+#include "constants.hpp"
 
 // sensors
 #include "pressureSensor.hpp"
