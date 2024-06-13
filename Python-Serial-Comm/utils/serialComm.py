@@ -19,12 +19,12 @@ def find_com_port():
             return port.device
     return None
 
-def read_from_serial(ser):
+def read_from_serial_continuous(ser):
     global stop_threads
     while not stop_threads:
         try:
             if ser.in_waiting > 0:
-                line = ser.readline().decode('utf-8').rstrip()
+                line = read_from_serial(ser)
                 print(f"Received: {line}")
                 time.sleep(0.1)  # Short delay to prevent high CPU usage
         except serial.SerialException as e:
@@ -61,7 +61,7 @@ def user_input_to_serial(ser):
 def continuous_serial(ser):
     global stop_threads
     try:
-        read_thread = threading.Thread(target=read_from_serial, args=(ser,))
+        read_thread = threading.Thread(target=read_from_serial_continuous, args=(ser,))
         write_thread = threading.Thread(target=user_input_to_serial, args=(ser,))
 
         read_thread.start()

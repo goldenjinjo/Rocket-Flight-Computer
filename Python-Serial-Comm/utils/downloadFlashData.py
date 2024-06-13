@@ -47,7 +47,7 @@ def download_flash_data(ser):
         start_time = time.time()
         while True:
             if ser.in_waiting > 0:
-                response = ser.readline().decode('utf-8').strip()
+                response = read_from_serial(ser)
                 print_debug(f"Received response: {response}")
                 if response == ACK_MESSAGE:
                     print_debug(f"Received acknowledgment: {ACK_MESSAGE}")
@@ -63,7 +63,7 @@ def download_flash_data(ser):
 
             while True:
                 if ser.in_waiting > 0:
-                    response = ser.readline().decode('utf-8').strip()
+                    response = read_from_serial(ser)
                     print_debug(f"Received response: {response}")
 
                     if response.startswith("FILE_NAME:"):
@@ -77,7 +77,7 @@ def download_flash_data(ser):
                     elif response == ALL_FILES_SENT:
                         # Exit out of code loop after receiving message
                         print_debug("All files have been sent. Sending acknowledgment...")
-                        write_to_serial(ser, ALL_FILES_SENT)
+                        write_to_serial(ser, ALL_FILES_SENT_ACK)
                         time.sleep(1)
                         write_to_serial(ser, GO_TO_STANDBY)
                         sys.exit()
@@ -98,7 +98,7 @@ def download_flash_data(ser):
                         crc = 0
                         while True:
                             # Read data from serial port
-                            data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+                            data = read_from_serial(ser)  # Decode bytes to string
                             print_debug(f"Received data: {data}")
                             if data == END_OF_TRANSMISSION_MESSAGE.strip():
                                 print_debug(f"End of transmission for {file_name} received.")
