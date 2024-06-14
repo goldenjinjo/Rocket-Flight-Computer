@@ -2,6 +2,9 @@
 
 bool DEBUG = true;
 
+// baudrate
+
+
 
 // Mode configurations
 // 0 - standby

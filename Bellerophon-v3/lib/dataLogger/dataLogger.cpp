@@ -1,7 +1,6 @@
 #include "dataLogger.hpp"
 
 /// TODO: create struct for unique file types (log and data files for right now)
-/// TODO: properly define communication messages in the config
 /// TODO: Have unique identifier for communication messages e.g. "$" to use in WriteMessage()
 /// TODO: properly set up data integrity checks (checksum incorrectly figured right now)
 /// TODO: set up system to automatically suggest file deletion after successful download

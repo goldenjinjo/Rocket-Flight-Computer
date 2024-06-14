@@ -10,13 +10,14 @@
 #include "dataLogger.hpp"
 #include "positionalServo.hpp"
 #include <BasicLinearAlgebra.h>
+#include "serialCommunicator.hpp"
 
 
 // Class Declarations
 
 DataLogger logger;
 PositionalServo controlFins;
-
+SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
 
 
 void setup() {

@@ -12,7 +12,10 @@
 #define ALL_FILES_SENT_ACK "ALL_FILES_SENT_ACK"
 #define REQUEST_FILE_DOWNLOAD "REQUEST_FILE_DOWNLOAD"
 
-
+// Serial message formatting
+#define PREFIX ""
+#define SUFFIX "\n"
+#define BAUD_RATE 3000000
 
 
 
