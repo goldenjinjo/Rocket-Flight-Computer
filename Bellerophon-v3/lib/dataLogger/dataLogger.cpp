@@ -10,7 +10,7 @@
 /// TODO: break this up into more files / classes. It is getting too big.
 /// TODO: add unique identifers for different Bellerophons in file name
 
-DataLogger::DataLogger() : baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
+DataLogger::DataLogger(SerialCommunicator& serialComm) : serialComm(serialComm), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
 
 bool DataLogger::initialize() {
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
@@ -93,7 +93,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     }
 
     // Skip File read if serial comm sends this message
-    if (waitForMessage(FILE_COPY_MESSAGE, 100)){
+    if (serialComm.waitForMessage(FILE_COPY_MESSAGE, 100)){
         return;
     }
 
@@ -108,7 +108,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     Serial.println(END_OF_TRANSMISSION_MESSAGE);
 
     // handshake to finish file transfer
-    if (!waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {
+    if (!serialComm.waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {
         // Handle timeout (optional)
         buzzerFailure();
         return;
@@ -122,8 +122,8 @@ void DataLogger::sendAllFiles() {
     updateFileList();
 
     // Wait for handshake message from the Python script
-    if (waitForMessage(HANDSHAKE_MESSAGE, timeout)) {
-        sendSerialMessage(ACK_MESSAGE);
+    if (serialComm.waitForMessage(HANDSHAKE_MESSAGE, timeout)) {
+        serialComm.sendSerialMessage(ACK_MESSAGE);
         buzzerSuccess();
     } else {
         // Handle timeout (optional)
@@ -144,11 +144,11 @@ void DataLogger::sendAllFiles() {
     }
     
     // Send the end-of-transmission acknowledgment
-    sendSerialMessage(ALL_FILES_SENT);
+    serialComm.sendSerialMessage(ALL_FILES_SENT);
    
 
     // Wait for the next file to be sent
-    if (!waitForMessage(ALL_FILES_SENT_ACK, timeout)) {
+    if (!serialComm.waitForMessage(ALL_FILES_SENT_ACK, timeout)) {
         // Handle timeout (optional)
         buzzerFailure();
         return;
@@ -181,24 +181,6 @@ void DataLogger::print(FsFile& fileType, const char* fileName, const char* messa
     fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
     fileType.print(message);
     fileType.close();
-}
-
-void DataLogger::sendSerialMessage(const String& message) {
-    Serial.println(message);
-}
-
-bool DataLogger::waitForMessage(const String& expectedMessage, uint32_t timeout) {
-    uint32_t startTime = millis();
-   
-    while (millis() - startTime < timeout) {
-        if (Serial.available()) {
-            String message = Serial.readStringUntil('\n');
-            if (message == expectedMessage) {
-                return true;
-            }
-        }
-    }
-    return false; // Timeout
 }
 
 // file directory reading

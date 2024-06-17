@@ -8,6 +8,7 @@
 #include "deviceFunctions.hpp"
 #include "config.hpp"
 #include "constants.hpp"
+#include "serialCommunicator.hpp"
 
 // sensors
 #include "pressureSensor.hpp"
@@ -25,7 +26,7 @@ public:
     /**
      * @brief  Constructor for DataLogger class.
      */
-    DataLogger();
+    DataLogger(SerialCommunicator& serialComm);
     
     /**
      * @brief  Initializes the data logger.
@@ -152,19 +153,7 @@ private:
      */
     void initializeIndexFile();
 
-    /**
-     * @brief  Waits for a specific message on the serial port.
-     * @param  expectedMessage The message to wait for.
-     * @param  timeout         The timeout period in milliseconds.
-     * @return True if the expected message is received, false otherwise.
-     */
-    bool waitForMessage(const String& expectedMessage, uint32_t timeout);
-
-    /**
-     * @brief  Sends a message over the serial port.
-     * @param  message The message to be sent.
-     */
-    void sendSerialMessage(const String& message);
+    SerialCommunicator& serialComm;
 
 };
 

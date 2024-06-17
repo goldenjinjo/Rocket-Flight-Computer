@@ -15,15 +15,15 @@
 
 // Class Declarations
 
-DataLogger logger;
+
 PositionalServo controlFins;
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
-
+DataLogger logger(serialComm);
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
-    Serial.begin(2000000);
+    serialComm.begin();
 
     // Set pin types and configure LEDs
     peripheralInitialize();
@@ -44,7 +44,7 @@ void loop()
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    checkSerialforMode();
+    serialComm.checkSerialForMode();
 
     // Play a tone to indicate mode of operation
     if (mode != previousMode) {

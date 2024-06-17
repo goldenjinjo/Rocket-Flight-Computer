@@ -174,20 +174,3 @@ void startUp() {
   }
 }
 
-// create functionality for switching between serial modes
-void checkSerialforMode() {
-  // Check for mode change command from serial input
-  /// TODO: create interface with python for this
-  if (Serial.available()) {
-      String input = Serial.readStringUntil('\n');
-      input.trim(); // Remove any leading/trailing whitespace
-
-      /// TODO: fix magic numbers, iterate over a mode array instead
-      if (input.startsWith("mode:")) {
-          char newMode = input.charAt(5); // Get the mode character
-          if (newMode >= '0' && newMode <= '4') {
-              mode = newMode - '0';  // Convert char to int
-          }
-      }
-  }
-}

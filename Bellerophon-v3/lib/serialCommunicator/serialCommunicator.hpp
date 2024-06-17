@@ -2,6 +2,7 @@
 #define SERIALCOMMUNICATOR_HPP
 
 #include <Arduino.h>
+#include "config.hpp"
 
 /**
  * @class SerialCommunicator
@@ -35,6 +36,9 @@ public:
      * @return True if the expected message is received within the timeout, false otherwise.
      */
     bool waitForMessage(const String& expectedMessage, uint32_t timeout);
+
+
+    void checkSerialForMode();
 
 private:
     uint32_t baudRate;   ///< The baud rate for serial communication.
