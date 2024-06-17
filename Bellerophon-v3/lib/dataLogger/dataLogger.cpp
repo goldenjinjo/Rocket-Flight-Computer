@@ -105,7 +105,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
     file.close();
 
     // Send end-of-transmission message
-    Serial.println(END_OF_TRANSMISSION_ACK);
+    Serial.println(END_OF_TRANSMISSION_MESSAGE);
 
     // handshake to finish file transfer
     if (!waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {

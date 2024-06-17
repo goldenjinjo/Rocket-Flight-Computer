@@ -5,7 +5,7 @@ PREFIX = ""
 SUFFIX = "\n"
 ENCODING = "utf-8"
 
-BAUD_RATE = 3000000  # Ensure this matches the flight computer's baud rate
+BAUD_RATE = 115200 # Ensure this matches the flight computer's baud rate
 
 # communication messages
 HANDSHAKE_MESSAGE = "START_TRANSFER"

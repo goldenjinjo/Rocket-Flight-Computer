@@ -15,7 +15,7 @@
 // Serial message formatting
 #define PREFIX ""
 #define SUFFIX "\n"
-#define BAUD_RATE 3000000
+#define BAUD_RATE 115200  
 
 
 
