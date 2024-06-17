@@ -10,24 +10,16 @@
 /// TODO: break this up into more files / classes. It is getting too big.
 /// TODO: add unique identifers for different Bellerophons in file name
 
-DataLogger::DataLogger(SerialCommunicator& serialComm) : serialComm(serialComm), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
+DataLogger::DataLogger(SerialCommunicator& serialComm) : \
+serialComm(serialComm), files(), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
 
 bool DataLogger::initialize() {
-    if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
-        Serial.println("SD card initialization failed.\n");
+    
+    if (!files.initialize()) {
+        Serial.println("File Manager failed to initialize.\n");
         return false;
     }
 
-    // Load the index file and read the counters
-    loadIndexFile();
-    
-
-    // Initialize log and data file names
-    createNewLogFile();
-    createNewDataFile();
-
-    updateIndexFile();
-    
     // Print debug warning
     if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
@@ -45,7 +37,7 @@ void DataLogger::logEvent(const char* message) {
     currentTime = millis();
     char buffer[logBuffer];
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
-    print(logFile, logFileName, buffer);
+    print(files.logFile, files.logFileName, buffer);
 }
 
 void DataLogger::logData(float* data, size_t numFloats) {
@@ -56,7 +48,7 @@ void DataLogger::logData(float* data, size_t numFloats) {
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
     }
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
-    print(dataFile, dataFileName, buffer);
+    print(files.dataFile, files.dataFileName, buffer);
 }
 
 // Method to read data from a specific file and send it over serial
@@ -135,7 +127,7 @@ void DataLogger::sendAllFiles() {
     // Iterate through each file name in the list
     for (const auto& fileName : fileNames) {
         // Check if the file name is the index file and skip it if so
-        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+        if (strcmp(fileName.c_str(), files.indexFileName) == 0) {
             continue; // Skip this iteration and move to the next file
         }
 
@@ -233,7 +225,7 @@ void DataLogger::deleteAllFiles() {
     for (const auto& fileName : fileNames) {
 
         // Check if the file name is the index file and skip it if so
-        if (strcmp(fileName.c_str(), indexFileName) == 0) {
+        if (strcmp(fileName.c_str(), files.indexFileName) == 0) {
             continue; // Skip this iteration and move to the next file
         }
 
@@ -247,98 +239,6 @@ void DataLogger::deleteAllFiles() {
     updateFileList();
 }
 
-// file name creation
-// TODO: generalise this for arbitary numver of possible variables
-void DataLogger::loadIndexFile() {
-    // Open the index file
-    if (indexFile.open(indexFileName, O_RDWR)) {
-        // Read the counters from the index file
-        indexFile.read((uint8_t*)&logFileCounter, sizeof(logFileCounter));
-        indexFile.read((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
-        indexFile.close();
-    } else {
-        // If the index file doesn't exist, initialize counters to 0
-        initializeIndexFile();
-    }
-}
-
-void DataLogger::updateIndexFile() {
-    // Open the index file
-    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
-        // If the index file doesn't exist, create it and initialize counters to 0
-        initializeIndexFile();
-    }
-
-    // Write the updated counters to the index file
-    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
-    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
-    indexFile.close();
-}
-
-void DataLogger::initializeIndexFile() {
-    // Open the index file for writing
-    if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
-        // If unable to open or create the file, handle error (e.g., log error message)
-        return;
-    }
-
-    // Initialize counters to 0
-    logFileCounter = 0;
-    dataFileCounter = 0;
-
-    // Write the initialized counters to the index file
-    indexFile.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
-    indexFile.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
-    indexFile.close();
-}
-
-void DataLogger::createNewLogFile() {
-    char tempFileName[maxFileNameLength];
-
-    // Generate the new data file name based on the counter
-    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", logFilePrefix, zeroPadding, \
-     logFileCounter, logFileSuffix);
-    // Print debug message
-    if (DEBUG) {
-        // add a debug prefix to the file name
-        snprintf(logFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
-        Serial.print("New log file created: ");
-        Serial.println(logFileName);
-    } else {
-        strcpy(logFileName, tempFileName);
-    }
-
-    // Increment the log file counter
-    logFileCounter++;
-    // update index file for next file creation
-    updateIndexFile();
-
-}
-
-void DataLogger::createNewDataFile() {
-    char tempFileName[maxFileNameLength];
-
-    // Generate the new data file name based on the counter
-    snprintf(tempFileName, maxFileNameLength, "%s%0*d%s", dataFilePrefix, zeroPadding, \
-     dataFileCounter, dataFileSuffix);
-
-    if (DEBUG) {
-        // add a debug prefix to the file name
-        snprintf(dataFileName, maxFileNameLength, "%s%s", debugPrefix, tempFileName);
-        Serial.print("New data file created: ");
-        Serial.println(dataFileName);
-    } else {
-        strcpy(dataFileName, tempFileName);
-    }
-
-    // Increment the log file counter
-    dataFileCounter++;
-    // update index file for next file creation
-    updateIndexFile();
-
-    
-}
-
 bool DataLogger::fileExists(const char* fileName) {
     return sd.exists(fileName);
 }
@@ -347,8 +247,8 @@ bool DataLogger::fileExists(const char* fileName) {
 void DataLogger::logData() {
     
     // Write header to the new data file on first run of loop
-    if (!fileExists(dataFileName)) {
-        print(dataFile, dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+    if (!fileExists(files.dataFileName)) {
+        print(files.dataFile, files.dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
 
     }
 

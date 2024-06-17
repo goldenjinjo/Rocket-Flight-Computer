@@ -9,6 +9,7 @@
 #include "config.hpp"
 #include "constants.hpp"
 #include "serialCommunicator.hpp"
+#include "fileManager.hpp"
 
 // sensors
 #include "pressureSensor.hpp"
@@ -76,26 +77,6 @@ public:
     void deleteAllFiles();
 
     /**
-     * @brief  Updates the index file with the current file counters.
-     */
-    void updateIndexFile();
-
-    /**
-     * @brief  Loads the index file and reads the counters.
-     */
-    void loadIndexFile();
-
-    /**
-     * @brief  Creates a new log file with a unique name.
-     */
-    void createNewLogFile();
-
-    /**
-     * @brief  Creates a new data file with a unique name.
-     */
-    void createNewDataFile();
-
-    /**
      * @brief  Sends all files over serial communication.
      */
     void sendAllFiles();
@@ -115,11 +96,6 @@ public:
     unsigned long currentTime = millis();
     // Member to hold array of file names
     std::vector<std::string> fileNames;
-    // Member variables for file names
-    static const uint8_t maxFileNameLength = 30; // Maximum length for file names
-    char logFileName[maxFileNameLength];         // Name of the log file
-    char dataFileName[maxFileNameLength];        // Name of the data file
-
 
     // Sensor Objects
     // set oversample rate (lower, faster)
@@ -128,16 +104,18 @@ public:
     IMUSensor imu;
 
 private:
+    
     // ------------------------- MEMBERS ------------------------- //
+
+    
+    SerialCommunicator& serialComm;
+
+    // sub class
+    FileManager files;
+
     char logBuffer = 100;         // Size of the log buffer
-    FsFile logFile;               // File for logging events
-    FsFile dataFile;              // File for logging data
-    FsFile indexFile;             // File for tracking file naming counters
     SdFs sd;                      // SD card instance
     CRC32 crc;                    // CRC32 object for checksum calculation
-    uint32_t logFileCounter;      // Counter for log files
-    uint32_t dataFileCounter;     // Counter for data files
-    const char* indexFileName = "index.dat"; // Name of the index file
 
     // ------------------------- METHODS ------------------------- //
     /**
@@ -148,12 +126,7 @@ private:
      */
     void print(FsFile& fileType, const char* fileName, const char* message);
 
-    /**
-     * @brief  Initializes the index file with counters set to 0.
-     */
-    void initializeIndexFile();
-
-    SerialCommunicator& serialComm;
+    
 
 };
 

@@ -11,6 +11,7 @@
 #include "positionalServo.hpp"
 #include <BasicLinearAlgebra.h>
 #include "serialCommunicator.hpp"
+#include "fileManager.hpp"
 
 
 // Class Declarations
