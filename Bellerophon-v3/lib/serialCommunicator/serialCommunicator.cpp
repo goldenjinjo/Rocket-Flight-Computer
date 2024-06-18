@@ -63,7 +63,9 @@ bool SerialCommunicator::waitForMessage(const String& expectedMessage, uint32_t 
             String message = Serial.readStringUntil('\n');
             if (message == expectedMessage) {
                 return true;
-            }
+            } else if (message == CANCEL_MSG_REQUEST)
+                // return method early if told to cancel
+                return false;
         }
     }
     // Return false if the expected message is not received within the timeout

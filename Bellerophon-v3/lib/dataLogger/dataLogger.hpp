@@ -48,28 +48,12 @@ public:
      */
     void logData(float* data, size_t numFloats);
 
-    /**
-     * @brief  Deletes the specified file. This action cannot be undone.
-     * @param  fileName The name of the file to be deleted.
-     * @return True if the file is successfully deleted, false otherwise.
-     */
-    bool deleteFile(const char* fileName);
 
     /**
      * @brief  Reads data from the specified file and prints it to the serial monitor.
      * @param  fileName The name of the file to be read.
      */
     void readDataFromFile(const char* fileName);
-
-    /**
-     * @brief  Scans all files on the SD card and prints their names to Serial.
-     */
-    void scanFiles();
-
-    /**
-     * @brief  Scans all files on the SD card and stores their names in a vector.
-     */
-    void updateFileList();
 
     /**
      * @brief  Deletes all files on the SD card by iterating through the fileNames vector.
@@ -89,14 +73,12 @@ public:
     
     void logData();
 
-    bool fileExists(const char* fileName);
+   
 
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();
-    // Member to hold array of file names
-    std::vector<std::string> fileNames;
-
+ 
     // Sensor Objects
     // set oversample rate (lower, faster)
     pressureSensor baro;
@@ -116,6 +98,8 @@ private:
     char logBuffer = 100;         // Size of the log buffer
     SdFs sd;                      // SD card instance
     CRC32 crc;                    // CRC32 object for checksum calculation
+
+    uint32_t timeout = 1800*1000; // 30 minute timeout
 
     // ------------------------- METHODS ------------------------- //
     /**

@@ -18,6 +18,9 @@ bool FileManager::initialize() {
     updateIndexFile();
 }
 
+/* 
+    FILE NAME CREATION METHODS
+*/
 void FileManager::initializeIndexFile() {
     // Open the index file for writing
     if (!indexFile.open(indexFileName, O_RDWR | O_CREAT)) {
@@ -98,4 +101,56 @@ void FileManager::createNewDataFile() {
     dataFileCounter++;
     // update index file for next file creation
     updateIndexFile(); 
+}
+
+
+/*
+    FILES READING AND MANIPULATION
+*/
+// file directory reading
+void FileManager::scanFiles() {
+    Serial.println("Scanning files on the SD card:");
+    sd.ls(LS_R);
+}
+
+void FileManager::updateFileList() {
+    // Ensure the vector is empty before starting
+    fileNames.clear();
+
+    // Open the root directory
+    FsFile dir;
+    if (!dir.open("/", O_READ)) {
+        Serial.println("Failed to open root directory.");
+        return;
+    }
+
+    // Create a file object to hold each file entry
+    FsFile file;
+    while (file.openNext(&dir, O_READ)) {
+        char fileName[64];
+        file.getName(fileName, sizeof(fileName));
+        fileNames.push_back(std::string(fileName));
+        file.close();
+    }
+
+    // Close the directory
+    dir.close();
+}
+
+bool FileManager::fileExists(const char* fileName) {
+    return sd.exists(fileName);
+}
+
+
+// deleting files
+bool FileManager::deleteFile(const char* fileName) {
+    if (sd.exists(fileName)) {
+        Serial.println("File Successfully Deleted");
+        return sd.remove(fileName);
+
+    } else {
+        buzzerFailure();
+        Serial.println("File not found, nothing deleted\n");
+        return false;
+    }
 }

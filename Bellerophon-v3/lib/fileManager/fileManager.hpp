@@ -3,9 +3,11 @@
 
 #include <SdFat.h>
 #include <Arduino.h>
+#include <vector>
 #include "config.hpp"
 #include "constants.hpp"
 #include "pinAssn.hpp"
+#include "deviceFunctions.hpp"
 
 class FileManager {
 public:
@@ -16,9 +18,14 @@ public:
     FsFile indexFile;             // File for tracking file naming counters
     const char* indexFileName = "index.dat"; // Name of the index file
 
+    SdFs sd;                      // SD card instance
+
     static const uint8_t maxFileNameLength = 30; // Maximum length for file names
     char logFileName[maxFileNameLength];         // Name of the log file
     char dataFileName[maxFileNameLength];        // Name of the data file
+
+    // Member to hold array of file names
+    std::vector<std::string> fileNames;
 
     FileManager();
 
@@ -28,12 +35,31 @@ public:
      */
     bool initialize();
 
+
+    /**
+     * @brief  Scans all files on the SD card and stores their names in a vector.
+     */
+    void updateFileList();
+
+    /**
+     * @brief  Scans all files on the SD card and prints their names to Serial.
+     */
+    void scanFiles();
+
+    bool fileExists(const char* fileName);
+
+    /**
+     * @brief  Deletes the specified file. This action cannot be undone.
+     * @param  fileName The name of the file to be deleted.
+     * @return True if the file is successfully deleted, false otherwise.
+     */
+    bool deleteFile(const char* fileName);
+
 private:
 
     // MEMBERS
     uint32_t logFileCounter;      // Counter for log files
     uint32_t dataFileCounter;     // Counter for data files
-    SdFs sd;                      // SD card instance
 
 
 

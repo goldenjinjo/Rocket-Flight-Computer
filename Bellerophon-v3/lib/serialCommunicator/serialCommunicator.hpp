@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "config.hpp"
+#include "constants.hpp"
 
 /**
  * @class SerialCommunicator

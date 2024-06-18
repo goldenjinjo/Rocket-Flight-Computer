@@ -43,18 +43,18 @@ def download_flash_data(ser):
         ser.reset_input_buffer()
 
         # Send handshake message and wait for acknowledgment
-        send_handshake(ser)
-        start_time = time.time()
-        while True:
-            if ser.in_waiting > 0:
-                response = read_from_serial(ser)
-                print_debug(f"Received response: {response}")
-                if response == ACK_MESSAGE:
-                    print_debug(f"Received acknowledgment: {ACK_MESSAGE}")
-                    break
-            if time.time() - start_time > TIMEOUT_SECONDS:
-                print_debug("Handshake timed out. Exiting...")
-                sys.exit()
+        # send_handshake(ser)
+        # start_time = time.time()
+        # while True:
+        #     if ser.in_waiting > 0:
+        #         response = read_from_serial(ser)
+        #         print_debug(f"Received response: {response}")
+        #         if response == ACK_MESSAGE:
+        #             print_debug(f"Received acknowledgment: {ACK_MESSAGE}")
+        #             break
+        #     if time.time() - start_time > TIMEOUT_SECONDS:
+        #         print_debug("Handshake timed out. Exiting...")
+        #         sys.exit()
 
         while True:
             file_name_received = False
