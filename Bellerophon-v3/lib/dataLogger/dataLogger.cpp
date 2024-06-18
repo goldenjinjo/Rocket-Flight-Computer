@@ -37,7 +37,7 @@ void DataLogger::logEvent(const char* message) {
     currentTime = millis();
     char buffer[logBuffer];
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
-    print(files.logFile, files.logFileName, buffer);
+    files.print(files.logFile, files.logFileName, buffer);
 }
 
 void DataLogger::logData(float* data, size_t numFloats) {
@@ -48,30 +48,28 @@ void DataLogger::logData(float* data, size_t numFloats) {
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
     }
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
-    print(files.dataFile, files.dataFileName, buffer);
+    files.print(files.dataFile, files.dataFileName, buffer);
 }
 
 // Method to read data from a specific file and send it over serial
 void DataLogger::readDataFromFile(const char* fileName) {
+    
     if (!files.fileExists(fileName)) {
         Serial.println("Data file not found.");
         return;
     }
-
     // Calculate CRC32 checksum
     crc.reset(); // Reset CRC32 object before calculating a new checksum
     FsFile file;
-    if (!file.open(fileName, O_READ)) {
-        sd.errorHalt("Opening for read failed");
-        return;
-    }
+    //file.open(fileName, O_READ);
+    files.openFileForRead(file, fileName);
 
     int data;
     while ((data = file.read()) >= 0) {
         crc.update(data); // Update the CRC32 checksum with each byte of data
     }
     uint32_t checksum = crc.finalize(); // Finalize the checksum calculation
-    file.close();
+    files.closeFile(file, fileName);
 
     // Send file name and checksum to Python script
     Serial.print("FILE_NAME:");
@@ -80,9 +78,8 @@ void DataLogger::readDataFromFile(const char* fileName) {
     Serial.println(checksum);
 
     // Open the file again for reading data
-    if (!file.open(fileName, O_READ)) {
-        sd.errorHalt("Opening for read failed");
-    }
+    //file.open(fileName, O_READ);
+    files.openFileForRead(file, fileName);
 
     // Skip File read if serial comm sends this message
     if (serialComm.waitForMessage(FILE_COPY_MESSAGE, 100)){
@@ -94,7 +91,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
         Serial.write(data); // Send each byte of data over serial
     }
 
-    file.close();
+    files.closeFile(file, fileName);
 
     // Send end-of-transmission message
     Serial.println(END_OF_TRANSMISSION_MESSAGE);
@@ -148,15 +145,6 @@ void DataLogger::serialFileTransfer() {
     }
 }
 
-void DataLogger::print(FsFile& fileType, const char* fileName, const char* message) {
-    if (DEBUG) {
-        Serial.print(message);
-    }
-
-    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
-    fileType.print(message);
-    fileType.close();
-}
 
 void DataLogger::deleteAllFiles() {
     // update files.fileNames array, just in case
@@ -184,7 +172,7 @@ void DataLogger::logData() {
     
     // Write header to the new data file on first run of loop
     if (!files.fileExists(files.dataFileName)) {
-        print(files.dataFile, files.dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+        files.print(files.dataFile, files.dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
 
     }
 

@@ -55,6 +55,18 @@ public:
      */
     bool deleteFile(const char* fileName);
 
+    bool openFileForRead(FsFile& fileType, const char* fileName);
+
+    bool closeFile(FsFile& fileType, const char* fileName);
+
+    /**
+     * @brief  Writes a message to the specified file, with debug functionality to write to serial.
+     * @param  fileType  Type of file to write to (logFile or dataFile).
+     * @param  fileName  Name of the file to write to.
+     * @param  message   Message to be written.
+     */
+    void print(FsFile& fileType, const char* fileName, const char* message);
+
 private:
 
     // MEMBERS

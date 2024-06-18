@@ -96,19 +96,13 @@ private:
     FileManager files;
 
     char logBuffer = 100;         // Size of the log buffer
-    SdFs sd;                      // SD card instance
+    // SdFs sd;                      // SD card instance
     CRC32 crc;                    // CRC32 object for checksum calculation
 
     uint32_t timeout = 1800*1000; // 30 minute timeout
 
     // ------------------------- METHODS ------------------------- //
-    /**
-     * @brief  Writes a message to the specified file, with debug functionality to write to serial.
-     * @param  fileType  Type of file to write to (logFile or dataFile).
-     * @param  fileName  Name of the file to write to.
-     * @param  message   Message to be written.
-     */
-    void print(FsFile& fileType, const char* fileName, const char* message);
+
 
     
 

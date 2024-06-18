@@ -154,3 +154,33 @@ bool FileManager::deleteFile(const char* fileName) {
         return false;
     }
 }
+
+// opening files
+bool FileManager::openFileForRead(FsFile& fileType, const char* fileName) {
+     if (!fileType.open(fileName, O_READ)) {
+        sd.errorHalt("Opening for read failed");
+        return false;
+    }
+    // else return true
+    return true;
+}
+
+bool FileManager::closeFile(FsFile& fileType, const char* fileName) {
+    if (!fileType.close()) {
+        Serial.print("Error closing file: ");
+        Serial.println(fileName);
+        return false;
+    }
+    return true;
+}
+
+void FileManager::print(FsFile& fileType, const char* fileName, const char* message) {
+    if (DEBUG) {
+        Serial.print(message);
+    }
+
+    fileType.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+    fileType.print(message);
+    fileType.close();
+}
+
