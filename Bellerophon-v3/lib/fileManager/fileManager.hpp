@@ -28,8 +28,21 @@ public:
      */
     bool initialize();
 
+private:
+
+    // MEMBERS
+    uint32_t logFileCounter;      // Counter for log files
+    uint32_t dataFileCounter;     // Counter for data files
+    SdFs sd;                      // SD card instance
 
 
+
+    /**
+     * @brief  Initializes the index file with counters set to 0.
+     */
+    void initializeIndexFile();
+
+    
     /**
      * @brief  Updates the index file with the current file counters.
      */
@@ -49,20 +62,6 @@ public:
      * @brief  Creates a new data file with a unique name.
      */
     void createNewDataFile();
-
-private:
-
-    // MEMBERS
-    uint32_t logFileCounter;      // Counter for log files
-    uint32_t dataFileCounter;     // Counter for data files
-    SdFs sd;                      // SD card instance
-
-
-
-    /**
-     * @brief  Initializes the index file with counters set to 0.
-     */
-    void initializeIndexFile();
 
 };
 
