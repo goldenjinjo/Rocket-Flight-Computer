@@ -14,10 +14,6 @@ public:
     FsFile logFile;               // File for logging events
     FsFile dataFile;              // File for logging data
     FsFile indexFile;             // File for tracking file naming counters
-    char logBuffer = 100;         // Size of the log buffer
-    SdFs sd;                      // SD card instance
-    uint32_t logFileCounter;      // Counter for log files
-    uint32_t dataFileCounter;     // Counter for data files
     const char* indexFileName = "index.dat"; // Name of the index file
 
     static const uint8_t maxFileNameLength = 30; // Maximum length for file names
@@ -56,7 +52,10 @@ public:
 
 private:
 
-
+    // MEMBERS
+    uint32_t logFileCounter;      // Counter for log files
+    uint32_t dataFileCounter;     // Counter for data files
+    SdFs sd;                      // SD card instance
 
 
 
