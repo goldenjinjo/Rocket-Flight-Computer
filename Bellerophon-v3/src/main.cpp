@@ -12,14 +12,17 @@
 #include <BasicLinearAlgebra.h>
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
-
+#include "configFileManager.hpp"
+#include "configKeys.hpp"
 
 // Class Declarations
 
-
+FileManager fm;
 PositionalServo controlFins;
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
-DataLogger logger(serialComm);
+DataLogger logger(serialComm, fm);
+ConfigFileManager config(fm);
+
 
 void setup() {
 
@@ -34,7 +37,25 @@ void setup() {
 
     // initilize classes
     logger.initialize();
-     
+
+
+    Serial.println("------");
+
+    delay(1000);
+
+    fm.deleteFile("config.dat");
+
+    config.initialize();
+
+    config.initializeWithDefaults();
+
+    // config.writeConfigValue(ALTITUDE_BUFFER_PERIOD, 5000);
+
+    config.printAllConfigValuesToSerial();
+
+    long test1 = config.getConfigValue(ALTITUDE_BUFFER_PERIOD);
+
+    Serial.println(test1);
 
 }
 // keep track of previous tones
@@ -57,7 +78,11 @@ void loop()
         case STANDBY_MODE: {
             // Cycle through all LEDS in 1 second flashes
             // cycleLEDS(500);
-            delay(500);
+            // delay(1000);
+            // Serial.println("--");
+            // Serial.println(config.getConfigValue(test1));
+            // Serial.println(config.getConfigValue("ALTITUDE_BUFFER_PERIOD"));
+            // Serial.println(config.getConfigValue("c"));
             break;
         }    
         case READING_MODE: {

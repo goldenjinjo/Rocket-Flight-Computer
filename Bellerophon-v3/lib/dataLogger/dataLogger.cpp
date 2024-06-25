@@ -10,8 +10,8 @@
 /// TODO: break this up into more files / classes. It is getting too big.
 /// TODO: add unique identifers for different Bellerophons in file name
 
-DataLogger::DataLogger(SerialCommunicator& serialComm) : \
-serialComm(serialComm), files(), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
+DataLogger::DataLogger(SerialCommunicator& serialComm, FileManager& files) : \
+serialComm(serialComm), files(files), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
 
 bool DataLogger::initialize() {
     
@@ -37,7 +37,7 @@ void DataLogger::logEvent(const char* message) {
     currentTime = millis();
     char buffer[logBuffer];
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
-    files.print(files.logFile, files.logFileName, buffer);
+    files.print(files.logFile, buffer);
 }
 
 void DataLogger::logData(float* data, size_t numFloats) {
@@ -48,7 +48,7 @@ void DataLogger::logData(float* data, size_t numFloats) {
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
     }
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
-    files.print(files.dataFile, files.dataFileName, buffer);
+    files.print(files.dataFile, buffer);
 }
 
 // Method to read data from a specific file and send it over serial
@@ -61,15 +61,14 @@ void DataLogger::readDataFromFile(const char* fileName) {
     // Calculate CRC32 checksum
     crc.reset(); // Reset CRC32 object before calculating a new checksum
     FsFile file;
-    //file.open(fileName, O_READ);
-    files.openFileForRead(file, fileName);
+    file.open(fileName, O_READ);
 
     int data;
     while ((data = file.read()) >= 0) {
         crc.update(data); // Update the CRC32 checksum with each byte of data
     }
     uint32_t checksum = crc.finalize(); // Finalize the checksum calculation
-    files.closeFile(file, fileName);
+    file.close();
 
     // Send file name and checksum to Python script
     Serial.print("FILE_NAME:");
@@ -79,7 +78,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
 
     // Open the file again for reading data
     //file.open(fileName, O_READ);
-    files.openFileForRead(file, fileName);
+    file.open(fileName, O_READ);
 
     // Skip File read if serial comm sends this message
     if (serialComm.waitForMessage(FILE_COPY_MESSAGE, 100)){
@@ -91,7 +90,7 @@ void DataLogger::readDataFromFile(const char* fileName) {
         Serial.write(data); // Send each byte of data over serial
     }
 
-    files.closeFile(file, fileName);
+    file.close();
 
     // Send end-of-transmission message
     Serial.println(END_OF_TRANSMISSION_MESSAGE);
@@ -172,7 +171,7 @@ void DataLogger::logData() {
     
     // Write header to the new data file on first run of loop
     if (!files.fileExists(files.dataFileName)) {
-        files.print(files.dataFile, files.dataFileName, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+        files.print(files.dataFile, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
 
     }
 

@@ -27,7 +27,7 @@ public:
     /**
      * @brief  Constructor for DataLogger class.
      */
-    DataLogger(SerialCommunicator& serialComm);
+    DataLogger(SerialCommunicator& serialComm, FileManager& files);
     
     /**
      * @brief  Initializes the data logger.
@@ -93,7 +93,7 @@ private:
     SerialCommunicator& serialComm;
 
     // sub class
-    FileManager files;
+    FileManager& files;
 
     char logBuffer = 100;         // Size of the log buffer
     // SdFs sd;                      // SD card instance

@@ -8,15 +8,17 @@
 #include "constants.hpp"
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
-
+/**
+ * @class FileManager
+ * @brief A class to manage file operations on an SD card, including, data storage, file naming, 
+ *        tracking and indexing. Provides functionality to initialize the SD card, create, read, 
+ *        write, and delete files, as well as maintain an index file for tracking file names.
+ */
 class FileManager {
 public:
-
     // MEMBERS
-    FsFile logFile;               // File for logging events
-    FsFile dataFile;              // File for logging data
-    FsFile indexFile;             // File for tracking file naming counters
     const char* indexFileName = "index.dat"; // Name of the index file
+    const char* configFileName = "config.dat"; // Name of the config file
 
     SdFs sd;                      // SD card instance
 
@@ -27,14 +29,34 @@ public:
     // Member to hold array of file names
     std::vector<std::string> fileNames;
 
+    struct FileItem {
+        FsFile type;
+        const char* name;
+    };
+
+    FileItem logFile;
+    FileItem dataFile;
+    FileItem configFile;
+    FileItem indexFile; // File for tracking file naming counters
+
+
+    /**
+     * @brief  Constructor for FileManager. Initializes counters and file names.
+     */
     FileManager();
 
     /**
-     * @brief  Initializes flash memory and file names
+     * @brief  Initializes SD card and file names.
      * @return True if initialization is successful, false otherwise.
      */
     bool initialize();
 
+    /**
+    @brief Initializes a FileItem struct with a given name.
+    @param fileItem The FileItem struct to initialize.
+    @param name The name to assign to the fileItem.
+    */
+    void initializeFileItem(FileItem& fileItem, const char* name);
 
     /**
      * @brief  Scans all files on the SD card and stores their names in a vector.
@@ -46,6 +68,11 @@ public:
      */
     void scanFiles();
 
+    /**
+     * @brief  Checks if a file exists on the SD card.
+     * @param  fileName The name of the file to check.
+     * @return True if the file exists, false otherwise.
+     */
     bool fileExists(const char* fileName);
 
     /**
@@ -55,32 +82,50 @@ public:
      */
     bool deleteFile(const char* fileName);
 
-    bool openFileForRead(FsFile& fileType, const char* fileName);
-
-    bool closeFile(FsFile& fileType, const char* fileName);
+    /**
+     * @brief  Opens a file for reading.
+     * @param fileItem The FileItem struct containing the file to open.
+     * @return True if the file is successfully opened, false otherwise.
+     */
+    bool openFileForRead(FileItem& fileItem);
 
     /**
-     * @brief  Writes a message to the specified file, with debug functionality to write to serial.
+     * @brief  Creates a file and opens it for reading.
+     * @param fileItem The FileItem struct containing the file to open.
+     * @return True if the file is successfully opened, false otherwise.
+     */
+    bool createFile(FileItem& fileItem);
+
+    
+
+    /**
+    @brief Closes the specified file.
+    @param fileItem The FileItem struct containing the file to close.
+    @return True if the file is successfully closed, false otherwise.
+    */
+    bool closeFile(FileItem& fileItem);
+
+    /**
+     * @brief  Writes a message to the specified file, with debug functionality to write to Serial.
      * @param  fileType  Type of file to write to (logFile or dataFile).
      * @param  fileName  Name of the file to write to.
      * @param  message   Message to be written.
      */
-    void print(FsFile& fileType, const char* fileName, const char* message);
+    void print(FileItem& fileItem, const char* message);
+
+
+    void readFile(FileItem& fileItem, long value);
 
 private:
-
     // MEMBERS
     uint32_t logFileCounter;      // Counter for log files
     uint32_t dataFileCounter;     // Counter for data files
-
-
 
     /**
      * @brief  Initializes the index file with counters set to 0.
      */
     void initializeIndexFile();
 
-    
     /**
      * @brief  Updates the index file with the current file counters.
      */
@@ -100,7 +145,7 @@ private:
      * @brief  Creates a new data file with a unique name.
      */
     void createNewDataFile();
-
 };
 
 #endif // FILE_MANAGER_HPP
+
