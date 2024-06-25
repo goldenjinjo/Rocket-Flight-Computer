@@ -59,6 +59,14 @@ public:
      */
     void printAllConfigValuesToSerial();
 
+    // Converts a config key to its string name
+    /**
+     * @brief Converts a config key to its string name.
+     * @param key the byte identifer of the config value to retrieve
+     * @return the config value name as a const char*
+     */
+    const char* keyToString(uint8_t key);
+
 
 private:
     FileManager& fm;                 // Reference to the parent FileManager instance

@@ -1,57 +1,45 @@
 #include "ConfigFileManager.hpp"
+#include <Arduino.h>
 
-// Define default configuration items with predefined positions
-const ConfigFileManager::ConfigItem ConfigFileManager::defaultConfigs[] = {
-    /// NOTE: config.dat currently needs to be manually deleted if a new default value is added
-    /// TODO: add a file that checks number of keys against the value of the last boot
-    {ALTITUDE_BUFFER_PERIOD, 2000},
-    {G_OFFSET, 9.81},
-    {LAUNCH_VEL_THRESHOLD, 15},
-    {LAUNCH_ACC_THRESHOLD, 60},
-    {APOGEE_TIMER, 100},
-    {LANDING_VEL_THRESHOLD, 1},
-    {BOOTUP_MODE, 0},
-    {DUAL_DEPLOY, 1},
-    {DROGUE_DELAY, 0},
-    {MAIN_DELAY, 0},
-    {MAIN_DEPLOYMENT_ALT, 300},
-};
+const uint32_t MAGIC_NUMBER = 0xDEADBEEF;
 
-
-// Constructor for ConfigFileManager
 ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {}
 
-// Initialize the config file
+const char* ConfigFileManager::keyToString(uint8_t key) {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        if (CONFIG_KEYS[i].key == key) {
+            return CONFIG_KEYS[i].name;
+        }
+    }
+    return "UNKNOWN_KEY";
+}
+
 bool ConfigFileManager::initialize() {
-    // Use FileManager's initialize method to set up the SD card
     if (!fm.initialize()) {
         Serial.println("FileManager initialization failed.");
         return false;
     }
 
-    // initalize config file struct
     fm.initializeFileItem(fm.configFile, fm.configFileName);
-   
     initializeWithDefaults();
 
     return true;
 }
 
-// Initialize config values with defaults and read from the config file
 void ConfigFileManager::initializeWithDefaults() {
-    // Do not initalize if config file already exists
     if (!fm.createFile(fm.configFile)) {
-            Serial.println("Config File Exists");
-            return;
-        }
+        Serial.println("Config File Exists");
+        return;
+    }
+
     Serial.println("Time to init config");
-    // If the config file was just created, initalize the values
-    for (const auto& config : defaultConfigs) {
-        // If the key is not found, write the default value
-            Serial.println("writing initial value for");
-            Serial.println(config.key);
-            Serial.println(config.defaultValue);
-            writeValue(config.key, config.defaultValue);    
+
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        Serial.print("Writing initial value for ");
+        Serial.print(CONFIG_KEYS[i].name);
+        Serial.print(": ");
+        Serial.println(CONFIG_KEYS[i].defaultValue);
+        writeValue(CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue);
     }
 }
 
@@ -60,79 +48,95 @@ void ConfigFileManager::restoreDefaults() {
     initializeWithDefaults();
 }
 
-// Read a config value from the config file
 bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
+   
     fm.openFileForRead(fm.configFile);
-    // Seek to the correct position based on the key
-    fm.configFile.type.seekSet(key * sizeof(float));
-    fm.configFile.type.read((uint8_t*)&value, sizeof(value));
+
+    uint32_t position = key * sizeof(float);
+    if (!fm.configFile.type.seekSet(position)) {
+        Serial.println("Failed to seek to position.");
+        fm.closeFile(fm.configFile);
+        return false;
+    }
+
+    if (fm.configFile.type.read((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
+        Serial.println("Failed to read the full float value.");
+        fm.closeFile(fm.configFile);
+        return false;
+    }
+
     fm.closeFile(fm.configFile);
 
-    Serial.print("Read value for key: ");
-    Serial.print(key, HEX);
-    Serial.print(" = ");
+    Serial.print("Read value for key ");
+    Serial.print(keyToString(key));
+    Serial.print(": ");
     Serial.println(value);
 
     return true;
 }
 
-// Write a config value to the config file
 bool ConfigFileManager::writeConfigValue(uint8_t key, float value) {
-    
-    /// TODO: write check that key and value are valid before executing
     return writeValue(key, value);
 }
 
-// Retrieve a config value by key
 float ConfigFileManager::getConfigValue(uint8_t key) {
     float value;
     if (readConfigValue(key, value)) {
         return value;
     } else {
-        // Return default value if key is not found
-        for (const auto& config : defaultConfigs) {
-            if (config.key == key) {
-                return config.defaultValue;
+        for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+            if (CONFIG_KEYS[i].key == key) {
+                return CONFIG_KEYS[i].defaultValue;
             }
         }
     }
-    return 0; // Default to 0 if key is not found and no default value is specified
+    return 0;
 }
 
-// Write a value to the config file at a specific position
 bool ConfigFileManager::writeValue(uint8_t key, float value) {
-    fm.configFile.type.open(fm.configFile.name, O_WRITE);
+    if (!fm.configFile.type.open(fm.configFile.name, O_WRITE)) {
+        Serial.println("Failed to open config file for writing.");
+        return false;
+    }
 
-    // Seek to the correct position based on the key
-    fm.configFile.type.seekSet(key * sizeof(float));
-    fm.configFile.type.write((uint8_t*)&value, sizeof(value));
+    uint32_t position = key * sizeof(float);
+    if (!fm.configFile.type.seekSet(position)) {
+        Serial.println("Failed to seek to position.");
+        fm.configFile.type.close();
+        return false;
+    }
+
+    if (fm.configFile.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
+        Serial.println("Failed to write float value.");
+        fm.configFile.type.close();
+        return false;
+    }
+
     fm.closeFile(fm.configFile);
 
     Serial.print("Wrote value ");
     Serial.print(value);
     Serial.print(" to key ");
-    Serial.println(key, HEX);
+    Serial.println(keyToString(key));
 
     return true;
 }
 
-// Print all config values from the config file to Serial
 void ConfigFileManager::printAllConfigValuesToSerial() {
-    for (const auto& config : defaultConfigs) {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
         float value;
-        if (readConfigValue(config.key, value)) {
-            Serial.print(config.key, HEX);
+        if (readConfigValue(CONFIG_KEYS[i].key, value)) {
+            Serial.print(CONFIG_KEYS[i].name);
             Serial.print(": ");
             Serial.println(value);
         } else {
-            Serial.print(config.key, HEX);
+            Serial.print(CONFIG_KEYS[i].name);
             Serial.print(": ");
-            Serial.println(config.defaultValue);
+            Serial.println(CONFIG_KEYS[i].defaultValue);
         }
     }
 }
 
-// Delete the config file
 bool ConfigFileManager::deleteConfigFile() {
     return fm.deleteFile(fm.configFileName);
 }

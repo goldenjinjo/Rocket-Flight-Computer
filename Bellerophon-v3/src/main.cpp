@@ -47,10 +47,15 @@ void setup() {
 
     config.initialize();
 
+
+    delay(100);
+
+    //config.restoreDefaults();
+
     config.printAllConfigValuesToSerial();
 
     // set initial mode
-    mode = config.getConfigValue(BOOTUP_MODE);
+    mode = 0;
     
     Serial.println(mode);
 

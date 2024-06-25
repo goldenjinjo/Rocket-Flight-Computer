@@ -1,16 +1,31 @@
 #ifndef CONFIG_KEYS_HPP
 #define CONFIG_KEYS_HPP
 
-#define ALTITUDE_BUFFER_PERIOD 0x00
-#define G_OFFSET 0x01
-#define LAUNCH_VEL_THRESHOLD 0x02
-#define LAUNCH_ACC_THRESHOLD 0x03
-#define APOGEE_TIMER 0x04
-#define LANDING_VEL_THRESHOLD 0x05
-#define BOOTUP_MODE 0x06
-#define DUAL_DEPLOY 0x07
-#define DROGUE_DELAY 0x08
-#define MAIN_DELAY 0x09
-#define MAIN_DEPLOYMENT_ALT 0x0A
+#include <stdint.h>
+
+struct ConfigKey {
+    uint8_t key;
+    const char* name;
+    float defaultValue;
+};
+
+// Define all configuration keys here
+const ConfigKey CONFIG_KEYS[] = {
+    {0x00, "ALTITUDE_BUFFER_PERIOD", 2000.0},
+    {0x01, "G_OFFSET", 9.81},
+    {0x02, "LAUNCH_VEL_THRESHOLD", 15.0},
+    {0x03, "LAUNCH_ACC_THRESHOLD", 60.0},
+    {0x04, "APOGEE_TIMER", 100.0},
+    {0x05, "LANDING_VEL_THRESHOLD", 1.0},
+    {0x06, "BOOTUP_MODE", 1.0},
+    {0x07, "DUAL_DEPLOY", 1.0},
+    {0x08, "DROGUE_DELAY", 5.0},
+    {0x09, "MAIN_DELAY", 15.0},
+    {0x0A, "MAIN_DEPLOYMENT_ALT", 300.0}
+};
+
+// Number of configuration keys
+const size_t NUM_CONFIG_KEYS = sizeof(CONFIG_KEYS) / sizeof(CONFIG_KEYS[0]);
 
 #endif // CONFIG_KEYS_HPP
+
