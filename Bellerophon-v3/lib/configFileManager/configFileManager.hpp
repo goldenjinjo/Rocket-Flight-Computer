@@ -9,7 +9,7 @@
  * @class ConfigFileManager
  * @brief A class to manage configuration file operations on an SD card,
  *        including reading and writing predefined configuration values.
- *        Config values are stored as longs for robustness.
+ *        Config values are stored as floats for robustness.
  */
 class ConfigFileManager {
 public:
@@ -33,7 +33,7 @@ public:
      * @param value Reference to store the read value.
      * @return True if the value is successfully read, false otherwise.
      */
-    bool readConfigValue(uint8_t key, long& value);
+    bool readConfigValue(uint8_t key, float& value);
 
     /**
      * @brief Writes a config value to the config file.
@@ -41,14 +41,14 @@ public:
      * @param value The value to write.
      * @return True if the value is successfully written, false otherwise.
      */
-    bool writeConfigValue(uint8_t key, long value);
+    bool writeConfigValue(uint8_t key, float value);
 
     /**
      * @brief Retrieves a config value by key.
      * @param key The byte identifier of the config value to retrieve.
-     * @return The config value as a long.
+     * @return The config value as a float.
      */
-    long getConfigValue(uint8_t key);
+    float getConfigValue(uint8_t key);
 
     /**
      * @brief Prints all config values from the config file to Serial.
@@ -69,7 +69,7 @@ private:
      */
     struct ConfigItem {
         uint8_t key;
-        long defaultValue;
+        float defaultValue;
     };
 
     /**
@@ -83,7 +83,7 @@ private:
      * @param value The value to write.
      * @return True if the key-value pair is successfully written, false otherwise.
      */
-    bool writeValue(uint8_t key, long value);
+    bool writeValue(uint8_t key, float value);
 };
 
 #endif // CONFIG_FILE_MANAGER_HPP

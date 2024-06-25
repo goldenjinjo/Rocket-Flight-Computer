@@ -41,21 +41,17 @@ void setup() {
 
     Serial.println("------");
 
-    delay(1000);
 
-    fm.deleteFile("config.dat");
+
+    delay(1000);
 
     config.initialize();
 
-    config.initializeWithDefaults();
-
-    // config.writeConfigValue(ALTITUDE_BUFFER_PERIOD, 5000);
+    // config.writeConfigValue(LAUNCH_ACC_THRESHOLD, 50);
+    // config.writeConfigValue(ALTITUDE_BUFFER_PERIOD, 2000);
 
     config.printAllConfigValuesToSerial();
 
-    long test1 = config.getConfigValue(ALTITUDE_BUFFER_PERIOD);
-
-    Serial.println(test1);
 
 }
 // keep track of previous tones

@@ -39,6 +39,7 @@ void FileManager::initializeIndexFile() {
     logFileCounter = 0;
     dataFileCounter = 0;
 
+    indexFile.type.open(indexFile.name, O_WRITE);
     // Write the initialized counters to the index file
     indexFile.type.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
     indexFile.type.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
@@ -188,11 +189,21 @@ bool FileManager::closeFile(FileItem& fileItem) {
 }
 
 bool FileManager::createFile(FileItem& fileItem) {
-     if (!fileItem.type.open(fileItem.name, O_RDWR | O_CREAT)) {
-        sd.errorHalt("Error opening or creating file: ");
-        Serial.println(fileItem.name);
-        return false;
+     // Tries to create a file if file does not already exist
+     if(!fileExists(fileItem.name)) {
+        if (!fileItem.type.open(fileItem.name, O_RDWR | O_CREAT)) {
+            sd.errorHalt("Error opening or creating file: ");
+            Serial.println(fileItem.name);
+            // false if file can not be created
+            return false;
+        }
+        // close file after creation
+        closeFile(fileItem);
+        // true if file is created
+        return true;
     }
+    // false if file already exists
+    return false;
 }
 
 void FileManager::readFile(FileItem& fileItem, long value) {
