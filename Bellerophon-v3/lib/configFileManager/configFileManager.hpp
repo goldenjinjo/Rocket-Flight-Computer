@@ -28,6 +28,10 @@ public:
     void initializeWithDefaults();
 
     /**
+     * @brief Deletes config file and reinitalizes the values
+     */
+    void restoreDefaults();
+    /**
      * @brief Reads a config value from the config file.
      * @param key The byte identifier of the config value to read.
      * @param value Reference to store the read value.
@@ -55,11 +59,6 @@ public:
      */
     void printAllConfigValuesToSerial();
 
-    /**
-     * @brief Deletes the config file.
-     * @return True if the config file is successfully deleted, false otherwise.
-     */
-    bool deleteConfigFile();
 
 private:
     FileManager& fm;                 // Reference to the parent FileManager instance
@@ -84,6 +83,12 @@ private:
      * @return True if the key-value pair is successfully written, false otherwise.
      */
     bool writeValue(uint8_t key, float value);
+
+    /**
+     * @brief Deletes the config file.
+     * @return True if the config file is successfully deleted, false otherwise.
+     */
+    bool deleteConfigFile();
 };
 
 #endif // CONFIG_FILE_MANAGER_HPP

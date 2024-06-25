@@ -26,7 +26,4 @@ const char* debugPrefix = "debug_";
 // e.g. for 3: example_000.example
 const uint8_t zeroPadding = 6;
 
-bool dualDeploy = false;
-float drogueDelay = 0;
-float mainDelay = 0;
-float mainAltitude = 300;
+

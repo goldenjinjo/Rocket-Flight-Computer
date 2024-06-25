@@ -2,13 +2,21 @@
 
 // Define default configuration items with predefined positions
 const ConfigFileManager::ConfigItem ConfigFileManager::defaultConfigs[] = {
+    /// NOTE: config.dat currently needs to be manually deleted if a new default value is added
+    /// TODO: add a file that checks number of keys against the value of the last boot
     {ALTITUDE_BUFFER_PERIOD, 2000},
     {G_OFFSET, 9.81},
     {LAUNCH_VEL_THRESHOLD, 15},
     {LAUNCH_ACC_THRESHOLD, 60},
     {APOGEE_TIMER, 100},
     {LANDING_VEL_THRESHOLD, 1},
+    {BOOTUP_MODE, 0},
+    {DUAL_DEPLOY, 1},
+    {DROGUE_DELAY, 0},
+    {MAIN_DELAY, 0},
+    {MAIN_DEPLOYMENT_ALT, 300},
 };
+
 
 // Constructor for ConfigFileManager
 ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {}
@@ -47,6 +55,11 @@ void ConfigFileManager::initializeWithDefaults() {
     }
 }
 
+void ConfigFileManager::restoreDefaults() {
+    deleteConfigFile();
+    initializeWithDefaults();
+}
+
 // Read a config value from the config file
 bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
     fm.openFileForRead(fm.configFile);
@@ -65,6 +78,8 @@ bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
 
 // Write a config value to the config file
 bool ConfigFileManager::writeConfigValue(uint8_t key, float value) {
+    
+    /// TODO: write check that key and value are valid before executing
     return writeValue(key, value);
 }
 

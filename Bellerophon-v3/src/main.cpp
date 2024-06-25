@@ -47,10 +47,12 @@ void setup() {
 
     config.initialize();
 
-    // config.writeConfigValue(LAUNCH_ACC_THRESHOLD, 50);
-    // config.writeConfigValue(ALTITUDE_BUFFER_PERIOD, 2000);
-
     config.printAllConfigValuesToSerial();
+
+    // set initial mode
+    mode = config.getConfigValue(BOOTUP_MODE);
+    
+    Serial.println(mode);
 
 
 }
