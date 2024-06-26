@@ -1,31 +1,23 @@
 #include "ConfigFileManager.hpp"
+#include "configKeys.hpp"
 #include <Arduino.h>
 
 
-ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {}
+ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {
+    // Initalize keys defined in configKeys.cpp
+    //initializeConfigKeys();
+}
 
 
 bool ConfigFileManager::initialize() {
-    if (!fm.initialize()) {
-        Serial.println("FileManager initialization failed.");
-        return false;
-    }
+    // if (!fm.initialize()) {
+    //     return false;
+    // }
 
     fm.initializeFileItem(fm.configFile, fm.configFileName);
     initializeWithDefaults();
-
-    CONFIG_KEYS[0].variable = &ALTITUDE_BUFFER_PERIOD;
-    CONFIG_KEYS[1].variable = &G_OFFSET;
-    CONFIG_KEYS[2].variable = &LAUNCH_VEL_THRESHOLD;
-    CONFIG_KEYS[3].variable = &LAUNCH_ACC_THRESHOLD;
-    CONFIG_KEYS[4].variable = &APOGEE_TIMER;
-    CONFIG_KEYS[5].variable = &LANDING_VEL_THRESHOLD;
-    CONFIG_KEYS[6].variable = &BOOTUP_MODE;
-    CONFIG_KEYS[7].variable = &DUAL_DEPLOY;
-    CONFIG_KEYS[8].variable = &DROGUE_DELAY;
-    CONFIG_KEYS[9].variable = &MAIN_DELAY;
-    CONFIG_KEYS[10].variable = &MAIN_DEPLOYMENT_ALT;
-
+    // // assign config values to external variables for run time
+    // loadConfigValues();
 
     return true;
 }
@@ -43,7 +35,7 @@ void ConfigFileManager::initializeWithDefaults() {
         Serial.print(CONFIG_KEYS[i].name);
         Serial.print(": ");
         Serial.println(CONFIG_KEYS[i].defaultValue);
-        writeValue(CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue);
+        writeValue(CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue); 
     }
 }
 
@@ -152,4 +144,20 @@ void ConfigFileManager::printAllConfigValuesToSerial() {
 
 bool ConfigFileManager::deleteConfigFile() {
     return fm.deleteFile(fm.configFileName);
+}
+
+
+void ConfigFileManager::loadConfigValues() {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        float value;
+        if (readConfigValue(CONFIG_KEYS[i].key, value)) {
+            *(CONFIG_KEYS[i].variable) = value;
+        }
+    }
+}
+
+void ConfigFileManager::saveConfigValues() {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        writeConfigValue(CONFIG_KEYS[i].key, *(CONFIG_KEYS[i].variable));
+    }
 }

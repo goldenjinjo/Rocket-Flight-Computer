@@ -11,6 +11,8 @@ bool FileManager::initialize() {
         Serial.println("SD card initialization failed.\n");
         return false;
     }
+
+    delay(1000);
     // Load the index file and read the counters
     loadIndexFile();
     // Initialize log and data file names

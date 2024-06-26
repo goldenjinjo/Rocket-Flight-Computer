@@ -1,47 +1,55 @@
-#include "configKeys.hpp"
+/**
+ * @file ConfigKeys.cpp
+ * @brief Implements the initialization and management of configuration keys and their associated variables.
+ *
+ * This file includes the definitions and initializations of the configuration keys using the CONFIG_VARIABLES macro.
+ * It ensures that the configuration keys are correctly mapped to their global variables.
+ */
 
-float ALTITUDE_BUFFER_PERIOD;
-float G_OFFSET;
-float LAUNCH_VEL_THRESHOLD;
-float LAUNCH_ACC_THRESHOLD;
-float APOGEE_TIMER;
-float LANDING_VEL_THRESHOLD;
-float BOOTUP_MODE;
-float DUAL_DEPLOY;
-float DROGUE_DELAY;
-float MAIN_DELAY;
-float MAIN_DEPLOYMENT_ALT;
+#include "ConfigKeys.hpp"
 
+// Define the global variables without initializing them
+#define X(name, defaultValue) float name;
+CONFIG_VARIABLES
+#undef X
 
 // Define all configuration keys here
+#define X(name, defaultValue) {__COUNTER__, #name, defaultValue, nullptr},
 ConfigKey CONFIG_KEYS[] = {
-    {0x00, "ALTITUDE_BUFFER_PERIOD", 2000.0, nullptr},
-    {0x01, "G_OFFSET", 9.81, nullptr},
-    {0x02, "LAUNCH_VEL_THRESHOLD", 15.0, nullptr},
-    {0x03, "LAUNCH_ACC_THRESHOLD", 60.0, nullptr},
-    {0x04, "APOGEE_TIMER", 100.0, nullptr},
-    {0x05, "LANDING_VEL_THRESHOLD", 1.0, nullptr},
-    {0x06, "BOOTUP_MODE", 1.0, nullptr},
-    {0x07, "DUAL_DEPLOY", 1.0, nullptr},
-    {0x08, "DROGUE_DELAY", 5.0, nullptr},
-    {0x09, "MAIN_DELAY", 15.0, nullptr},
-    {0x0A, "MAIN_DEPLOYMENT_ALT", 300.0, nullptr}
+    CONFIG_VARIABLES
 };
+#undef X
 
 // Number of configuration keys
-// const size_t NUM_CONFIG_KEYS = sizeof(CONFIG_KEYS) / sizeof(CONFIG_KEYS[0]);
 const std::size_t NUM_CONFIG_KEYS = sizeof(CONFIG_KEYS) / sizeof(CONFIG_KEYS[0]);
 
+/**
+ * @brief Initializes the pointers in the CONFIG_KEYS array to point to the corresponding global variables.
+ *
+ * This function ensures that each configuration key's pointer is correctly set to the global variable.
+ */
 void initializeConfigKeys() {
-    CONFIG_KEYS[0].variable = &ALTITUDE_BUFFER_PERIOD;
-    CONFIG_KEYS[1].variable = &G_OFFSET;
-    CONFIG_KEYS[2].variable = &LAUNCH_VEL_THRESHOLD;
-    CONFIG_KEYS[3].variable = &LAUNCH_ACC_THRESHOLD;
-    CONFIG_KEYS[4].variable = &APOGEE_TIMER;
-    CONFIG_KEYS[5].variable = &LANDING_VEL_THRESHOLD;
-    CONFIG_KEYS[6].variable = &BOOTUP_MODE;
-    CONFIG_KEYS[7].variable = &DUAL_DEPLOY;
-    CONFIG_KEYS[8].variable = &DROGUE_DELAY;
-    CONFIG_KEYS[9].variable = &MAIN_DELAY;
-    CONFIG_KEYS[10].variable = &MAIN_DEPLOYMENT_ALT;
+    #define X(name, defaultValue) CONFIG_KEYS[__COUNTER__].variable = &name;
+    CONFIG_VARIABLES
+    #undef X
+}
+
+
+void printConfigKeysToSerial() {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        Serial.print("Key: ");
+        Serial.print(CONFIG_KEYS[i].key, HEX);
+        Serial.print(", Name: ");
+        Serial.print(CONFIG_KEYS[i].name);
+        Serial.print(", Default Value: ");
+        Serial.print(CONFIG_KEYS[i].defaultValue);
+        Serial.print(", Variable Pointer: ");
+        Serial.print(reinterpret_cast<uintptr_t>(CONFIG_KEYS[i].variable), HEX);
+        Serial.print(", Variable Value: ");
+        if (CONFIG_KEYS[i].variable) {
+            Serial.println(*CONFIG_KEYS[i].variable);
+        } else {
+            Serial.println("nullptr");
+        }
+    }
 }
