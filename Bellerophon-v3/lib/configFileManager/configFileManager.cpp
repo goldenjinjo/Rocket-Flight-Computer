@@ -1,18 +1,9 @@
 #include "ConfigFileManager.hpp"
 #include <Arduino.h>
 
-const uint32_t MAGIC_NUMBER = 0xDEADBEEF;
 
 ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {}
 
-const char* ConfigFileManager::keyToString(uint8_t key) {
-    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
-        if (CONFIG_KEYS[i].key == key) {
-            return CONFIG_KEYS[i].name;
-        }
-    }
-    return "UNKNOWN_KEY";
-}
 
 bool ConfigFileManager::initialize() {
     if (!fm.initialize()) {
@@ -22,6 +13,19 @@ bool ConfigFileManager::initialize() {
 
     fm.initializeFileItem(fm.configFile, fm.configFileName);
     initializeWithDefaults();
+
+    CONFIG_KEYS[0].variable = &ALTITUDE_BUFFER_PERIOD;
+    CONFIG_KEYS[1].variable = &G_OFFSET;
+    CONFIG_KEYS[2].variable = &LAUNCH_VEL_THRESHOLD;
+    CONFIG_KEYS[3].variable = &LAUNCH_ACC_THRESHOLD;
+    CONFIG_KEYS[4].variable = &APOGEE_TIMER;
+    CONFIG_KEYS[5].variable = &LANDING_VEL_THRESHOLD;
+    CONFIG_KEYS[6].variable = &BOOTUP_MODE;
+    CONFIG_KEYS[7].variable = &DUAL_DEPLOY;
+    CONFIG_KEYS[8].variable = &DROGUE_DELAY;
+    CONFIG_KEYS[9].variable = &MAIN_DELAY;
+    CONFIG_KEYS[10].variable = &MAIN_DEPLOYMENT_ALT;
+
 
     return true;
 }
@@ -46,6 +50,15 @@ void ConfigFileManager::initializeWithDefaults() {
 void ConfigFileManager::restoreDefaults() {
     deleteConfigFile();
     initializeWithDefaults();
+}
+
+const char* ConfigFileManager::keyToString(uint8_t key) {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        if (CONFIG_KEYS[i].key == key) {
+            return CONFIG_KEYS[i].name;
+        }
+    }
+    return "UNKNOWN_KEY";
 }
 
 bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
