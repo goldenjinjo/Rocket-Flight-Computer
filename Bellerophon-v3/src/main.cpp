@@ -13,6 +13,7 @@
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
 #include "configFileManager.hpp"
+#include "configKeys.hpp"
 
 // Class Declarations
 
@@ -42,8 +43,10 @@ void setup() {
 
     initializeConfigKeys();
 
-    //    Serial.println("Configuration keys initialized:");
     
+    //    Serial.println("Configuration keys initialized:");
+
+    Serial.println(LAUNCH_ACC_THRESHOLD);
 
     Serial.println("-------------");
 
@@ -51,16 +54,14 @@ void setup() {
 
     config.initialize();
 
-    delay(100);
 
-    config.restoreDefaults();
-
-    config.printAllConfigValuesToSerial();
+    Serial.println(ALTITUDE_BUFFER_PERIOD);
 
     // // // set initial mode
-    // mode = 0;
+    mode = BOOTUP_MODE;
     
-    // Serial.println(mode);
+    Serial.println("printing");
+    printConfigKeysToSerial();
 
 
 }

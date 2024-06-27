@@ -31,6 +31,9 @@ public:
      * @brief Deletes config file and reinitalizes the values
      */
     void restoreDefaults();
+
+    void AssignConfigValue(uint8_t key, float value);
+
     /**
      * @brief Reads a config value from the config file.
      * @param key The byte identifier of the config value to read.

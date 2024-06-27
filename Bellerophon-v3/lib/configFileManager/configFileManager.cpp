@@ -10,14 +10,11 @@ ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {
 
 
 bool ConfigFileManager::initialize() {
-    // if (!fm.initialize()) {
-    //     return false;
-    // }
-
+  
     fm.initializeFileItem(fm.configFile, fm.configFileName);
     initializeWithDefaults();
     // // assign config values to external variables for run time
-    // loadConfigValues();
+    loadConfigValues();
 
     return true;
 }
@@ -42,6 +39,26 @@ void ConfigFileManager::initializeWithDefaults() {
 void ConfigFileManager::restoreDefaults() {
     deleteConfigFile();
     initializeWithDefaults();
+}
+
+void ConfigFileManager::AssignConfigValue(uint8_t key, float value) {
+    if (key >= NUM_CONFIG_KEYS) {
+        Serial.print("Invalid key: ");
+        Serial.println(key, HEX);
+        return;
+    }
+
+    if (CONFIG_KEYS[key].variable == nullptr) {
+        Serial.print("Null pointer for key: ");
+        Serial.println(key, HEX);
+        return;
+    }
+
+    *(CONFIG_KEYS[key].variable) = value;
+    Serial.print("Assigned value ");
+    Serial.print(value);
+    Serial.print(" to key ");
+    Serial.println(keyToString(key));
 }
 
 const char* ConfigFileManager::keyToString(uint8_t key) {
@@ -98,6 +115,8 @@ float ConfigFileManager::getConfigValue(uint8_t key) {
     return 0;
 }
 
+
+
 bool ConfigFileManager::writeValue(uint8_t key, float value) {
     if (!fm.configFile.type.open(fm.configFile.name, O_WRITE)) {
         Serial.println("Failed to open config file for writing.");
@@ -119,10 +138,14 @@ bool ConfigFileManager::writeValue(uint8_t key, float value) {
 
     fm.closeFile(fm.configFile);
 
+    
+
     Serial.print("Wrote value ");
     Serial.print(value);
     Serial.print(" to key ");
     Serial.println(keyToString(key));
+
+    AssignConfigValue(key, value);
 
     return true;
 }

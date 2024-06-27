@@ -28,14 +28,48 @@ const std::size_t NUM_CONFIG_KEYS = sizeof(CONFIG_KEYS) / sizeof(CONFIG_KEYS[0])
  *
  * This function ensures that each configuration key's pointer is correctly set to the global variable.
  */
+// void initializeConfigKeys() {
+//     #define X(name, defaultValue) CONFIG_KEYS[__COUNTER__].variable = &name;
+//     CONFIG_VARIABLES
+//     #undef X
+// }
+
+
 void initializeConfigKeys() {
-    #define X(name, defaultValue) CONFIG_KEYS[__COUNTER__].variable = &name;
+    Serial.println("Initializing Config Keys");
+
+    std::size_t index = 0;
+    #define X(name, defaultValue) CONFIG_KEYS[index++].variable = &name;
     CONFIG_VARIABLES
     #undef X
+
+    // Set the key values explicitly
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        CONFIG_KEYS[i].key = i;
+    }
+
+    // Debug: Print all initialized pointers
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        Serial.print("Key: ");
+        Serial.print(CONFIG_KEYS[i].key, HEX);
+        Serial.print(", Name: ");
+        Serial.print(CONFIG_KEYS[i].name);
+        Serial.print(", Default Value: ");
+        Serial.print(CONFIG_KEYS[i].defaultValue);
+        Serial.print(", Variable Pointer: ");
+        Serial.print(reinterpret_cast<uintptr_t>(CONFIG_KEYS[i].variable), HEX);
+        Serial.print(", Variable Value: ");
+        if (CONFIG_KEYS[i].variable) {
+            Serial.println(*CONFIG_KEYS[i].variable);
+        } else {
+            Serial.println("nullptr");
+        }
+    }
 }
 
 
 void printConfigKeysToSerial() {
+    
     for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
         Serial.print("Key: ");
         Serial.print(CONFIG_KEYS[i].key, HEX);

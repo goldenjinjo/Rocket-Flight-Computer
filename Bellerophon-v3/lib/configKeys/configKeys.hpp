@@ -24,7 +24,7 @@
 struct ConfigKey {
     uint8_t key;            ///< Unique key for the configuration variable
     const char* name;       ///< Name of the configuration variable
-    float defaultValue;     ///< Default value of the configuration variable
+    const float defaultValue;     ///< Default value of the configuration variable
     float* variable;        ///< Pointer to the corresponding global variable
 };
 
@@ -41,11 +41,16 @@ struct ConfigKey {
     X(LAUNCH_ACC_THRESHOLD, 60.0) \
     X(APOGEE_TIMER, 100.0) \
     X(LANDING_VEL_THRESHOLD, 1.0) \
-    X(BOOTUP_MODE, 1.0) \
+    X(BOOTUP_MODE, 0) \
     X(DUAL_DEPLOY, 1.0) \
     X(DROGUE_DELAY, 5.0) \
     X(MAIN_DELAY, 15.0) \
     X(MAIN_DEPLOYMENT_ALT, 300.0)
+
+// Declare the global variables
+#define X(name, defaultValue) extern float name;
+CONFIG_VARIABLES
+#undef X
 
 // Declare the configuration keys
 extern ConfigKey CONFIG_KEYS[];
