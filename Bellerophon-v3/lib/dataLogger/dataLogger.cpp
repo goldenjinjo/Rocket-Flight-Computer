@@ -29,8 +29,6 @@ bool DataLogger::initialize() {
     // Sensor config
     imu.setPollRate(10); 
 
-    
-
     return true;
 }
 

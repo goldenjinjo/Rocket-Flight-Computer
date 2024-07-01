@@ -43,15 +43,9 @@ void setup() {
     // play start up sequence
     startUp();
 
-    logger.logEvent("TESTING LOG");
-
     delay(1000);
-    Serial.println("---");
-    Serial.println(fm.fileExists(fm.logFileName));
-    Serial.println(fm.logFile.name);
-
-    Serial.println(fm.fileExists(fm.dataFileName));
-    Serial.println(fm.dataFile.name);
+   
+    printConfigKeysToSerial();
 
     
 

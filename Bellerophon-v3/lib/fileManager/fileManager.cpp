@@ -23,13 +23,13 @@ void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {
 /* 
     FILE NAME CREATION METHODS
 */
-void FileManager::initializeIndexFile() {
-   
-   createFile(indexFile);
-
-    // Initialize counters to 0
-    logFileCounter = 0;
-    dataFileCounter = 0;
+void FileManager::updateIndexFile() {
+    // creates File and initalizes counters only if it does not already exist
+    if(createFile(indexFile)){
+        // Initialize counters to 0
+        logFileCounter = 0;
+        dataFileCounter = 0;
+    }
 
     openFileForWrite(indexFile);
     // Write the initialized counters to the index file
@@ -47,18 +47,8 @@ void FileManager::loadIndexFile() {
         indexFile.type.read((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
         closeFile(indexFile);
     } else {
-        initializeIndexFile();
+        updateIndexFile();
     }
-}
-
-void FileManager::updateIndexFile() {
-    if (!indexFile.type.open(indexFileName, O_RDWR | O_CREAT)) {
-        initializeIndexFile();
-    }
-
-    indexFile.type.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
-    indexFile.type.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
-    closeFile(indexFile);
 }
 
 void FileManager::createNewLogFile() {
@@ -148,7 +138,6 @@ bool FileManager::fileExists(const char* fileName) {
     return sd.exists(fileName);
 }
 
-
 // deleting files
 bool FileManager::deleteFile(const char* fileName) {
     if (sd.exists(fileName)) {
@@ -160,17 +149,6 @@ bool FileManager::deleteFile(const char* fileName) {
         Serial.println("File not found, nothing deleted\n");
         return false;
     }
-}
-
-// opening files
-bool FileManager::openFileForRead(FileItem& fileItem) {
-     if (!fileItem.type.open(fileItem.name, O_READ)) {
-        sd.errorHalt("Opening for read failed: ");
-        Serial.println(fileItem.name);
-        return false;
-    }
-    // else return true
-    return true;
 }
 
 bool FileManager::closeFile(FileItem& fileItem) {
@@ -200,10 +178,38 @@ bool FileManager::createFile(FileItem& fileItem) {
     return false;
 }
 
-void FileManager::readFile(FileItem& fileItem, long value) {
-    openFileForRead(fileItem);
-    fileItem.type.read((uint8_t*)&value, sizeof(value));
+bool FileManager::readFloatFromFile(FileItem& fileItem, uint32_t position, float& value) {
+ 
+    if(!openFileForRead(fileItem)) {
+        return false;
+    }
+
+    setFilePosition(fileItem, position);
+
+    if (fileItem.type.read((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
+        Serial.println("Failed to read the full float value.");
+        closeFile(fileItem);
+        return false;
+    }
+
     closeFile(fileItem);
+}
+
+bool FileManager::writeFloatToFile(FileItem& fileItem, uint32_t position, float value) {
+    
+    openFileForWrite(fileItem);
+   
+    setFilePosition(fileItem, position);
+
+    if (fileItem.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
+        Serial.println("Failed to write float value.");
+        closeFile(fileItem);
+        return false;
+    }
+
+    closeFile(fileItem);
+
+    return true;
 }
 
 void FileManager::print(FileItem& fileItem, const char* message) {
@@ -216,6 +222,16 @@ void FileManager::print(FileItem& fileItem, const char* message) {
     closeFile(fileItem);
 }
 
+// opening files
+bool FileManager::openFileForRead(FileItem& fileItem) {
+     if (!fileItem.type.open(fileItem.name, O_READ)) {
+        sd.errorHalt("Opening for read failed: ");
+        Serial.println(fileItem.name);
+        return false;
+    }
+    // else return true
+    return true;
+}
 
 bool FileManager::openFileForWrite(FileItem& fileItem) {
      if (!fileItem.type.open(fileItem.name, O_WRITE)) {
@@ -228,23 +244,14 @@ bool FileManager::openFileForWrite(FileItem& fileItem) {
 
 }
 
-bool FileManager::writeFloatToFile(FileItem& fileItem, uint32_t position, float value) {
-    
-    openFileForWrite(fileItem);
-   
+bool FileManager::setFilePosition(FileItem& fileItem, uint32_t position) {
     if (!fileItem.type.seekSet(position)) {
         Serial.println("Failed to seek to position.");
         closeFile(fileItem);
         return false;
     }
 
-    if (fileItem.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
-        Serial.println("Failed to write float value.");
-        closeFile(fileItem);
-        return false;
-    }
-
-    closeFile(fileItem);
-
     return true;
 }
+
+

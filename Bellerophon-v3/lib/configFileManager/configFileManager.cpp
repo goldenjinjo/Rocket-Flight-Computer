@@ -79,28 +79,18 @@ const char* ConfigFileManager::keyToString(uint8_t key) {
 
 bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
    
-    fm.openFileForRead(fm.configFile);
-
     uint32_t position = key * sizeof(float);
-    if (!fm.configFile.type.seekSet(position)) {
-        Serial.println("Failed to seek to position.");
-        fm.closeFile(fm.configFile);
+    if(!fm.readFloatFromFile(fm.configFile, position, value)) {
+        Serial.println("error reading config file");
         return false;
     }
 
-    if (fm.configFile.type.read((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
-        Serial.println("Failed to read the full float value.");
-        fm.closeFile(fm.configFile);
-        return false;
+    if(DEBUG) {
+        Serial.print("Read value for key ");
+        Serial.print(keyToString(key));
+        Serial.print(": ");
+        Serial.println(value);
     }
-
-    fm.closeFile(fm.configFile);
-
-    Serial.print("Read value for key ");
-    Serial.print(keyToString(key));
-    Serial.print(": ");
-    Serial.println(value);
-
     return true;
 }
 

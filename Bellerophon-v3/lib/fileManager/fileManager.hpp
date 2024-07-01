@@ -118,7 +118,7 @@ public:
     void print(FileItem& fileItem, const char* message);
 
 
-    void readFile(FileItem& fileItem, long value);
+    bool readFloatFromFile(FileItem& fileItem, uint32_t position, float& value);
 
      /**
      * @brief Recieves a float value and writes the byte data into a file at a specified position
@@ -136,10 +136,6 @@ private:
     // define classes with access to protected methods
     friend class DataLogger;
 
-    /**
-     * @brief  Initializes the index file with counters set to 0.
-     */
-    void initializeIndexFile();
 
     /**
      * @brief  Updates the index file with the current file counters.
@@ -163,6 +159,8 @@ private:
 
 
     bool openFileForWrite(FileItem& fileItem);
+
+    bool setFilePosition(FileItem& fileItem, uint32_t position);
 };
 
 #endif // FILE_MANAGER_HPP
