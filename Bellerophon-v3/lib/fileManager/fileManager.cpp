@@ -11,9 +11,6 @@ bool FileManager::initialize() {
 
     // Load the index file and read the counters
     loadIndexFile();
-    // Initialize log and data file names
-    createNewLogFile();
-    createNewDataFile();
 }
 
 void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {

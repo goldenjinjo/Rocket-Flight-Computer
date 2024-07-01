@@ -133,6 +133,9 @@ private:
     uint32_t logFileCounter;      // Counter for log files
     uint32_t dataFileCounter;     // Counter for data files
 
+    // define classes with access to protected methods
+    friend class DataLogger;
+
     /**
      * @brief  Initializes the index file with counters set to 0.
      */

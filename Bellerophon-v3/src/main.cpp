@@ -32,15 +32,14 @@ void setup() {
     Wire.begin(); // Join i2c bus
     serialComm.begin();
 
-    // initialize ConfigKey Struct and 
-    initializeConfigKeys();
 
     // Set pin types and configure LEDs
     peripheralInitialize();
     // initilize classes
     fm.initialize();
-    logger.initialize();
+    // Config must be initalised first after FileManager, as it declares all external variables, including debug
     config.initialize();
+    logger.initialize();
     // play start up sequence
     startUp();
 

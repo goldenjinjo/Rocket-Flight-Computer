@@ -15,6 +15,10 @@ serialComm(serialComm), files(files), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_A
 
 bool DataLogger::initialize() {
     
+    // Initialize log and data file names
+    files.createNewLogFile();
+    files.createNewDataFile();
+
     // Print debug warning
     if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
@@ -24,6 +28,8 @@ bool DataLogger::initialize() {
 
     // Sensor config
     imu.setPollRate(10); 
+
+    
 
     return true;
 }
