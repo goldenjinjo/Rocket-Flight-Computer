@@ -79,14 +79,6 @@ public:
      */
     void loadConfigValues();
 
-    /**
-     * @brief Saves the configuration values from the global variables into the config file.
-     *
-     * This function writes the values of the global variables to the config file using the pointers
-     * in the CONFIG_KEYS array.
-     */
-    void saveConfigValues();
-
 
 private:
     FileManager& fm;                 // Reference to the parent FileManager instance

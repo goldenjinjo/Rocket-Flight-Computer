@@ -14,6 +14,7 @@
 #include "fileManager.hpp"
 #include "configFileManager.hpp"
 #include "configKeys.hpp"
+#include "constants.hpp"
 
 // Class Declarations
 
@@ -24,6 +25,8 @@ DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
 
 
+
+
 void setup() {
 
     Wire.begin(); // Join i2c bus
@@ -32,36 +35,25 @@ void setup() {
     // Set pin types and configure LEDs
     peripheralInitialize();
   
-    // play start up sequence
-    startUp();
-
     // initilize classes
     logger.initialize();
-
 
     Serial.println("------");
 
     initializeConfigKeys();
 
-    
-    //    Serial.println("Configuration keys initialized:");
-
-    Serial.println(LAUNCH_ACC_THRESHOLD);
-
-    Serial.println("-------------");
-
     delay(1000);
 
     config.initialize();
 
-
-    Serial.println(ALTITUDE_BUFFER_PERIOD);
-
-    // // // set initial mode
-    mode = BOOTUP_MODE;
+    Serial.println("DEBUG:");
+    Serial.println(DEBUG);
     
     Serial.println("printing");
     printConfigKeysToSerial();
+
+    // play start up sequence
+    startUp();
 
 
 }

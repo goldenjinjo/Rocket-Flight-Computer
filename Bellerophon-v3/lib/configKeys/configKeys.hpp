@@ -35,17 +35,18 @@ struct ConfigKey {
  * This macro is used to declare, define, and initialize configuration variables in a consistent manner.
  */
 #define CONFIG_VARIABLES \
-    X(ALTITUDE_BUFFER_PERIOD, 2000.0) \
-    X(G_OFFSET, 9.81) \
-    X(LAUNCH_VEL_THRESHOLD, 15.0) \
-    X(LAUNCH_ACC_THRESHOLD, 60.0) \
-    X(APOGEE_TIMER, 100.0) \
-    X(LANDING_VEL_THRESHOLD, 1.0) \
-    X(BOOTUP_MODE, 0) \
-    X(DUAL_DEPLOY, 1.0) \
-    X(DROGUE_DELAY, 5.0) \
-    X(MAIN_DELAY, 15.0) \
-    X(MAIN_DEPLOYMENT_ALT, 300.0)
+   X(ALTITUDE_BUFFER_PERIOD, 2000.0) /* Period to buffer initial altitude measurements (Unit TBD) */ \
+    X(G_OFFSET, 9.81) /* 1G offset for accelerometer, accelerometer will measure 0g when in unpowered flight (unit TBD) */ \
+    X(LAUNCH_VEL_THRESHOLD, 15.0) /* Launch Detect Threshold for Velocity (Unit TBD) */ \
+    X(LAUNCH_ACC_THRESHOLD, 60.0) /* Launch Detect Threshold for Acceleration (Unit TBD) */ \
+    X(APOGEE_TIMER, 100.0) /* Time the rocket must spend with a velocity estimate below 0 before apogee is decided (seconds) */ \
+    X(LANDING_VEL_THRESHOLD, 1.0) /* Landing velocity threshold (i.e. if velocity is lower than this consider the rocket landed) (Unit TBD) */ \
+    X(BOOTUP_MODE, 0) /* Mode that activates when computer resets */ \
+    X(DUAL_DEPLOY, 1.0) /* Flag for triggering dual deploy (may be replaced by a mode) (0: No dual deploy, 1: dual deploy) */ \
+    X(DROGUE_DELAY, 5.0) /* Delay to deploy drogue parachute (ms) */ \
+    X(MAIN_DELAY, 15.0) /* Delay to deploy main parachute (ms) */ \
+    X(MAIN_DEPLOYMENT_ALT, 300.0) /* Altitude to deploy main parachute (ft) */ \
+    X(DEBUG, 0.0) /* Flag for enabling debug (0: disabled, 1: enabled ) */
 
 // Declare the global variables
 #define X(name, defaultValue) extern float name;

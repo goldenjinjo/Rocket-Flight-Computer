@@ -6,8 +6,7 @@
 #include <vector>
 #include <string>
 #include "deviceFunctions.hpp"
-#include "config.hpp"
-#include "constants.hpp"
+#include "configKeys.hpp"
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
 

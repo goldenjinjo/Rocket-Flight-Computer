@@ -138,13 +138,12 @@ bool ConfigFileManager::writeValue(uint8_t key, float value) {
 
     fm.closeFile(fm.configFile);
 
-    
-
     Serial.print("Wrote value ");
     Serial.print(value);
     Serial.print(" to key ");
     Serial.println(keyToString(key));
 
+    // Update pointer with value
     AssignConfigValue(key, value);
 
     return true;
@@ -165,22 +164,16 @@ void ConfigFileManager::printAllConfigValuesToSerial() {
     }
 }
 
-bool ConfigFileManager::deleteConfigFile() {
-    return fm.deleteFile(fm.configFileName);
-}
-
-
 void ConfigFileManager::loadConfigValues() {
     for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
         float value;
         if (readConfigValue(CONFIG_KEYS[i].key, value)) {
-            *(CONFIG_KEYS[i].variable) = value;
+            // update pointer
+            AssignConfigValue(CONFIG_KEYS[i].key, value);
         }
     }
 }
 
-void ConfigFileManager::saveConfigValues() {
-    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
-        writeConfigValue(CONFIG_KEYS[i].key, *(CONFIG_KEYS[i].variable));
-    }
+bool ConfigFileManager::deleteConfigFile() {
+    return fm.deleteFile(fm.configFileName);
 }

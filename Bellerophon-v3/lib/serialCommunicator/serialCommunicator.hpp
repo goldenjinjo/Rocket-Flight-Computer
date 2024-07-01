@@ -2,7 +2,7 @@
 #define SERIALCOMMUNICATOR_HPP
 
 #include <Arduino.h>
-#include "config.hpp"
+#include "configKeys.hpp"
 #include "constants.hpp"
 
 /**

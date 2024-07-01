@@ -2,7 +2,7 @@
 #include "pinAssn.hpp"
 #include <array>
 #include <Arduino.h>
-#include "config.hpp"
+#include "configKeys.hpp"
 #include "deviceFunctions.hpp"
 
 class PositionalServo {

@@ -4,7 +4,8 @@
 #include <SdFat.h>
 #include <Arduino.h>
 #include <vector>
-#include "config.hpp"
+#include <string>
+#include "configKeys.hpp"
 #include "constants.hpp"
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
