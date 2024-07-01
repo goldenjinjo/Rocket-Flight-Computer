@@ -5,10 +5,13 @@
 #include <Arduino.h>
 #include <vector>
 #include <string>
+#include <type_traits>
 #include "configKeys.hpp"
 #include "constants.hpp"
 #include "pinAssn.hpp"
 #include "deviceFunctions.hpp"
+
+
 /**
  * @class FileManager
  * @brief A class to manage file operations on an SD card, including, data storage, file naming, 
@@ -117,6 +120,14 @@ public:
 
     void readFile(FileItem& fileItem, long value);
 
+     /**
+     * @brief Recieves a float value and writes the byte data into a file at a specified position
+     * @param position The number of bytes from the start of the file to start writing
+     * @param value The value to write as a float
+     * @return True if the flaot value is successfully written, false otherwise.
+     */
+    bool writeFloatToFile(FileItem& fileItem, uint32_t position, float value);
+
 private:
     // MEMBERS
     uint32_t logFileCounter;      // Counter for log files
@@ -146,6 +157,9 @@ private:
      * @brief  Creates a new data file with a unique name.
      */
     void createNewDataFile();
+
+
+    bool openFileForWrite(FileItem& fileItem);
 };
 
 #endif // FILE_MANAGER_HPP

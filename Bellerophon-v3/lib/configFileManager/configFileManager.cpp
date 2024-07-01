@@ -11,9 +11,16 @@ ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {
 
 bool ConfigFileManager::initialize() {
   
+    // initialize ConfigKey Struct
+    initializeConfigKeys();
+
+    // Initalize config struct 
     fm.initializeFileItem(fm.configFile, fm.configFileName);
+    
+    // initalizes external variables with default values only if the config file does not exist
     initializeWithDefaults();
-    // // assign config values to external variables for run time
+
+    // assign config values to external variables for run time
     loadConfigValues();
 
     return true;
@@ -32,7 +39,7 @@ void ConfigFileManager::initializeWithDefaults() {
         Serial.print(CONFIG_KEYS[i].name);
         Serial.print(": ");
         Serial.println(CONFIG_KEYS[i].defaultValue);
-        writeValue(CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue); 
+        fm.writeFloatToFile(fm.configFile, CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue); 
     }
 }
 
@@ -98,7 +105,23 @@ bool ConfigFileManager::readConfigValue(uint8_t key, float& value) {
 }
 
 bool ConfigFileManager::writeConfigValue(uint8_t key, float value) {
-    return writeValue(key, value);
+
+    uint32_t position = key * sizeof(float);
+    if(!fm.writeFloatToFile(fm.configFile, position, value)){
+        return false;
+    }
+
+    if(DEBUG) {
+        Serial.print("Wrote value ");
+        Serial.print(value);
+        Serial.print(" to key ");
+        Serial.println(keyToString(key));
+    }
+    
+    // Update pointer with value
+    AssignConfigValue(key, value);
+
+    return true;
 }
 
 float ConfigFileManager::getConfigValue(uint8_t key) {

@@ -47,24 +47,6 @@ void initializeConfigKeys() {
     for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
         CONFIG_KEYS[i].key = i;
     }
-
-    // Debug: Print all initialized pointers
-    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
-        Serial.print("Key: ");
-        Serial.print(CONFIG_KEYS[i].key, HEX);
-        Serial.print(", Name: ");
-        Serial.print(CONFIG_KEYS[i].name);
-        Serial.print(", Default Value: ");
-        Serial.print(CONFIG_KEYS[i].defaultValue);
-        Serial.print(", Variable Pointer: ");
-        Serial.print(reinterpret_cast<uintptr_t>(CONFIG_KEYS[i].variable), HEX);
-        Serial.print(", Variable Value: ");
-        if (CONFIG_KEYS[i].variable) {
-            Serial.println(*CONFIG_KEYS[i].variable);
-        } else {
-            Serial.println("nullptr");
-        }
-    }
 }
 
 

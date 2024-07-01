@@ -34,26 +34,16 @@ void setup() {
 
     // Set pin types and configure LEDs
     peripheralInitialize();
-  
     // initilize classes
     logger.initialize();
-
-    Serial.println("------");
-
-    initializeConfigKeys();
-
-    delay(1000);
-
     config.initialize();
-
-    Serial.println("DEBUG:");
-    Serial.println(DEBUG);
-    
-    Serial.println("printing");
-    printConfigKeysToSerial();
 
     // play start up sequence
     startUp();
+
+    delay(1000);
+    Serial.println("---");
+    Serial.println(ALTITUDE_BUFFER_PERIOD);
 
 
 }
@@ -75,13 +65,6 @@ void loop()
 
     switch (mode) {
         case STANDBY_MODE: {
-            // Cycle through all LEDS in 1 second flashes
-            // cycleLEDS(500);
-            // delay(1000);
-            // Serial.println("--");
-            // Serial.println(config.getConfigValue(test1));
-            // Serial.println(config.getConfigValue("ALTITUDE_BUFFER_PERIOD"));
-            // Serial.println(config.getConfigValue("c"));
             break;
         }    
         case READING_MODE: {

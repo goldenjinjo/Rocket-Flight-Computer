@@ -41,7 +41,7 @@ void FileManager::initializeIndexFile() {
     logFileCounter = 0;
     dataFileCounter = 0;
 
-    indexFile.type.open(indexFile.name, O_WRITE);
+    openFileForWrite(indexFile);
     // Write the initialized counters to the index file
     indexFile.type.write((uint8_t*)&logFileCounter, sizeof(logFileCounter));
     indexFile.type.write((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
@@ -224,3 +224,35 @@ void FileManager::print(FileItem& fileItem, const char* message) {
     closeFile(fileItem);
 }
 
+
+bool FileManager::openFileForWrite(FileItem& fileItem) {
+     if (!fileItem.type.open(fileItem.name, O_WRITE)) {
+        sd.errorHalt("Opening for write failed: ");
+        Serial.println(fileItem.name);
+        return false;
+    }
+    // else return true
+    return true;
+
+}
+
+bool FileManager::writeFloatToFile(FileItem& fileItem, uint32_t position, float value) {
+    
+    openFileForWrite(fileItem);
+   
+    if (!fileItem.type.seekSet(position)) {
+        Serial.println("Failed to seek to position.");
+        closeFile(fileItem);
+        return false;
+    }
+
+    if (fileItem.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
+        Serial.println("Failed to write float value.");
+        closeFile(fileItem);
+        return false;
+    }
+
+    closeFile(fileItem);
+
+    return true;
+}
