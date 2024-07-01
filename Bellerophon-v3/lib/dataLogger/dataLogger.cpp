@@ -15,11 +15,6 @@ serialComm(serialComm), files(files), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_A
 
 bool DataLogger::initialize() {
     
-    if (!files.initialize()) {
-        Serial.println("File Manager failed to initialize.\n");
-        return false;
-    }
-
     // Print debug warning
     if (DEBUG) {
         logEvent("Warning! DEBUG Enabled.\n");
@@ -153,6 +148,10 @@ void DataLogger::deleteAllFiles() {
 
         // Check if the file name is the index file and skip it if so
         if (strcmp(fileName.c_str(), files.indexFileName) == 0) {
+            continue; // Skip this iteration and move to the next file
+        }
+        // Check if the file name is the config file and skip it if so
+        if (strcmp(fileName.c_str(), files.configFileName) == 0) {
             continue; // Skip this iteration and move to the next file
         }
 

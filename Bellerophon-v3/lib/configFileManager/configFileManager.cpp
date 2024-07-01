@@ -11,12 +11,12 @@ ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {
 
 bool ConfigFileManager::initialize() {
   
+    // Initalize config struct 
+    fm.initializeFileItem(fm.configFile, fm.configFileName);
+
     // initialize ConfigKey Struct
     initializeConfigKeys();
 
-    // Initalize config struct 
-    fm.initializeFileItem(fm.configFile, fm.configFileName);
-    
     // initalizes external variables with default values only if the config file does not exist
     initializeWithDefaults();
 
@@ -39,7 +39,7 @@ void ConfigFileManager::initializeWithDefaults() {
         Serial.print(CONFIG_KEYS[i].name);
         Serial.print(": ");
         Serial.println(CONFIG_KEYS[i].defaultValue);
-        fm.writeFloatToFile(fm.configFile, CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue); 
+        writeConfigValue(CONFIG_KEYS[i].key, CONFIG_KEYS[i].defaultValue); 
     }
 }
 
@@ -136,40 +136,6 @@ float ConfigFileManager::getConfigValue(uint8_t key) {
         }
     }
     return 0;
-}
-
-
-
-bool ConfigFileManager::writeValue(uint8_t key, float value) {
-    if (!fm.configFile.type.open(fm.configFile.name, O_WRITE)) {
-        Serial.println("Failed to open config file for writing.");
-        return false;
-    }
-
-    uint32_t position = key * sizeof(float);
-    if (!fm.configFile.type.seekSet(position)) {
-        Serial.println("Failed to seek to position.");
-        fm.configFile.type.close();
-        return false;
-    }
-
-    if (fm.configFile.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
-        Serial.println("Failed to write float value.");
-        fm.configFile.type.close();
-        return false;
-    }
-
-    fm.closeFile(fm.configFile);
-
-    Serial.print("Wrote value ");
-    Serial.print(value);
-    Serial.print(" to key ");
-    Serial.println(keyToString(key));
-
-    // Update pointer with value
-    AssignConfigValue(key, value);
-
-    return true;
 }
 
 void ConfigFileManager::printAllConfigValuesToSerial() {

@@ -96,13 +96,6 @@ private:
      */
     static const ConfigItem defaultConfigs[];
 
-    /**
-     * @brief Writes a key-value pair to the config file at a specific position.
-     * @param key The byte identifier of the config value.
-     * @param value The value to write.
-     * @return True if the key-value pair is successfully written, false otherwise.
-     */
-    bool writeValue(uint8_t key, float value);
 
     /**
      * @brief Deletes the config file.

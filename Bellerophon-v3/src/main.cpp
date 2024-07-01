@@ -18,9 +18,9 @@
 
 // Class Declarations
 
+SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
 FileManager fm;
 PositionalServo controlFins;
-SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
 
@@ -32,18 +32,30 @@ void setup() {
     Wire.begin(); // Join i2c bus
     serialComm.begin();
 
+    // initialize ConfigKey Struct and 
+    initializeConfigKeys();
+
     // Set pin types and configure LEDs
     peripheralInitialize();
     // initilize classes
+    fm.initialize();
     logger.initialize();
     config.initialize();
-
     // play start up sequence
     startUp();
 
+    logger.logEvent("TESTING LOG");
+
     delay(1000);
     Serial.println("---");
-    Serial.println(ALTITUDE_BUFFER_PERIOD);
+    Serial.println(fm.fileExists(fm.logFileName));
+    Serial.println(fm.logFile.name);
+
+    Serial.println(fm.fileExists(fm.dataFileName));
+    Serial.println(fm.dataFile.name);
+
+    
+
 
 
 }

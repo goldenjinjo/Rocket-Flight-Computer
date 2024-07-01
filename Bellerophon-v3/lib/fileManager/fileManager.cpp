@@ -2,9 +2,6 @@
 
 FileManager::FileManager() {}
 
-
-
-
 bool FileManager::initialize() {
     
     if (!sd.begin(CHIP_SELECT, SPI_FULL_SPEED)) {
@@ -12,14 +9,11 @@ bool FileManager::initialize() {
         return false;
     }
 
-    delay(1000);
     // Load the index file and read the counters
     loadIndexFile();
     // Initialize log and data file names
     createNewLogFile();
     createNewDataFile();
-    // Update index file
-    updateIndexFile();
 }
 
 void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {
@@ -34,7 +28,6 @@ void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {
 */
 void FileManager::initializeIndexFile() {
    
-   initializeFileItem(indexFile, indexFileName);
    createFile(indexFile);
 
     // Initialize counters to 0
@@ -49,6 +42,9 @@ void FileManager::initializeIndexFile() {
 }
 
 void FileManager::loadIndexFile() {
+
+    initializeFileItem(indexFile, indexFileName);
+
     if (indexFile.type.open(indexFileName, O_RDWR)) {
         indexFile.type.read((uint8_t*)&logFileCounter, sizeof(logFileCounter));
         indexFile.type.read((uint8_t*)&dataFileCounter, sizeof(dataFileCounter));
@@ -84,15 +80,13 @@ void FileManager::createNewLogFile() {
         strcpy(logFileName, tempFileName);
     }
 
-
     initializeFileItem(logFile, logFileName);
+    createFile(logFile);
+
     // Increment the log file counter
     logFileCounter++;
     // update index file for next file creation
     updateIndexFile();
-
- 
-
 }
 
 void FileManager::createNewDataFile() {
@@ -112,6 +106,7 @@ void FileManager::createNewDataFile() {
     }
 
     initializeFileItem(dataFile, dataFileName);
+    createFile(dataFile);
     // Increment the log file counter
     dataFileCounter++;
     // update index file for next file creation
@@ -194,7 +189,7 @@ bool FileManager::createFile(FileItem& fileItem) {
      // Tries to create a file if file does not already exist
      if(!fileExists(fileItem.name)) {
         if (!fileItem.type.open(fileItem.name, O_RDWR | O_CREAT)) {
-            sd.errorHalt("Error opening or creating file: ");
+            Serial.println("Error opening or creating file: ");
             Serial.println(fileItem.name);
             // false if file can not be created
             return false;
