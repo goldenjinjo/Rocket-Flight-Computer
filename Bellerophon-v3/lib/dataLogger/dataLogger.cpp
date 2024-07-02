@@ -114,6 +114,11 @@ void DataLogger::sendAllFiles() {
             continue; // Skip this iteration and move to the next file
         }
 
+        /// TODO: create array of files to exclude
+        if (strcmp(fileName.c_str(), files.configFileName) == 0) {
+            continue;
+        }
+
         // Read the data from the current file and send it over Serial
         readDataFromFile(fileName.c_str());
     }
