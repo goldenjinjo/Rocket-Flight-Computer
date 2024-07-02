@@ -107,6 +107,23 @@ void buzzerModeSelect(int mode) {
           }
           break;
 
+      case CONFIG_MODE:
+        // Config mode: Beep - Beep-beep - Beep (1 short beep, 1 double beep, 1 short beep)
+        tone(BUZZER, 1000, 500); // 1kHz tone for 0.5 seconds
+        delay(500);
+        noTone(BUZZER);
+        delay(250); // Pause between beeps
+        for (int i = 0; i < 2; i++) {
+          tone(BUZZER, 1000, 250); // 1kHz tone for 0.25 seconds
+          delay(250);
+          noTone(BUZZER);
+          delay(250); // Short pause between beeps
+        }
+        tone(BUZZER, 1000, 500); // 1kHz tone for 0.5 seconds
+        delay(500);
+        noTone(BUZZER);
+        break;
+
     default:
       // No mode selected or invalid mode
       noTone(BUZZER);

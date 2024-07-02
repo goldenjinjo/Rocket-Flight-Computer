@@ -24,14 +24,12 @@ PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
 
-
-
+void handleSerialCommand(const char* command);
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
     serialComm.begin();
-
 
     // Set pin types and configure LEDs
     peripheralInitialize();
@@ -46,10 +44,6 @@ void setup() {
     delay(1000);
    
     printConfigKeysToSerial();
-
-    
-
-
 
 }
 // keep track of previous tones
@@ -97,13 +91,55 @@ void loop()
             controlFins.moveServosFromSerial();
             break;
         }
-        default: {
-            // Handle invalid mode
+
+        case CONFIG_MODE: {
+            if (Serial.available()) {
+                const int bufferSize = 100; // Define a buffer size large enough for your input
+                char input[bufferSize];
+
+                // Read the input from Serial
+                int len = Serial.readBytesUntil('\n', input, bufferSize - 1);
+                input[len] = '\0'; // Null-terminate the C-style string
+
+                // Remove any leading/trailing whitespace (optional)
+                char* trimmedInput = input;
+                while (isspace(*trimmedInput)) trimmedInput++; // Trim leading whitespace
+                for (char* end = trimmedInput + strlen(trimmedInput) - 1; end >= trimmedInput && isspace(*end); end--) {
+                    *end = '\0'; // Trim trailing whitespace
+                }
+
+                handleSerialCommand(trimmedInput);
+            }
             break;
         }
     }
 }
 
+void handleSerialCommand(const char* command) {
+    // Find the colon character to separate key and value
+    const char* colonPos = strchr(command, ':');
+    if (colonPos == nullptr) {
+        Serial.println("Invalid command format");
+        return;
+    }
 
+    // Extract the key and value strings
+    size_t keyLength = colonPos - command;
+    char key[keyLength + 1];
+    strncpy(key, command, keyLength);
+    key[keyLength] = '\0'; // Null-terminate the key string
 
+    float value = atof(colonPos + 1);
+
+    if (config.writeConfigValueFromString(key, value)) {
+        Serial.print("Successfully set ");
+        Serial.print(key);
+        Serial.print(" to ");
+        Serial.println(value);
+    } else {
+        Serial.print("Failed to set ");
+        Serial.print(key);
+        Serial.println(" value.");
+    }
+}
 

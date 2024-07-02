@@ -20,7 +20,7 @@ public:
      * @brief Initializes the config file. Creates it if it doesn't exist.
      * @return True if initialization is successful, false otherwise.
      */
-    bool initialize();
+    void initialize();
 
     /**
      * @brief Initializes config values with defaults and reads from the config file.
@@ -32,8 +32,7 @@ public:
      */
     void restoreDefaults();
 
-    void AssignConfigValue(uint8_t key, float value);
-
+    
     /**
      * @brief Reads a config value from the config file.
      * @param key The byte identifier of the config value to read.
@@ -49,6 +48,14 @@ public:
      * @return True if the value is successfully written, false otherwise.
      */
     bool writeConfigValue(uint8_t key, float value);
+
+    /**
+     * @brief Writes a config value to the config file.
+     * @param keyName The const char* name of the variable to write
+     * @param value The value to write.
+     * @return True if the keyName is valid and the value is successfully written, false otherwise.
+     */
+    bool writeConfigValueFromString(const char* keyName, float value);
 
     /**
      * @brief Retrieves a config value by key.
@@ -102,6 +109,13 @@ private:
      * @return True if the config file is successfully deleted, false otherwise.
      */
     bool deleteConfigFile();
+
+     /**
+     * @brief Updates pointer of external variable for a kevin key
+     */
+    void AssignConfigValue(uint8_t key, float value);
+
+
 };
 
 #endif // CONFIG_FILE_MANAGER_HPP

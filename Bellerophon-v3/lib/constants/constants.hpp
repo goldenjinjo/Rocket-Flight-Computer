@@ -58,6 +58,7 @@ extern const float C_TO_K;
 #define  PURGE_MODE 2
 #define LOGGING_MODE 3
 #define FIN_CONTROL_MODE 4
+#define CONFIG_MODE 5
 
 
 

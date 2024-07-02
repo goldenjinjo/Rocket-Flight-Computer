@@ -19,7 +19,6 @@ void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {
     fileItem.type = FsFile(); // Ensure type is in a known state
 }
 
-
 /* 
     FILE NAME CREATION METHODS
 */

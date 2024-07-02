@@ -83,7 +83,7 @@ void SerialCommunicator::checkSerialForMode() {
       /// TODO: fix magic numbers, iterate over a mode array instead
       if (input.startsWith("mode:")) {
           char newMode = input.charAt(5); // Get the mode character
-          if (newMode >= '0' && newMode <= '4') {
+          if (newMode >= '0' && newMode <= '5') {
               mode = newMode - '0';  // Convert char to int
           }
       }

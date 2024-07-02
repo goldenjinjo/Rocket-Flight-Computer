@@ -3,14 +3,9 @@
 #include <Arduino.h>
 
 
-ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {
-    // Initalize keys defined in configKeys.cpp
-    //initializeConfigKeys();
-}
+ConfigFileManager::ConfigFileManager(FileManager& fm) : fm(fm) {}
 
-
-bool ConfigFileManager::initialize() {
-  
+void ConfigFileManager::initialize() {
     // Initalize config struct 
     fm.initializeFileItem(fm.configFile, fm.configFileName);
 
@@ -23,7 +18,7 @@ bool ConfigFileManager::initialize() {
     // assign config values to external variables for run time
     loadConfigValues();
 
-    return true;
+    return;
 }
 
 void ConfigFileManager::initializeWithDefaults() {
@@ -46,26 +41,6 @@ void ConfigFileManager::initializeWithDefaults() {
 void ConfigFileManager::restoreDefaults() {
     deleteConfigFile();
     initializeWithDefaults();
-}
-
-void ConfigFileManager::AssignConfigValue(uint8_t key, float value) {
-    if (key >= NUM_CONFIG_KEYS) {
-        Serial.print("Invalid key: ");
-        Serial.println(key, HEX);
-        return;
-    }
-
-    if (CONFIG_KEYS[key].variable == nullptr) {
-        Serial.print("Null pointer for key: ");
-        Serial.println(key, HEX);
-        return;
-    }
-
-    *(CONFIG_KEYS[key].variable) = value;
-    Serial.print("Assigned value ");
-    Serial.print(value);
-    Serial.print(" to key ");
-    Serial.println(keyToString(key));
 }
 
 const char* ConfigFileManager::keyToString(uint8_t key) {
@@ -114,6 +89,17 @@ bool ConfigFileManager::writeConfigValue(uint8_t key, float value) {
     return true;
 }
 
+bool ConfigFileManager::writeConfigValueFromString(const char* keyName, float value) {
+     for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+          if (strcmp(keyName, CONFIG_KEYS[i].name) == 0) {
+            return writeConfigValue(CONFIG_KEYS[i].key, value);
+        }
+    }
+    Serial.print("Unknown config key: ");
+    Serial.println(keyName);
+    return false;
+}
+
 float ConfigFileManager::getConfigValue(uint8_t key) {
     float value;
     if (readConfigValue(key, value)) {
@@ -155,4 +141,24 @@ void ConfigFileManager::loadConfigValues() {
 
 bool ConfigFileManager::deleteConfigFile() {
     return fm.deleteFile(fm.configFileName);
+}
+
+void ConfigFileManager::AssignConfigValue(uint8_t key, float value) {
+    if (key >= NUM_CONFIG_KEYS) {
+        Serial.print("Invalid key: ");
+        Serial.println(key, HEX);
+        return;
+    }
+
+    if (CONFIG_KEYS[key].variable == nullptr) {
+        Serial.print("Null pointer for key: ");
+        Serial.println(key, HEX);
+        return;
+    }
+
+    *(CONFIG_KEYS[key].variable) = value;
+    Serial.print("Assigned value ");
+    Serial.print(value);
+    Serial.print(" to key ");
+    Serial.println(keyToString(key));
 }
