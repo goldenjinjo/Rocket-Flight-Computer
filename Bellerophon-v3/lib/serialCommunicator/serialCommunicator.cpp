@@ -63,7 +63,7 @@ bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t ti
                     return true; // Return true if the expected message is received
                 } 
                 // Check if the received message is a cancel request
-                else if (strcmp(message, "CANCEL_MSG_REQUEST") == 0) {
+                else if (strcmp(message, CANCEL_MSG_REQUEST) == 0) {
                     delete[] message; // Free the memory allocated for the message
                     return false; // Return false if a cancel request is received
                 }
