@@ -94,20 +94,7 @@ void loop()
 
         case CONFIG_MODE: {
             if (Serial.available()) {
-                const int bufferSize = 100; // Define a buffer size large enough for your input
-                char input[bufferSize];
-
-                // Read the input from Serial
-                int len = Serial.readBytesUntil('\n', input, bufferSize - 1);
-                input[len] = '\0'; // Null-terminate the C-style string
-
-                // Remove any leading/trailing whitespace (optional)
-                char* trimmedInput = input;
-                while (isspace(*trimmedInput)) trimmedInput++; // Trim leading whitespace
-                for (char* end = trimmedInput + strlen(trimmedInput) - 1; end >= trimmedInput && isspace(*end); end--) {
-                    *end = '\0'; // Trim trailing whitespace
-                }
-
+                char* trimmedInput = serialComm.readSerialMessage(40);
                 handleSerialCommand(trimmedInput);
             }
             break;

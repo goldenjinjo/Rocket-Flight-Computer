@@ -14,32 +14,33 @@ void SerialCommunicator::sendSerialMessage(const String& message) {
     Serial.println(formattedMessage);
 }
 
-// Reads messages from the serial buffer, checking for the prefix and suffix
-// broken
-String SerialCommunicator::readSerialMessage() {
-    while (Serial.available()) {
-        // Read all available characters
-        char c = (char)Serial.read();
-        buffer += c;
-
-        // Check if the buffer contains a complete message
-        int suffixIndex = buffer.indexOf(suffix);
-        if (suffixIndex != -1) {
-            // Extract the complete message
-            String message = buffer.substring(0, suffixIndex + suffix.length());
-
-            // Remove the complete message from the buffer
-            buffer = buffer.substring(suffixIndex + suffix.length());
-
-            // Check if the message starts with the prefix and ends with the suffix
-            if (message.startsWith(prefix) && message.endsWith(suffix)) {
-                // Remove the prefix and suffix
-                return message.substring(prefix.length(), message.length() - suffix.length());
-            }
-        }
+char* SerialCommunicator::readSerialMessage(int bufferSize) {
+    // Allocate memory for the input buffer
+    char* input = new char[bufferSize];
+    if (input == nullptr) {
+        return nullptr; // Return nullptr if memory allocation fails
     }
-    // Return an empty string if no valid message is received
-    return "";
+
+    // Read the input from Serial
+    int len = Serial.readBytesUntil('\n', input, bufferSize - 1);
+    input[len] = '\0'; // Null-terminate the C-style string
+
+    // Trim leading/trailing whitespace
+    char* trimmedInput = trimWhitespace(input);
+
+    // Allocate memory for the trimmed input
+    char* result = new char[strlen(trimmedInput) + 1];
+    if (result == nullptr) {
+        delete[] input;
+        return nullptr; // Return nullptr if memory allocation fails
+    }
+
+    strcpy(result, trimmedInput);
+    delete[] input; // Free the original input buffer
+
+    Serial.println("Received Input: ");
+    Serial.println(result);
+    return result;
 }
 
 // Waits for a specific message with a timeout
@@ -50,7 +51,7 @@ bool SerialCommunicator::waitForMessage(const String& expectedMessage, uint32_t 
 
     // NEW METHOD
     // while (millis() - startTime < timeout) {
-    //     String message = readSerialMessage();
+    //     char* message = readSerialMessage();
     //     // Return true if the expected message is received
     //     if (message == expectedMessage) {
     //         return true;
@@ -72,10 +73,31 @@ bool SerialCommunicator::waitForMessage(const String& expectedMessage, uint32_t 
     return false;
 }
 
+char* SerialCommunicator::trimWhitespace(char* input) {
+    if (input == nullptr) {
+        return input; // Return nullptr if input is nullptr
+    }
+
+    // Trim leading whitespace
+    char* trimmedInput = input;
+    while (isspace(*trimmedInput)) {
+        trimmedInput++;
+    }
+
+    // Trim trailing whitespace
+    char* end = trimmedInput + strlen(trimmedInput) - 1;
+    while (end >= trimmedInput && isspace(*end)) {
+        *end = '\0';
+        end--;
+    }
+
+    return trimmedInput;
+}
+
+
 // create functionality for switching between serial modes
 void SerialCommunicator::checkSerialForMode() {
   // Check for mode change command from serial input
-  /// TODO: create interface with python for this
   if (Serial.available()) {
       String input = Serial.readStringUntil('\n');
       input.trim(); // Remove any leading/trailing whitespace

@@ -41,17 +41,28 @@ public:
 
     void checkSerialForMode();
 
+     /**
+     * @brief Trims leading and trailing whitespace from a C-style string.
+     * @param input The input C-style string to be trimmed.
+     * @return A pointer to the trimmed string.
+     */
+    char* trimWhitespace(char* input);
+
+
+    /**
+     * @brief Reads a message from the serial buffer, trims whitespace, and returns the trimmed message.
+     * @param bufferSize The size of the buffer to use for reading the serial input.
+     * @return A pointer to the trimmed C-style string. The caller is responsible for freeing the memory.
+     */
+    char* readSerialMessage(int bufferSize);
+
 private:
     uint32_t baudRate;   ///< The baud rate for serial communication.
     String prefix;   ///< The prefix for messages.
     String suffix;   ///< The suffix for messages.
     String buffer;   ///< Buffer for storing incomplete messages.
 
-    /**
-     * @brief Reads messages from serial, checking for the prefix and suffix.
-     * @return The cleaned message without prefix and suffix, or an empty string if invalid.
-     */
-    String readSerialMessage();
+
 };
 
 #endif // SERIALCOMMUNICATOR_HPP
