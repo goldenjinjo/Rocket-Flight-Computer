@@ -1,6 +1,6 @@
 #include "SerialCommunicator.hpp"
 
-SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char* prefix, const char* suffix)
+SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix)
     : baudRate(baudRate), prefix(prefix), suffix(suffix) {}
 
 // Initializes serial communication with the specified baud rate
@@ -59,6 +59,7 @@ char* SerialCommunicator::readSerialMessage(int bufferSize) {
     return result;
 }
 
+
 bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t timeout) {
     // Record the start time to track the timeout period
     uint32_t startTime = millis();
@@ -112,10 +113,47 @@ void SerialCommunicator::checkSerialForMode() {
   }
 }
 
-
 /*
 UTILS
 */
+
+bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSize) {
+    if (Serial.available() > 0) {
+        char c = Serial.read();
+        Serial.print("Read char: ");
+        Serial.println(c);
+
+        if (!prefixFound) {
+            if (c == prefix) {
+                Serial.println("Prefix found");
+                prefixFound = true;
+                index = 0;  // Reset the index for the new message
+            }
+        } else {
+            if (c == suffix) {
+                buffer[index] = '\0';  // Null-terminate the message
+                Serial.println("Suffix found, message complete");
+                Serial.print("Message: ");
+                Serial.println(buffer);
+                prefixFound = false;  // Reset for the next message
+                return true;  // Valid message found
+            } else {
+                if (index < bufferSize - 1) {
+                    buffer[index++] = c;
+                    Serial.print("Buffer: ");
+                    Serial.println(buffer);
+                } else {
+                    // Buffer overflow, reset the state
+                    Serial.println("Buffer overflow");
+                    prefixFound = false;
+                    index = 0;
+                }
+            }
+        }
+    }
+    return false;  // Valid message not yet found
+}
+
 char* SerialCommunicator::trimWhitespace(char* input) {
     if (input == nullptr) {
         return input; // Return nullptr if input is nullptr

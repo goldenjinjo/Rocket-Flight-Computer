@@ -17,7 +17,7 @@ public:
      * @param prefix The prefix for messages.
      * @param suffix The suffix for messages.
      */
-    SerialCommunicator(uint32_t baudRate, const char* prefix, const char* suffix);
+    SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix);
 
     /**
      * @brief Initializes serial communication.
@@ -49,6 +49,10 @@ public:
     char* trimWhitespace(char* input);
 
 
+
+    bool readMessageWithPrefixSuffix(char* buffer, int bufferSize);
+
+
     /**
      * @brief Reads a message from the serial buffer, trims whitespace, and returns the trimmed message.
      * @param bufferSize The size of the buffer to use for reading the serial input.
@@ -58,9 +62,11 @@ public:
 
 private:
     uint32_t baudRate;   ///< The baud rate for serial communication.
-    const char* prefix;   ///< The prefix for messages.
-    const char* suffix;   ///< The suffix for messages.
+    const char prefix;   ///< The prefix for messages.
+    const char suffix;   ///< The suffix for messages.
     const char* buffer;   ///< Buffer for storing incomplete messages.
+    int index;
+    bool prefixFound;
 
 };
 

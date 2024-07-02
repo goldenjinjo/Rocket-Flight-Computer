@@ -15,8 +15,8 @@ const char* REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD";
 const char* CANCEL_MSG_REQUEST = "EXIT_PROGRAM";
 
 // Serial message formatting
-const char* PREFIX = "";
-const char* SUFFIX = "\n";
+const char PREFIX = '@';
+const char SUFFIX = '$';
 const int BAUD_RATE = 115200;
 
 // Standard deviation of the model, aka model error

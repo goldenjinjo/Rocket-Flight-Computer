@@ -23,8 +23,8 @@ extern const char* CANCEL_MSG_REQUEST;
 
 
 // Serial message formatting
-extern const char* PREFIX;
-extern const char* SUFFIX;
+extern const char PREFIX;
+extern const char SUFFIX;
 extern const int BAUD_RATE;
 
 
