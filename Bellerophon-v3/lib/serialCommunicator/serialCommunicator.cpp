@@ -9,11 +9,10 @@ void SerialCommunicator::begin() {
 }
 
 // Sends a formatted message over serial by adding the prefix and suffix
+// Sends a formatted message over serial by adding the prefix and suffix
 void SerialCommunicator::sendSerialMessage(const char* message) {
-    size_t prefixLen = strlen(prefix);
     size_t messageLen = strlen(message);
-    size_t suffixLen = strlen(suffix);
-    size_t totalLen = prefixLen + messageLen + suffixLen + 1; // +1 for null terminator
+    size_t totalLen = 1 + messageLen + 1 + 1; // 1 for prefix, 1 for suffix, +1 for null terminator
 
     char* formattedMessage = new char[totalLen];
     if (formattedMessage == nullptr) {
@@ -21,9 +20,10 @@ void SerialCommunicator::sendSerialMessage(const char* message) {
     }
 
     // Construct the formatted message
-    strcpy(formattedMessage, prefix);
-    strcat(formattedMessage, message);
-    strcat(formattedMessage, suffix);
+    formattedMessage[0] = prefix; // Add prefix
+    strcpy(&formattedMessage[1], message); // Add the main message
+    formattedMessage[1 + messageLen] = suffix; // Add suffix
+    formattedMessage[1 + messageLen + 1] = '\0'; // Null-terminate the message
 
     Serial.println(formattedMessage);
 
@@ -99,7 +99,7 @@ bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t ti
         const int bufferSize = 100; // Define a buffer size large enough for your input
         // Read the serial message, which trims whitespace and returns the message
         char* message = readSerialMessage(bufferSize);
-        
+
         // Compare the read message with the expected message
         if (strcmp(message, expectedMessage) == 0) {
             delete[] message; // Free the memory allocated for the message

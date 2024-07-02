@@ -43,8 +43,6 @@ void setup() {
 
     delay(1000);
    
-    Serial.println(fm.fileExists(fm.logFileName));
-
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -98,8 +96,15 @@ void loop()
         }
 
         case CONFIG_MODE: {
+            ///TODO: fix this as it currently breaks when coupled with checkSerialForMode
+            // it literally crashes...
             char* input = serialComm.readSerialMessage(40);
-            handleSerialCommand(input);
+            if(!strcmp(input, "") == 0) {
+                Serial.println("test: ");
+                Serial.println(input);
+                delay(1000);
+            }
+            //handleSerialCommand(input);
             break;
         }
     }
