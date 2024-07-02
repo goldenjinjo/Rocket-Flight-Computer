@@ -15,8 +15,11 @@ const char* REQUEST_FILE_DOWNLOAD = "REQUEST_FILE_DOWNLOAD";
 const char* CANCEL_MSG_REQUEST = "EXIT_PROGRAM";
 
 // Serial message formatting
-const char PREFIX = '@';
-const char SUFFIX = '$';
+/// RULES: 
+//  - CAN NOT USE NULL TERMINATOR: '\0', 
+//  - PREFIX and SUFFIX must be different chars
+const char PREFIX = '$';
+const char SUFFIX = '\n';
 const int BAUD_RATE = 115200;
 
 // Standard deviation of the model, aka model error

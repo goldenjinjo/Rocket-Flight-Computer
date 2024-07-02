@@ -125,15 +125,12 @@ bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSiz
 
         if (!prefixFound) {
             if (c == prefix) {
-                Serial.println("Prefix found");
                 prefixFound = true;
                 index = 0;  // Reset the index for the new message
             }
         } else {
             if (c == suffix) {
                 buffer[index] = '\0';  // Null-terminate the message
-                Serial.println("Suffix found, message complete");
-                Serial.print("Message: ");
                 Serial.println(buffer);
                 prefixFound = false;  // Reset for the next message
                 return true;  // Valid message found
