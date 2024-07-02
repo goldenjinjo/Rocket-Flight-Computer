@@ -17,7 +17,7 @@ public:
      * @param prefix The prefix for messages.
      * @param suffix The suffix for messages.
      */
-    SerialCommunicator(uint32_t baudRate, const String& prefix, const String& suffix);
+    SerialCommunicator(uint32_t baudRate, const char* prefix, const char* suffix);
 
     /**
      * @brief Initializes serial communication.
@@ -28,7 +28,7 @@ public:
      * @brief Sends a formatted message over serial.
      * @param message The message to send.
      */
-    void sendSerialMessage(const String& message);
+    void sendSerialMessage(const char* message);
 
     /**
      * @brief Waits for a specific message with a timeout.
@@ -58,10 +58,9 @@ public:
 
 private:
     uint32_t baudRate;   ///< The baud rate for serial communication.
-    String prefix;   ///< The prefix for messages.
-    String suffix;   ///< The suffix for messages.
-    String buffer;   ///< Buffer for storing incomplete messages.
-
+    const char* prefix;   ///< The prefix for messages.
+    const char* suffix;   ///< The suffix for messages.
+    const char* buffer;   ///< Buffer for storing incomplete messages.
 
 };
 

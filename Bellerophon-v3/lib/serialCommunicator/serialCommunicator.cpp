@@ -1,7 +1,7 @@
 #include "SerialCommunicator.hpp"
 
-SerialCommunicator::SerialCommunicator(uint32_t baudRate, const String& prefix, const String& suffix)
-    : baudRate(baudRate), prefix(prefix), suffix(suffix), buffer("") {}
+SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char* prefix, const char* suffix)
+    : baudRate(baudRate), prefix(prefix), suffix(suffix) {}
 
 // Initializes serial communication with the specified baud rate
 void SerialCommunicator::begin() {
@@ -9,9 +9,25 @@ void SerialCommunicator::begin() {
 }
 
 // Sends a formatted message over serial by adding the prefix and suffix
-void SerialCommunicator::sendSerialMessage(const String& message) {
-    String formattedMessage = prefix + message + suffix;
+void SerialCommunicator::sendSerialMessage(const char* message) {
+    size_t prefixLen = strlen(prefix);
+    size_t messageLen = strlen(message);
+    size_t suffixLen = strlen(suffix);
+    size_t totalLen = prefixLen + messageLen + suffixLen + 1; // +1 for null terminator
+
+    char* formattedMessage = new char[totalLen];
+    if (formattedMessage == nullptr) {
+        return; // Return if memory allocation fails
+    }
+
+    // Construct the formatted message
+    strcpy(formattedMessage, prefix);
+    strcat(formattedMessage, message);
+    strcat(formattedMessage, suffix);
+
     Serial.println(formattedMessage);
+
+    delete[] formattedMessage; // Free the allocated memory
 }
 
 char* SerialCommunicator::readSerialMessage(int bufferSize) {

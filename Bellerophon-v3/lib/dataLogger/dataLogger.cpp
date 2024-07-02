@@ -121,7 +121,6 @@ void DataLogger::sendAllFiles() {
     // Send the end-of-transmission acknowledgment
     serialComm.sendSerialMessage(ALL_FILES_SENT);
    
-
     // Wait for the next file to be sent
     if (!serialComm.waitForMessage(ALL_FILES_SENT_ACK, timeout)) {
         // Handle timeout (optional)
