@@ -1,8 +1,8 @@
 # Constants
 
 # Serial message formatting
-PREFIX = ""
-SUFFIX = "\n"
+PREFIX = "$"
+SUFFIX = "!"
 ENCODING = "utf-8"
 
 BAUD_RATE = 115200 # Ensure this matches the flight computer's baud rate

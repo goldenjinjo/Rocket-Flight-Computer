@@ -43,8 +43,7 @@ void setup() {
 
     delay(1000);
    
-    printConfigKeysToSerial();
-
+    Serial.println(fm.fileExists(fm.logFileName));
 
 }
 // keep track of previous tones
@@ -58,22 +57,18 @@ void loop()
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    // serialComm.checkSerialForMode();
+    serialComm.checkSerialForMode();
 
-    // // Play a tone to indicate mode of operation
-    // if (mode != previousMode) {
-    //     buzzerModeSelect(mode);
-    //     previousMode = mode;
-    // }
+    // Play a tone to indicate mode of opera tion
+    if (mode != previousMode) {
+        buzzerModeSelect(mode);
+        previousMode = mode;
+    }
 
     switch (mode) {
         
         case STANDBY_MODE: {
-            
-            if (serialComm.readMessageWithPrefixSuffix(message, bufferSize)) {
-                Serial.print("Valid message: ");
-                Serial.println(message);
-            }
+            // do nothing
             break;
         }    
         case READING_MODE: {
@@ -103,10 +98,8 @@ void loop()
         }
 
         case CONFIG_MODE: {
-            if (Serial.available()) {
-                char* trimmedInput = serialComm.readSerialMessage(40);
-                handleSerialCommand(trimmedInput);
-            }
+            char* input = serialComm.readSerialMessage(40);
+            handleSerialCommand(input);
             break;
         }
     }
@@ -115,13 +108,11 @@ void loop()
 void handleSerialCommand(const char* command) {
     // Check if the command is nullptr
     if (command == nullptr) {
-        Serial.println("Command is nullptr");
         return;
     }
     // Find the colon character to separate key and value
     const char* colonPos = strchr(command, ':');
     if (colonPos == nullptr) {
-        Serial.println("Invalid command format");
         return;
     }
 

@@ -30,32 +30,62 @@ void SerialCommunicator::sendSerialMessage(const char* message) {
     delete[] formattedMessage; // Free the allocated memory
 }
 
+// char* SerialCommunicator::readSerialMessage(int bufferSize) {
+//     // Allocate memory for the input buffer
+//     char* input = new char[bufferSize];
+//     if (input == nullptr) {
+//         return nullptr; // Return nullptr if memory allocation fails
+//     }
+
+//     // Read the input from Serial
+//     int len = Serial.readBytesUntil('\n', input, bufferSize - 1);
+//     input[len] = '\0'; // Null-terminate the C-style string
+
+//     // Trim leading/trailing whitespace
+//     char* trimmedInput = trimWhitespace(input);
+
+//     // Allocate memory for the trimmed input
+//     char* result = new char[strlen(trimmedInput) + 1];
+//     if (result == nullptr) {
+//         delete[] input;
+//         return nullptr; // Return nullptr if memory allocation fails
+//     }
+
+//     strcpy(result, trimmedInput);
+//     delete[] input; // Free the original input buffer
+
+//     Serial.println("Received Input: ");
+//     Serial.println(result);
+//     return result;
+// }
+
 char* SerialCommunicator::readSerialMessage(int bufferSize) {
-    // Allocate memory for the input buffer
-    char* input = new char[bufferSize];
+    // Allocate memory for the input buffer if not already allocated
+    static char* input = nullptr;
     if (input == nullptr) {
-        return nullptr; // Return nullptr if memory allocation fails
+        input = new char[bufferSize];
+        if (input == nullptr) {
+            return strdup(""); // Return empty string if memory allocation fails
+        }
     }
 
-    // Read the input from Serial
-    int len = Serial.readBytesUntil('\n', input, bufferSize - 1);
-    input[len] = '\0'; // Null-terminate the C-style string
+    // Use the readMessageWithPrefixSuffix method to read the message
+    if (!readMessageWithPrefixSuffix(input, bufferSize)) {
+        return strdup(""); // Return empty string if no valid message is found yet
+    }
 
-    // Trim leading/trailing whitespace
-    char* trimmedInput = trimWhitespace(input);
-
-    // Allocate memory for the trimmed input
-    char* result = new char[strlen(trimmedInput) + 1];
+    // Allocate memory for the final result
+    char* result = new char[strlen(input) + 1];
     if (result == nullptr) {
         delete[] input;
-        return nullptr; // Return nullptr if memory allocation fails
+        input = nullptr; // Reset static input buffer
+        return strdup(""); // Return empty string if memory allocation fails
     }
 
-    strcpy(result, trimmedInput);
+    strcpy(result, input);
     delete[] input; // Free the original input buffer
+    input = nullptr; // Reset static input buffer
 
-    Serial.println("Received Input: ");
-    Serial.println(result);
     return result;
 }
 
@@ -66,51 +96,48 @@ bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t ti
 
     // Loop until the timeout period elapses
     while (millis() - startTime < timeout) {
-        // Check if there is data available on the Serial port
-        if (Serial.available()) {
-            const int bufferSize = 100; // Define a buffer size large enough for your input
-            // Read the serial message, which trims whitespace and returns the message
-            char* message = readSerialMessage(bufferSize);
-
-            // Ensure the message is not null
-            if (message != nullptr) {
-                // Compare the read message with the expected message
-                if (strcmp(message, expectedMessage) == 0) {
-                    delete[] message; // Free the memory allocated for the message
-                    return true; // Return true if the expected message is received
-                } 
-                // Check if the received message is a cancel request
-                else if (strcmp(message, CANCEL_MSG_REQUEST) == 0) {
-                    delete[] message; // Free the memory allocated for the message
-                    return false; // Return false if a cancel request is received
-                }
-
-                // Free the memory allocated for the message if it is not the expected message or a cancel request
-                delete[] message;
-            }
+        const int bufferSize = 100; // Define a buffer size large enough for your input
+        // Read the serial message, which trims whitespace and returns the message
+        char* message = readSerialMessage(bufferSize);
+        
+        // Compare the read message with the expected message
+        if (strcmp(message, expectedMessage) == 0) {
+            delete[] message; // Free the memory allocated for the message
+            return true; // Return true if the expected message is received
+        } 
+        // Check if the received message is a cancel request
+        else if (strcmp(message, CANCEL_MSG_REQUEST) == 0) {
+            delete[] message; // Free the memory allocated for the message
+            return false; // Return false if a cancel request is received
         }
+        // Free the memory allocated for the message if it is not the expected message or a cancel request
+        delete[] message;
+        
     }
-
     // Return false if the expected message is not received within the timeout period
     return false;
 }
 
-
 // create functionality for switching between serial modes
 void SerialCommunicator::checkSerialForMode() {
-  // Check for mode change command from serial input
-  if (Serial.available()) {
-      String input = Serial.readStringUntil('\n');
-      input.trim(); // Remove any leading/trailing whitespace
-
-      /// TODO: fix magic numbers, iterate over a mode array instead
-      if (input.startsWith("mode:")) {
-          char newMode = input.charAt(5); // Get the mode character
-          if (newMode >= '0' && newMode <= '5') {
-              mode = newMode - '0';  // Convert char to int
-          }
-      }
-  }
+    const int bufferSize = 100; // Define a buffer size large enough for your input
+    
+    // Call readSerialMessage to get the message
+    char* message = readSerialMessage(bufferSize);
+    
+    // Check for mode change command from serial input
+    if (strncmp(message, "mode:", 5) == 0) {
+        char newMode = message[5]; // Get the mode character
+        if (newMode >= '0' && newMode <= '5') {
+            mode = newMode - '0';  // Convert char to int
+            Serial.print("Mode changed to: ");
+            Serial.println(mode);
+        } else {
+            Serial.println("Invalid mode.");
+        }
+    }
+    // Free the allocated message buffer
+    delete[] message;
 }
 
 /*
@@ -120,8 +147,8 @@ UTILS
 bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSize) {
     if (Serial.available() > 0) {
         char c = Serial.read();
-        Serial.print("Read char: ");
-        Serial.println(c);
+        // Serial.print("Read char: ");
+        // Serial.println(c);
 
         if (!prefixFound) {
             if (c == prefix) {
@@ -137,8 +164,8 @@ bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSiz
             } else {
                 if (index < bufferSize - 1) {
                     buffer[index++] = c;
-                    Serial.print("Buffer: ");
-                    Serial.println(buffer);
+                    // Serial.print("Buffer: ");
+                    // Serial.println(buffer);
                 } else {
                     // Buffer overflow, reset the state
                     Serial.println("Buffer overflow");
@@ -170,4 +197,14 @@ char* SerialCommunicator::trimWhitespace(char* input) {
     }
 
     return trimmedInput;
+}
+
+bool SerialCommunicator::containsWhiteSpace(char* message) {
+    while (*message) {
+        if (isspace(*message)) {
+            return true;
+        }
+        message++;
+    }
+    return false;
 }

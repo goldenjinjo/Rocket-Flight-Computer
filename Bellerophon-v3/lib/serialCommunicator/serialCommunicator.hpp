@@ -60,6 +60,8 @@ public:
      */
     char* readSerialMessage(int bufferSize);
 
+    bool containsWhiteSpace(char* message);
+
 private:
     uint32_t baudRate;   ///< The baud rate for serial communication.
     const char prefix;   ///< The prefix for messages.

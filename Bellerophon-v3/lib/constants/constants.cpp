@@ -19,7 +19,7 @@ const char* CANCEL_MSG_REQUEST = "EXIT_PROGRAM";
 //  - CAN NOT USE NULL TERMINATOR: '\0', 
 //  - PREFIX and SUFFIX must be different chars
 const char PREFIX = '$';
-const char SUFFIX = '\n';
+const char SUFFIX = '!';
 const int BAUD_RATE = 115200;
 
 // Standard deviation of the model, aka model error
