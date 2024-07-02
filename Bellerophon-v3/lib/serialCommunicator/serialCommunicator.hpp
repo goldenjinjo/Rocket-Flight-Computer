@@ -36,7 +36,7 @@ public:
      * @param timeout The timeout period in milliseconds.
      * @return True if the expected message is received within the timeout, false otherwise.
      */
-    bool waitForMessage(const String& expectedMessage, uint32_t timeout);
+    bool waitForMessage(const char* expectedMessage, uint32_t timeout);
 
 
     void checkSerialForMode();

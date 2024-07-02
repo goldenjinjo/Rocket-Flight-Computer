@@ -43,36 +43,63 @@ char* SerialCommunicator::readSerialMessage(int bufferSize) {
     return result;
 }
 
-// Waits for a specific message with a timeout
-bool SerialCommunicator::waitForMessage(const String& expectedMessage, uint32_t timeout) {
+bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t timeout) {
+    // Record the start time to track the timeout period
     uint32_t startTime = millis();
-   
-    // Continue checking until the timeout period has elapsed
 
-    // NEW METHOD
-    // while (millis() - startTime < timeout) {
-    //     char* message = readSerialMessage();
-    //     // Return true if the expected message is received
-    //     if (message == expectedMessage) {
-    //         return true;
-    //     }
-    // }
-
-   // OLD METHOD
+    // Loop until the timeout period elapses
     while (millis() - startTime < timeout) {
+        // Check if there is data available on the Serial port
         if (Serial.available()) {
-            String message = Serial.readStringUntil('\n');
-            if (message == expectedMessage) {
-                return true;
-            } else if (message == CANCEL_MSG_REQUEST)
-                // return method early if told to cancel
-                return false;
+            const int bufferSize = 100; // Define a buffer size large enough for your input
+            // Read the serial message, which trims whitespace and returns the message
+            char* message = readSerialMessage(bufferSize);
+
+            // Ensure the message is not null
+            if (message != nullptr) {
+                // Compare the read message with the expected message
+                if (strcmp(message, expectedMessage) == 0) {
+                    delete[] message; // Free the memory allocated for the message
+                    return true; // Return true if the expected message is received
+                } 
+                // Check if the received message is a cancel request
+                else if (strcmp(message, "CANCEL_MSG_REQUEST") == 0) {
+                    delete[] message; // Free the memory allocated for the message
+                    return false; // Return false if a cancel request is received
+                }
+
+                // Free the memory allocated for the message if it is not the expected message or a cancel request
+                delete[] message;
+            }
         }
     }
-    // Return false if the expected message is not received within the timeout
+
+    // Return false if the expected message is not received within the timeout period
     return false;
 }
 
+
+// create functionality for switching between serial modes
+void SerialCommunicator::checkSerialForMode() {
+  // Check for mode change command from serial input
+  if (Serial.available()) {
+      String input = Serial.readStringUntil('\n');
+      input.trim(); // Remove any leading/trailing whitespace
+
+      /// TODO: fix magic numbers, iterate over a mode array instead
+      if (input.startsWith("mode:")) {
+          char newMode = input.charAt(5); // Get the mode character
+          if (newMode >= '0' && newMode <= '5') {
+              mode = newMode - '0';  // Convert char to int
+          }
+      }
+  }
+}
+
+
+/*
+UTILS
+*/
 char* SerialCommunicator::trimWhitespace(char* input) {
     if (input == nullptr) {
         return input; // Return nullptr if input is nullptr
@@ -92,22 +119,4 @@ char* SerialCommunicator::trimWhitespace(char* input) {
     }
 
     return trimmedInput;
-}
-
-
-// create functionality for switching between serial modes
-void SerialCommunicator::checkSerialForMode() {
-  // Check for mode change command from serial input
-  if (Serial.available()) {
-      String input = Serial.readStringUntil('\n');
-      input.trim(); // Remove any leading/trailing whitespace
-
-      /// TODO: fix magic numbers, iterate over a mode array instead
-      if (input.startsWith("mode:")) {
-          char newMode = input.charAt(5); // Get the mode character
-          if (newMode >= '0' && newMode <= '5') {
-              mode = newMode - '0';  // Convert char to int
-          }
-      }
-  }
 }
