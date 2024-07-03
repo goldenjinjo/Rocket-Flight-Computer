@@ -26,6 +26,18 @@ ConfigFileManager config(fm);
 
 void handleSerialCommand(const char* command);
 
+// Function to handle serial commands
+void processSerialInput() {
+    char* input = serialComm.readSerialMessage();
+    if (!input || input[0] == '\0') {
+        delete[] input;
+        return;
+    }
+
+    handleSerialCommand(input);
+    delete[] input; // Free the allocated memory
+}
+
 void setup() {
 
     Wire.begin(); // Join i2c bus
@@ -42,21 +54,20 @@ void setup() {
     startUp();
 
     delay(1000);
+
+    mode = 5;
    
 }
 // keep track of previous tones
 int previousMode = -1;  
 // MAIN LOOP
 
-const int bufferSize = 100;
-char message[bufferSize];
 void loop()
 {
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
     serialComm.checkSerialForMode();
-
     // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
         buzzerModeSelect(mode);
@@ -66,7 +77,7 @@ void loop()
     switch (mode) {
         
         case STANDBY_MODE: {
-            // do nothing
+            char* input = serialComm.readSerialMessage();
             break;
         }    
         case READING_MODE: {
@@ -98,14 +109,26 @@ void loop()
         case CONFIG_MODE: {
             ///TODO: fix this as it currently breaks when coupled with checkSerialForMode
             // it literally crashes...
-            char* input = serialComm.readSerialMessage(40);
-            if(!strcmp(input, "") == 0) {
-                Serial.println("test: ");
-                Serial.println(input);
-                delay(1000);
-            }
-            //handleSerialCommand(input);
+            //char* input = serialComm.readSerialMessage(100);
+            //char* test = serialComm.readSerialMessage(bufferSize);
+          
+
             break;
+
+            //serialComm.readMessageWithPrefixSuffix(message, bufferSize);
+
+            // if(!strcmp(input, "") == 0) {
+            //     Serial.println("test: ");
+            //     Serial.println(input);
+            //     delete[] input;
+            //     delay(1000);
+            // } 
+                // if (strcmp(input, "CANCEL") == 0){
+                //     cancel_flag = true;
+                //     mode = 0;
+                // }
+            
+            //handleSerialCommand(input);
         }
     }
 }

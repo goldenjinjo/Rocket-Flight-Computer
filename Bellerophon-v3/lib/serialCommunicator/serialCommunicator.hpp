@@ -19,6 +19,8 @@ public:
      */
     SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix);
 
+    ~SerialCommunicator(); // Destructor declaration
+
     /**
      * @brief Initializes serial communication.
      */
@@ -55,10 +57,9 @@ public:
 
     /**
      * @brief Reads a message from the serial buffer, trims whitespace, and returns the trimmed message.
-     * @param bufferSize The size of the buffer to use for reading the serial input.
      * @return A pointer to the trimmed C-style string. The caller is responsible for freeing the memory.
      */
-    char* readSerialMessage(int bufferSize);
+    char* readSerialMessage();
 
     bool containsWhiteSpace(char* message);
 
@@ -69,6 +70,8 @@ private:
     const char* buffer;   ///< Buffer for storing incomplete messages.
     int index;
     bool prefixFound;
+    char* input;
+    int bufferSize = 100;
 
 };
 
