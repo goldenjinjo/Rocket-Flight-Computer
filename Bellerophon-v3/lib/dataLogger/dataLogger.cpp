@@ -145,6 +145,7 @@ void DataLogger::serialFileTransfer() {
         sendAllFiles();
     } else {
         LEDBlink(R_LED, 500);
+        mode = 0;
     }
 }
 

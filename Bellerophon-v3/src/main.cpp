@@ -77,7 +77,7 @@ void loop()
     switch (mode) {
         
         case STANDBY_MODE: {
-            char* input = serialComm.readSerialMessage();
+            // char* input = serialComm.readSerialMessage();
             break;
         }    
         case READING_MODE: {
@@ -107,28 +107,7 @@ void loop()
         }
 
         case CONFIG_MODE: {
-            ///TODO: fix this as it currently breaks when coupled with checkSerialForMode
-            // it literally crashes...
-            //char* input = serialComm.readSerialMessage(100);
-            //char* test = serialComm.readSerialMessage(bufferSize);
-          
-
             break;
-
-            //serialComm.readMessageWithPrefixSuffix(message, bufferSize);
-
-            // if(!strcmp(input, "") == 0) {
-            //     Serial.println("test: ");
-            //     Serial.println(input);
-            //     delete[] input;
-            //     delay(1000);
-            // } 
-                // if (strcmp(input, "CANCEL") == 0){
-                //     cancel_flag = true;
-                //     mode = 0;
-                // }
-            
-            //handleSerialCommand(input);
         }
     }
 }

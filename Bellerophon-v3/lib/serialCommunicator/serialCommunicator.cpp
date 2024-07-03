@@ -118,8 +118,8 @@ UTILS
 bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSize) {
     if (Serial.available() > 0) {
         char c = Serial.read();
-        Serial.print("Read char: ");
-        Serial.println(c);
+        // Serial.print("Read char: ");
+        // Serial.println(c);
 
         if (!prefixFound) {
             if (c == prefix) {
