@@ -5,6 +5,7 @@ from datetime import datetime
 import time
 import sys
 import threading
+import atexit
 from constants.constants import *
 from config.config import *
 from utils.helperFunc import *
@@ -12,12 +13,29 @@ from utils.downloadFlashData import download_flash_data
 
 stop_threads = False
 
+
+
 def find_com_port():
     ports = list_ports.comports()
     for port in ports:
         if 'USB' in port.description:  # Adjust this condition based on your device's description
             return port.device
     return None
+
+def close_serial_port():
+    global stop_threads, ser
+    stop_threads = True
+    if ser is not None:
+        try:
+            write_to_serial(ser, CANCEL_MSG_REQUEST)
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"Error during shutdown: {e}")
+        if ser.is_open:
+            ser.close()
+        print("Serial port closed.")
+
+atexit.register(close_serial_port)
 
 def read_from_serial_continuous(ser):
     global stop_threads
