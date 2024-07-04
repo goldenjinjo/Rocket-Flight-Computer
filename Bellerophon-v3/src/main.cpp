@@ -15,6 +15,7 @@
 #include "configFileManager.hpp"
 #include "configKeys.hpp"
 #include "constants.hpp"
+#include "serialAction.hpp"
 
 // Class Declarations
 
@@ -23,6 +24,8 @@ FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
+SerialAction serialAction(serialComm);
+
 
 void handleSerialCommand(const char* command);
 
@@ -67,7 +70,7 @@ void loop()
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    serialComm.checkSerialForMode();
+    serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
         buzzerModeSelect(mode);
@@ -77,6 +80,7 @@ void loop()
     switch (mode) {
         
         case STANDBY_MODE: {
+            // add mutux and processSerial method to and test this again...
             // char* input = serialComm.readSerialMessage();
             break;
         }    
