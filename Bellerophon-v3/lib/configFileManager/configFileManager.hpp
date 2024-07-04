@@ -1,7 +1,7 @@
 #ifndef CONFIG_FILE_MANAGER_HPP
 #define CONFIG_FILE_MANAGER_HPP
 
-#include "fileManager.hpp"
+#include "FileManager.hpp"
 #include "configKeys.hpp"
 #include <map>
 
@@ -18,7 +18,6 @@ public:
 
     /**
      * @brief Initializes the config file. Creates it if it doesn't exist.
-     * @return True if initialization is successful, false otherwise.
      */
     void initialize();
 
@@ -28,11 +27,10 @@ public:
     void initializeWithDefaults();
 
     /**
-     * @brief Deletes config file and reinitalizes the values
+     * @brief Deletes config file and reinitializes the values.
      */
     void restoreDefaults();
 
-    
     /**
      * @brief Reads a config value from the config file.
      * @param key The byte identifier of the config value to read.
@@ -51,32 +49,30 @@ public:
 
     /**
      * @brief Writes a config value to the config file.
-     * @param keyName The const char* name of the variable to write
+     * @param keyName The const char* name of the variable to write.
      * @param value The value to write.
      * @return True if the keyName is valid and the value is successfully written, false otherwise.
      */
     bool writeConfigValueFromString(const char* keyName, float value);
 
     /**
-     * @brief Retrieves a config value by key.
-     * @param key The byte identifier of the config value to retrieve.
+     * @brief Retrieves a config value by key name.
+     * @param keyName The string identifier of the config value to retrieve.
      * @return The config value as a float.
      */
-    float getConfigValue(uint8_t key);
+    float getConfigValue(const char* keyName);
 
     /**
      * @brief Prints all config values from the config file to Serial.
      */
     void printAllConfigValuesToSerial();
 
-    // Converts a config key to its string name
     /**
      * @brief Converts a config key to its string name.
-     * @param key the byte identifer of the config value to retrieve
-     * @return the config value name as a const char*
+     * @param key The byte identifier of the config value to retrieve.
+     * @return The config value name as a const char*.
      */
     const char* keyToString(uint8_t key);
-
 
     /**
      * @brief Loads the configuration values from the config file into the global variables.
@@ -85,7 +81,6 @@ public:
      * global variables using the pointers in the CONFIG_KEYS array.
      */
     void loadConfigValues();
-
 
 private:
     FileManager& fm;                 // Reference to the parent FileManager instance
@@ -103,19 +98,26 @@ private:
      */
     static const ConfigItem defaultConfigs[];
 
-
     /**
      * @brief Deletes the config file.
      * @return True if the config file is successfully deleted, false otherwise.
      */
     bool deleteConfigFile();
 
-     /**
-     * @brief Updates pointer of external variable for a kevin key
+    /**
+     * @brief Updates pointer of external variable for a given key.
+     * @param key The byte identifier of the config value to update.
+     * @param value The value to assign to the external variable.
      */
     void AssignConfigValue(uint8_t key, float value);
 
-
+    /**
+     * @brief Converts a config key name to its byte identifier.
+     * @param keyName The string identifier of the config value to convert.
+     * @return The byte identifier of the config value.
+     */
+    uint8_t stringToKey(const char* keyName);
 };
 
 #endif // CONFIG_FILE_MANAGER_HPP
+

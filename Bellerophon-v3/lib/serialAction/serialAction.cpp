@@ -100,24 +100,24 @@ bool SerialAction::changeConfigValue(const char* command) {
 }
 
 void SerialAction::moveServosFromSerial() {
-    // servo instance
+    // Servo instance
     PositionalServo servo;
 
-    if(!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)){
+    if (!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)) {
         return;
     }
 
     while (true) {
         // Use communicator to read the serial message
         char* input = communicator.readSerialMessage();  // Assuming a buffer size of 100
-        
+
         // If input is null or empty, continue to the next iteration
         if (communicator.isNullOrEmpty(input)) {
             delete[] input;
             continue;
         }
 
-        // cancel out of servo control and return to standby
+        // Cancel out of servo control and return to standby
         if (strcmp(input, CANCEL_MSG_REQUEST) == 0) {
             LEDBlink(R_LED, 1000);
             mode = 0;
@@ -133,6 +133,13 @@ void SerialAction::moveServosFromSerial() {
             char servoID = input[i];
             int positionStart = ++i;
 
+            // Check if the position is negative
+            bool isNegative = false;
+            if (i < len && input[i] == '-') {
+                isNegative = true;
+                i++;
+            }
+
             // Find the end of the position number
             while (i < len && isdigit(input[i])) {
                 i++;
@@ -144,6 +151,11 @@ void SerialAction::moveServosFromSerial() {
             positionStr[i - positionStart] = '\0';
             int position = atoi(positionStr);
 
+            // Apply the negative sign if needed
+            if (isNegative) {
+                position = -position;
+            }
+
             if (DEBUG) {
                 Serial.print("Servo ");
                 Serial.print(servoID);
@@ -154,15 +166,29 @@ void SerialAction::moveServosFromSerial() {
             // Move the corresponding servo to the specified position
             servo.moveServoRelativeToCenter(servoID, position);
 
+            // Update the config for the SERVO_CHAR_CENTER_POSITION
+            char configKey[30];
+            snprintf(configKey, sizeof(configKey), "SERVO_%c_CENTER_POSITION", servoID);
+
+            // Retrieve the old center position
+            float oldCenterPos = config.getConfigValue(configKey);  // Assuming this function exists and works
+
+            // Calculate the new center position
+            float newCenterPos = oldCenterPos + position;
+
+            // Write the new center position to the config
+            config.writeConfigValueFromString(configKey, newCenterPos);
+
             // Skip any spaces between commands
             while (i < len && isspace(input[i])) {
                 i++;
             }
         }
-
         delete[] input;  // Free the allocated memory
     }
 }
+
+
 
 /*
 UTILS

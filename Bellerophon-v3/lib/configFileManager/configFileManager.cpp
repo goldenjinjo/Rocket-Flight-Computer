@@ -100,7 +100,12 @@ bool ConfigFileManager::writeConfigValueFromString(const char* keyName, float va
     return false;
 }
 
-float ConfigFileManager::getConfigValue(uint8_t key) {
+float ConfigFileManager::getConfigValue(const char* keyName) {
+    uint8_t key = stringToKey(keyName);
+    if (key == 0xFF) {
+        return 0;  // Return 0 for unknown keys
+    }
+
     float value;
     if (readConfigValue(key, value)) {
         return value;
@@ -161,4 +166,16 @@ void ConfigFileManager::AssignConfigValue(uint8_t key, float value) {
     // Serial.print(value);
     // Serial.print(" to key ");
     // Serial.println(keyToString(key));
+}
+
+
+uint8_t ConfigFileManager::stringToKey(const char* keyName) {
+    for (size_t i = 0; i < NUM_CONFIG_KEYS; ++i) {
+        if (strcmp(keyName, CONFIG_KEYS[i].name) == 0) {
+            return CONFIG_KEYS[i].key;
+        }
+    }
+    Serial.print("Unknown config key: ");
+    Serial.println(keyName);
+    return 0xFF;  // Return an invalid key if not found
 }
