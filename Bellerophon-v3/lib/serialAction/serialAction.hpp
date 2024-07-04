@@ -3,6 +3,7 @@
 
 #include "serialCommunicator.hpp"
 #include "constants.hpp"
+#include "configFileManager.hpp"
 #include <cstring>
 
 /**
@@ -15,15 +16,30 @@ public:
      * @brief Constructor for SerialAction.
      * @param communicator A reference to an instance of SerialCommunicator to be used for serial actions.
      */
-    SerialAction(SerialCommunicator& communicator);
+    SerialAction(SerialCommunicator& communicator, ConfigFileManager& config);
 
     /**
      * @brief Method to check and switch between serial modes based on the received message.
      */
     void checkSerialForMode();
 
+     /**
+     * @brief Method to process serial input and change configuration values based on the received message.
+     */
+    void processAndChangeConfig();
+
 private:
+
+    /**
+     * @brief Method to handle serial commands and change configuration values.
+     * @param command The received command to handle.
+     * @return True if the command was successfully handled and changed a configuration value; otherwise false.
+     */
+    bool changeConfigValue(const char* command);
+
+
     SerialCommunicator& communicator; ///< Reference to the SerialCommunicator instance
+    ConfigFileManager& config; ///< Reference to the ConfigFileManager instance
 };
 
 #endif // SERIAL_ACTION_HPP

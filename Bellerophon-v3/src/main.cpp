@@ -24,22 +24,7 @@ FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
-SerialAction serialAction(serialComm);
-
-
-void handleSerialCommand(const char* command);
-
-// Function to handle serial commands
-void processSerialInput() {
-    char* input = serialComm.readSerialMessage();
-    if (!input || input[0] == '\0') {
-        delete[] input;
-        return;
-    }
-
-    handleSerialCommand(input);
-    delete[] input; // Free the allocated memory
-}
+SerialAction serialAction(serialComm, config);
 
 void setup() {
 
@@ -56,10 +41,11 @@ void setup() {
     // play start up sequence
     startUp();
 
-    delay(1000);
+   delay(1000);
+   printConfigKeysToSerial();
 
-    mode = 5;
-   
+    ///TODO: set mode manager with getters and setters
+   mode = BOOTUP_MODE;
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -70,7 +56,7 @@ void loop()
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    serialAction.checkSerialForMode();
+    //serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
         buzzerModeSelect(mode);
@@ -111,39 +97,11 @@ void loop()
         }
 
         case CONFIG_MODE: {
+            serialAction.processAndChangeConfig();
             break;
         }
     }
 }
 
-void handleSerialCommand(const char* command) {
-    // Check if the command is nullptr
-    if (command == nullptr) {
-        return;
-    }
-    // Find the colon character to separate key and value
-    const char* colonPos = strchr(command, ':');
-    if (colonPos == nullptr) {
-        return;
-    }
 
-    // Extract the key and value strings
-    size_t keyLength = colonPos - command;
-    char key[keyLength + 1];
-    strncpy(key, command, keyLength);
-    key[keyLength] = '\0'; // Null-terminate the key string
-
-    float value = atof(colonPos + 1);
-
-    if (config.writeConfigValueFromString(key, value)) {
-        Serial.print("Successfully set ");
-        Serial.print(key);
-        Serial.print(" to ");
-        Serial.println(value);
-    } else {
-        Serial.print("Failed to set ");
-        Serial.print(key);
-        Serial.println(" value.");
-    }
-}
 

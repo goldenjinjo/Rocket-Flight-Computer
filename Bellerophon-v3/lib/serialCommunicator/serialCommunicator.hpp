@@ -41,7 +41,6 @@ public:
     bool waitForMessage(const char* expectedMessage, uint32_t timeout);
 
 
-    void checkSerialForMode();
 
      /**
      * @brief Trims leading and trailing whitespace from a C-style string.
@@ -49,6 +48,15 @@ public:
      * @return A pointer to the trimmed string.
      */
     char* trimWhitespace(char* input);
+
+
+    /**
+     * @brief Utility function to check if a message is null or empty.
+     * @param message The message to check.
+     * @return True if the message is null or empty; otherwise false.
+     */
+    static bool isNullOrEmpty(const char* message);
+
 
 
 

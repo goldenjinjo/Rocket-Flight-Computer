@@ -87,6 +87,11 @@ bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t ti
 UTILS
 */
 
+bool SerialCommunicator::isNullOrEmpty(const char* message) {
+    return !message || message[0] == '\0';
+}
+
+
 bool SerialCommunicator::readMessageWithPrefixSuffix(char* buffer, int bufferSize) {
     if (Serial.available() > 0) {
         char c = Serial.read();
