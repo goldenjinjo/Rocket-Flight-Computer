@@ -153,7 +153,7 @@ void SerialAction::moveServosFromSerial() {
             }
 
             // Move the corresponding servo to the specified position
-            servo.moveServoByID(servoID, position);
+            servo.moveServoRelativeToCenter(servoID, position);
 
             // Skip any spaces between commands
             while (i < len && isspace(input[i])) {

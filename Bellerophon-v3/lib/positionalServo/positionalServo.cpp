@@ -10,13 +10,51 @@ PositionalServo::~PositionalServo() {
 
 void PositionalServo::initialize() {
     // Assign pins and IDs to each servo and populate the map
-    servoMap['A'] = {Servo(), SERVO_PIN_A};
-    servoMap['B'] = {Servo(), SERVO_PIN_B};
-    servoMap['C'] = {Servo(), SERVO_PIN_C};
-    servoMap['D'] = {Servo(), SERVO_PIN_D};
+    servoMap['A'] = {Servo(), SERVO_PIN_A, static_cast<int>(SERVO_A_CENTER_POSITION)};
+    servoMap['B'] = {Servo(), SERVO_PIN_B, static_cast<int>(SERVO_B_CENTER_POSITION)};
+    servoMap['C'] = {Servo(), SERVO_PIN_C, static_cast<int>(SERVO_C_CENTER_POSITION)};
+    servoMap['D'] = {Servo(), SERVO_PIN_D, static_cast<int>(SERVO_D_CENTER_POSITION)};
 
     // Activate all servos
     activateAll();
+}
+
+void PositionalServo::moveServoRelativeToCenter(char id, int relativePosition) {
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        int newPosition = servoObj->centerPos + relativePosition;
+        moveServoByID(id, newPosition);
+    }
+}
+
+void PositionalServo::stopByID(char id) {
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        stop(*servoObj);
+    }
+}
+
+void PositionalServo::moveServoByID(char id, int position) {
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        // Ensure position is within bounds
+        if (position < minPos) position = minPos;
+        if (position > maxPos) position = maxPos;
+        move(*servoObj, position);
+    }
+}
+
+PositionalServo::ServoObject* PositionalServo::findServoByID(char id) {
+    auto it = servoMap.find(id);
+    if (it != servoMap.end()) {
+        return &it->second;
+    } else {
+        if (DEBUG) {
+            Serial.print("Invalid servo ID: ");
+            Serial.println(id);
+        }
+        return nullptr;
+    }
 }
 
 void PositionalServo::activate(ServoObject& servoObj) {
@@ -44,35 +82,11 @@ void PositionalServo::deactivateAll() {
 }
 
 void PositionalServo::move(ServoObject& servoObj, uint8_t position) {
-    // Activate servo in case it was deactivated
-    activate(servoObj);
-
     // Move the servo to the specified position
     servoObj.servo.write(position);
 }
 
 void PositionalServo::stop(ServoObject& servoObj) {
-    // Move the servo to the zero position
-    move(servoObj, servoZeroValue);
+    // Move the servo to the center position
+    move(servoObj, servoObj.centerPos);
 }
-
-void PositionalServo::moveServoByID(char id, int position) {
-    auto it = servoMap.find(id);
-    if (it != servoMap.end()) {
-        move(it->second, position);
-    } else {
-        if (DEBUG) {
-            Serial.print("Invalid servo ID: ");
-            Serial.println(id);
-        }
-    }
-}
-
-
-
-
-
-
-
-
-

@@ -46,7 +46,11 @@ struct ConfigKey {
     X(DROGUE_DELAY, 5.0) /* Delay to deploy drogue parachute (ms) */ \
     X(MAIN_DELAY, 15.0) /* Delay to deploy main parachute (ms) */ \
     X(MAIN_DEPLOYMENT_ALT, 300.0) /* Altitude to deploy main parachute (ft) */ \
-    X(DEBUG, 0.0) /* Flag for enabling debug (0: disabled, 1: enabled ) */
+    X(DEBUG, 0.0) /* Flag for enabling debug (0: disabled, 1: enabled ) */ \
+    X(SERVO_A_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo A Based on Fin Alignment */ \
+    X(SERVO_B_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo B Based on Fin Alignment */ \
+    X(SERVO_C_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo C Based on Fin Alignment */ \
+    X(SERVO_D_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo D Based on Fin Alignment */
 
 // Declare the global variables
 #define X(name, defaultValue) extern float name;
