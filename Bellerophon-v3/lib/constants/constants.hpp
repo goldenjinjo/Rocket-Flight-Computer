@@ -22,7 +22,7 @@ extern const char* REQUEST_FILE_DOWNLOAD;
 extern const char* CHANGE_SETTINGS_MESSAGE;
 extern const char* MANUAL_SERVO_CONTROL_MESSAGE;
 extern const char* CANCEL_MSG_REQUEST;
-
+extern const char* REQUEST_SETTINGS_INFO_MESSAGE;
 
 // Serial message formatting
 extern const char PREFIX;

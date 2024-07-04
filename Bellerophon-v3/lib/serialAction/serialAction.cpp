@@ -41,23 +41,31 @@ void SerialAction::processAndChangeConfig() {
 
         char* input = communicator.readSerialMessage();
 
+        if(SerialCommunicator::isNullOrEmpty(input)) {
+            delete[] input;
+            continue;
+        }
+
         if(strcmp(input, CANCEL_MSG_REQUEST) == 0) {
             delete[] input; // Free the memory allocated for the message
             mode = 0;
             LEDBlink(B_LED, 1000);
             return;
         }
-        
-        if (!SerialCommunicator::isNullOrEmpty(input)) {
-            if (!changeConfigValue(input)) {
-                Serial.println("Failed to handle serial command.");
-                LEDBlink(R_LED, 1000);
-                buzzerFailure();
-            } else {
-                LEDBlink(G_LED, 1000);
-                buzzerSuccess();
-            }
+
+        if(strcmp(input, REQUEST_SETTINGS_INFO_MESSAGE) == 0) {
+            printConfigKeysToSerial();
         }
+        
+        if (!changeConfigValue(input)) {
+            Serial.println("Failed to handle serial command.");
+            LEDBlink(R_LED, 1000);
+            buzzerFailure();
+        } else {
+            LEDBlink(G_LED, 1000);
+            buzzerSuccess();
+        }
+        
         delete[] input; // Free the allocated memory
     }
 }

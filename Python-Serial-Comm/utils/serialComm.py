@@ -188,7 +188,14 @@ def select_serial_action(string, ser):
     if string == GO_TO_CONFIG:
         stop_threads = False
         try:
+            
             write_to_serial(ser, CHANGE_SETTINGS_MESSAGE)
+            print(
+            "Settings Mode Entered.\n"
+            "Type " + REQUEST_SETTINGS_INFO_MESSAGE + " for List of Configurable Settings\n"
+            "Type in format: SETTING_NAME:VALUE to change a given setting\n"
+            "e.g. MAIN_DELAY:10\n"
+            )
             continuous_serial(ser, config_mode=True)
         except serial.SerialException as e:
             print_debug(f"Error during config mode: {e}")
