@@ -81,9 +81,8 @@ def continuous_serial(ser):
         stop_threads = True
     finally:
         try:
-            write_to_serial(ser,"end")
+            write_to_serial(ser, CANCEL_MSG_REQUEST)
             time.sleep(0.5)
-            write_to_serial(ser, GO_TO_STANDBY)
         except Exception as e:
             print_debug(f"Error during shutdown: {e}")
         if ser.is_open:
@@ -153,7 +152,7 @@ def select_serial_action(string, ser):
     if string == GO_TO_FINS:
         stop_threads = False
         try:
-            write_to_serial(ser, "start")
+            write_to_serial(ser, MANUAL_SERVO_CONTROL_MESSAGE)
             continuous_serial(ser)
         except serial.SerialException as e:
             print_debug(f"Error during fins control: {e}")
