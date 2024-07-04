@@ -1,20 +1,22 @@
-#include "positionalServo.hpp"
+#include "PositionalServo.hpp"
 
 PositionalServo::PositionalServo() {
     initialize();
 }
 
+PositionalServo::~PositionalServo() {
+    deactivateAll();
+}
+
 void PositionalServo::initialize() {
-    // Assign pins to each servo
-    servos[0] = {Servo(), SERVO_PIN_A};
-    servos[1] = {Servo(), SERVO_PIN_B};
-    servos[2] = {Servo(), SERVO_PIN_C};
-    servos[3] = {Servo(), SERVO_PIN_D};
+    // Assign pins and IDs to each servo and populate the map
+    servoMap['A'] = {Servo(), SERVO_PIN_A};
+    servoMap['B'] = {Servo(), SERVO_PIN_B};
+    servoMap['C'] = {Servo(), SERVO_PIN_C};
+    servoMap['D'] = {Servo(), SERVO_PIN_D};
 
     // Activate all servos
-    for (auto& servoObj : servos) {
-        activate(servoObj);
-    }
+    activateAll();
 }
 
 void PositionalServo::activate(ServoObject& servoObj) {
@@ -29,15 +31,15 @@ void PositionalServo::deactivate(ServoObject& servoObj) {
 
 void PositionalServo::activateAll() {
     // Activate all servos
-    for (auto& servoObj : servos) {
-        activate(servoObj);
+    for (auto& pair : servoMap) {
+        activate(pair.second);
     }
 }
 
 void PositionalServo::deactivateAll() {
     // Deactivate all servos
-    for (auto& servoObj : servos) {
-        deactivate(servoObj);
+    for (auto& pair : servoMap) {
+        deactivate(pair.second);
     }
 }
 
@@ -54,42 +56,48 @@ void PositionalServo::stop(ServoObject& servoObj) {
     move(servoObj, servoZeroValue);
 }
 
+void PositionalServo::moveServoByID(char id, int position) {
+    auto it = servoMap.find(id);
+    if (it != servoMap.end()) {
+        move(it->second, position);
+    } else {
+        if (DEBUG) {
+            Serial.print("Invalid servo ID: ");
+            Serial.println(id);
+        }
+    }
+}
+
 void PositionalServo::moveServosFromSerial() {
-    
     if (Serial.available()) {
         String input = Serial.readStringUntil('\n');
-        if(input == "start"){
+        if (input == "start") {
             serialServoControlState = true;
             LEDBlink(G_LED, 500);
         }
     }
 
-    while(serialServoControlState) {
-        // Check if data is available on the Serial port
+    while (serialServoControlState) {
         if (Serial.available()) {
-            // Read the incoming data until a newline character is encountered
             String input = Serial.readStringUntil('\n');
             input.trim(); // Remove any leading/trailing whitespace
-            if(input == "end"){
+            if (input == "end") {
                 serialServoControlState = false;
                 LEDBlink(R_LED, 1000);
                 break;
             }
 
-            int len = input.length(); // Get the length of the input string
-            int i = 0; // Initialize the index to parse the input
+            int len = input.length();
+            int i = 0;
 
-            // Loop through the input string
             while (i < len) {
-                char servoID = input[i]; // Get the servo identifier (e.g., 'A', 'B', 'C', 'D')
-                int positionStart = ++i; // Move to the next character which should be the start of the position number
+                char servoID = input[i];
+                int positionStart = ++i;
 
-                // Find the end of the position number
                 while (i < len && isDigit(input[i])) {
-                    i++; // Increment index until a non-digit character is found
+                    i++;
                 }
 
-                // Convert the position substring to an integer
                 int position = input.substring(positionStart, i).toInt();
 
                 if (DEBUG) {
@@ -99,32 +107,10 @@ void PositionalServo::moveServosFromSerial() {
                     Serial.println(position);
                 }
 
-                // Move the corresponding servo to the specified position
-                switch (servoID) {
-                    case 'A':
-                        move(servos[0], position); // Move servo A
-                        break;
-                    case 'B':
-                        move(servos[1], position); // Move servo B
-                        break;
-                    case 'C':
-                        move(servos[2], position); // Move servo C
-                        break;
-                    case 'D':
-                        move(servos[3], position); // Move servo D
-                        break;
-                    default:
-                        if (DEBUG) {
-                            Serial.print("Invalid servo ID: ");
-                            Serial.println(servoID);
-                        }
-                        // Handle invalid servoID if necessary
-                        break;
-                }
+                moveServoByID(servoID, position);
 
-                // Skip any spaces between commands
                 while (i < len && input[i] == ' ') {
-                    i++; // Increment index to skip spaces
+                    i++;
                 }
             }
         }

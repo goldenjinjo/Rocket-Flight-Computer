@@ -56,7 +56,7 @@ void loop()
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
     /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    //serialAction.checkSerialForMode();
+    serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
         buzzerModeSelect(mode);
@@ -66,8 +66,7 @@ void loop()
     switch (mode) {
         
         case STANDBY_MODE: {
-            // add mutux and processSerial method to and test this again...
-            // char* input = serialComm.readSerialMessage();
+            // do nothing
             break;
         }    
         case READING_MODE: {

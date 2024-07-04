@@ -1,6 +1,7 @@
 #include <Servo.h>
 #include "pinAssn.hpp"
 #include <array>
+#include <unordered_map>
 #include <Arduino.h>
 #include "configKeys.hpp"
 #include "deviceFunctions.hpp"
@@ -15,9 +16,11 @@ private:
         int pin;
     };
 
+    
+
     // Members
-    // Array to hold Servo Objects
-    std::array<ServoObject, 4> servos;
+    // Map to hold Servo ID to ServoObject mapping
+    std::unordered_map<char, ServoObject> servoMap;
     // Default position for servo
     uint8_t servoZeroValue = 0;
     // bool to determine while loop lock for servo control
@@ -26,9 +29,15 @@ private:
 public:
     /**
      * @brief Constructor for the PositionalServo class.
-     * Initializes the servos.
+     * Initializes the servos and locks them into position.
      */
     PositionalServo();
+
+     /**
+     * @brief Destructor for the PositionalServo class.
+     * Releases servos from active control
+     */
+    ~PositionalServo();
 
     /**
      * @brief Activates the specified servo by attaching it to its pin.
@@ -71,6 +80,13 @@ public:
      * where the letter represents the servo and the number represents the position.
      */
     void moveServosFromSerial();
+
+    /**
+     * @brief Moves a servo to the specified position by its ID.
+     * @param id The identifier of the servo to move.
+     * @param position The position to move the servo to (0-180 degrees).
+     */
+    void moveServoByID(char id, int position);
 };
 
 
