@@ -85,51 +85,71 @@ void SerialAction::moveServosFromSerial() {
 
     bool serialServoControlState = false;
     
-    
-    if (Serial.available()) {
-        String input = Serial.readStringUntil('\n');
-        if (input == "start") {
-            serialServoControlState = true;
-            LEDBlink(G_LED, 500);
-        }
+    // Use communicator to wait for the start message
+    if (communicator.waitForMessage("start", 1000 * 60)) {
+        serialServoControlState = true;
+        LEDBlink(G_LED, 500);
+    } else {
+        mode = 0;
+        return;
     }
 
     while (serialServoControlState) {
-        if (Serial.available()) {
-            String input = Serial.readStringUntil('\n');
-            input.trim(); // Remove any leading/trailing whitespace
-            if (input == "end") {
-                serialServoControlState = false;
-                LEDBlink(R_LED, 1000);
-                break;
+        // Use communicator to read the serial message
+        char* input = communicator.readSerialMessage();  // Assuming a buffer size of 100
+        
+        // If input is null or empty, continue to the next iteration
+        if (communicator.isNullOrEmpty(input)) {
+            delete[] input;
+            continue;
+        }
+        
+        // Trim whitespace from input
+        char* trimmedInput = communicator.trimWhitespace(input);
+
+        // If the input command is "end", set the mode and return
+        if (strcmp(trimmedInput, "end") == 0) {
+            LEDBlink(R_LED, 1000);
+            mode = 0;
+            delete[] input;  // Free the allocated memory
+            return;
+        }
+
+        int len = strlen(trimmedInput);
+        int i = 0;
+
+        // Loop through the input string
+        while (i < len) {
+            char servoID = trimmedInput[i];
+            int positionStart = ++i;
+
+            // Find the end of the position number
+            while (i < len && isdigit(trimmedInput[i])) {
+                i++;
             }
 
-            int len = input.length();
-            int i = 0;
+            // Extract and convert the position substring to an integer
+            char positionStr[10];  // Assuming the position will not be longer than 9 digits
+            strncpy(positionStr, &trimmedInput[positionStart], i - positionStart);
+            positionStr[i - positionStart] = '\0';
+            int position = atoi(positionStr);
 
-            while (i < len) {
-                char servoID = input[i];
-                int positionStart = ++i;
+            if (DEBUG) {
+                Serial.print("Servo ");
+                Serial.print(servoID);
+                Serial.print(": Moving to position ");
+                Serial.println(position);
+            }
 
-                while (i < len && isDigit(input[i])) {
-                    i++;
-                }
+            // Move the corresponding servo to the specified position
+            servo.moveServoByID(servoID, position);
 
-                int position = input.substring(positionStart, i).toInt();
-
-                if (DEBUG) {
-                    Serial.print("Servo ");
-                    Serial.print(servoID);
-                    Serial.print(": Moving to position ");
-                    Serial.println(position);
-                }
-
-                servo.moveServoByID(servoID, position);
-
-                while (i < len && input[i] == ' ') {
-                    i++;
-                }
+            // Skip any spaces between commands
+            while (i < len && isspace(trimmedInput[i])) {
+                i++;
             }
         }
+
+        delete[] input;  // Free the allocated memory
     }
 }
