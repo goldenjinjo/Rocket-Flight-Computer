@@ -1,4 +1,3 @@
-# serialComm.py
 import serial
 from serial.tools import list_ports
 from datetime import datetime
@@ -12,8 +11,7 @@ from utils.helperFunc import *
 from utils.downloadFlashData import download_flash_data
 
 stop_threads = False
-
-
+ser = None  # Global serial object
 
 def find_com_port():
     ports = list_ports.comports()
@@ -56,11 +54,18 @@ def read_from_serial_continuous(ser):
                 print_debug("Stopping read thread due to an error.")
                 break
 
-def user_input_to_serial(ser):
+def user_input_to_serial(ser, config_mode=False):
     global stop_threads
     while not stop_threads:
         try:
-            message = input("Enter message to send: ")
+            if config_mode:
+                message = input("Enter configuration command (or 'exit' to leave): ").strip()
+                if message.lower() == 'exit':
+                    write_to_serial(ser, "EXIT_CONFIG")
+                    print("Exiting configuration mode.")
+                    break
+            else:
+                message = input("Enter message to send: ")
             write_to_serial(ser, message)
         except EOFError:
             stop_threads = True
@@ -76,11 +81,11 @@ def user_input_to_serial(ser):
                 print_debug("Stopping write thread due to an error.")
                 break
 
-def continuous_serial(ser):
+def continuous_serial(ser, config_mode=False):
     global stop_threads
     try:
         read_thread = threading.Thread(target=read_from_serial_continuous, args=(ser,))
-        write_thread = threading.Thread(target=user_input_to_serial, args=(ser,))
+        write_thread = threading.Thread(target=user_input_to_serial, args=(ser, config_mode))
 
         read_thread.start()
         write_thread.start()
@@ -108,6 +113,7 @@ def continuous_serial(ser):
         print("Serial port closed.")
 
 def communicate_with_serial(string):
+    global ser
     com_port = find_com_port()
     if com_port is None:
         print("No USB serial port found. Make sure your device is connected.")
@@ -178,8 +184,15 @@ def select_serial_action(string, ser):
             print_debug(f"Unexpected error: {e}")
         finally:
             stop_threads = True
-
-        
-       
     
-
+    if string == GO_TO_CONFIG:
+        stop_threads = False
+        try:
+            write_to_serial(ser, CHANGE_SETTINGS_MESSAGE)
+            continuous_serial(ser, config_mode=True)
+        except serial.SerialException as e:
+            print_debug(f"Error during config mode: {e}")
+        except Exception as e:
+            print_debug(f"Unexpected error: {e}")
+        finally:
+            stop_threads = True

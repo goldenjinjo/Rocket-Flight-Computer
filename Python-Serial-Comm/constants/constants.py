@@ -26,7 +26,15 @@ GO_TO_READ = "mode:1"
 GO_TO_PURGE = "mode:2"
 GO_TO_LOGGING = "mode:3"
 GO_TO_FINS = "mode:4"
-MODE_MSG_ARRAY = [GO_TO_STANDBY, GO_TO_READ, GO_TO_PURGE, GO_TO_LOGGING, GO_TO_FINS]
+GO_TO_CONFIG = "mode:5"
+MODE_MSG_ARRAY = [
+    GO_TO_STANDBY,
+    GO_TO_READ,
+    GO_TO_PURGE,
+    GO_TO_LOGGING,
+    GO_TO_FINS,
+    GO_TO_CONFIG,
+]
 
 # Directory and file naming
 OUTPUT_DIRECTORY = "flightData"
