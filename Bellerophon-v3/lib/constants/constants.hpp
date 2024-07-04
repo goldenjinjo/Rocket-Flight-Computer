@@ -19,8 +19,8 @@ extern const char* FILE_COPY_MESSAGE;
 extern const char* ALL_FILES_SENT;
 extern const char* ALL_FILES_SENT_ACK;
 extern const char* REQUEST_FILE_DOWNLOAD;
-extern const char* CHANGE_SETTINGS;
-extern const char* MANUAL_SERVO_CONTROL;
+extern const char* CHANGE_SETTINGS_MESSAGE;
+extern const char* MANUAL_SERVO_CONTROL_MESSAGE;
 extern const char* CANCEL_MSG_REQUEST;
 
 

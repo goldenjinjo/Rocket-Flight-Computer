@@ -30,24 +30,10 @@ void SerialAction::checkSerialForMode() {
     delete[] message; // Free the allocated message buffer
 }
 
-bool SerialAction::confirmAction(const char* SERIAL_MESSAGE) {
-     if(!communicator.waitForMessage(SERIAL_MESSAGE, modeActivationWaitPeriod)){
-        // Return false and change mode to 0 if message if expected message not
-        // received
-        LEDBlink(R_LED, 1000);
-        mode = 0;
-        return false;
-    }
-
-    // else return true
-    LEDBlink(G_LED, 1000);
-    return true;
-
-}
 
 void SerialAction::processAndChangeConfig() {
     // Wait for unique message to confirm config mode
-   if(!confirmAction(CHANGE_SETTINGS)){
+   if(!confirmAction(CHANGE_SETTINGS_MESSAGE)){
         return;
    }
 
@@ -72,9 +58,7 @@ void SerialAction::processAndChangeConfig() {
                 buzzerSuccess();
             }
         }
-
         delete[] input; // Free the allocated memory
-
     }
 }
 
@@ -108,24 +92,15 @@ bool SerialAction::changeConfigValue(const char* command) {
     return true;
 }
 
-
 void SerialAction::moveServosFromSerial() {
-
     // servo instance
     PositionalServo servo;
 
-    bool serialServoControlState = false;
-    
-    // Use communicator to wait for the start message
-    if (communicator.waitForMessage("start", 1000 * 60)) {
-        serialServoControlState = true;
-        LEDBlink(G_LED, 500);
-    } else {
-        mode = 0;
+    if(!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)){
         return;
     }
 
-    while (serialServoControlState) {
+    while (true) {
         // Use communicator to read the serial message
         char* input = communicator.readSerialMessage();  // Assuming a buffer size of 100
         
@@ -134,33 +109,31 @@ void SerialAction::moveServosFromSerial() {
             delete[] input;
             continue;
         }
-        // Trim whitespace from input
-        char* trimmedInput = communicator.trimWhitespace(input);
 
-        // If the input command is "end", set the mode and return
-        if (strcmp(trimmedInput, "end") == 0) {
+        // cancel out of servo control and return to standby
+        if (strcmp(input, CANCEL_MSG_REQUEST) == 0) {
             LEDBlink(R_LED, 1000);
             mode = 0;
             delete[] input;  // Free the allocated memory
             return;
         }
 
-        int len = strlen(trimmedInput);
+        int len = strlen(input);
         int i = 0;
 
         // Loop through the input string
         while (i < len) {
-            char servoID = trimmedInput[i];
+            char servoID = input[i];
             int positionStart = ++i;
 
             // Find the end of the position number
-            while (i < len && isdigit(trimmedInput[i])) {
+            while (i < len && isdigit(input[i])) {
                 i++;
             }
 
             // Extract and convert the position substring to an integer
             char positionStr[10];  // Assuming the position will not be longer than 9 digits
-            strncpy(positionStr, &trimmedInput[positionStart], i - positionStart);
+            strncpy(positionStr, &input[positionStart], i - positionStart);
             positionStr[i - positionStart] = '\0';
             int position = atoi(positionStr);
 
@@ -175,11 +148,27 @@ void SerialAction::moveServosFromSerial() {
             servo.moveServoByID(servoID, position);
 
             // Skip any spaces between commands
-            while (i < len && isspace(trimmedInput[i])) {
+            while (i < len && isspace(input[i])) {
                 i++;
             }
         }
 
         delete[] input;  // Free the allocated memory
     }
+}
+
+/*
+UTILS
+*/
+bool SerialAction::confirmAction(const char* SERIAL_MESSAGE) {
+     if(!communicator.waitForMessage(SERIAL_MESSAGE, modeActivationWaitPeriod)){
+        // Return false and change mode to 0 if message if expected message not
+        // received
+        LEDBlink(R_LED, 1000);
+        mode = 0;
+        return false;
+    }
+    // else return true
+    LEDBlink(G_LED, 1000);
+    return true;
 }
