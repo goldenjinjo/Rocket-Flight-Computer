@@ -55,12 +55,11 @@ void SerialAction::processAndChangeConfig() {
 
         if(strcmp(input, REQUEST_SETTINGS_INFO_MESSAGE) == 0) {
             printConfigKeysToSerial();
+            continue;
         }
         
         if (!changeConfigValue(input)) {
-            Serial.println("Failed to handle serial command.");
             LEDBlink(R_LED, 1000);
-            buzzerFailure();
         } else {
             LEDBlink(G_LED, 1000);
             buzzerSuccess();
