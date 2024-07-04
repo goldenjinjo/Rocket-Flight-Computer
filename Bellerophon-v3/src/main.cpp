@@ -91,7 +91,7 @@ void loop()
             // Move fins based on serial input
             // type "start" to enter mode, otherwise does nothing
             // type "end" to exit
-            controlFins.moveServosFromSerial();
+            serialAction.moveServosFromSerial();
             break;
         }
 

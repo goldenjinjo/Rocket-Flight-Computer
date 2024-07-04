@@ -1,3 +1,6 @@
+#ifndef POSITIONAL_SERVO_HPP
+#define POSITIONAL_SERVO_HPP
+
 #include <Servo.h>
 #include "pinAssn.hpp"
 #include <array>
@@ -75,19 +78,16 @@ public:
     void stop(ServoObject& servoObj);
 
     /**
-     * @brief Moves the servos to specified positions based on serial input.
-     * The expected input format is any combination of commands: "A90", "D30 B45", "A90 C120", etc.
-     * where the letter represents the servo and the number represents the position.
-     */
-    void moveServosFromSerial();
-
-    /**
      * @brief Moves a servo to the specified position by its ID.
      * @param id The identifier of the servo to move.
      * @param position The position to move the servo to (0-180 degrees).
      */
     void moveServoByID(char id, int position);
 };
+
+
+
+#endif // POSITIONAL_SERVO_HPP
 
 
 

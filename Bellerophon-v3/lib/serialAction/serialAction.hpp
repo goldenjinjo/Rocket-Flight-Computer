@@ -4,6 +4,7 @@
 #include "serialCommunicator.hpp"
 #include "constants.hpp"
 #include "configFileManager.hpp"
+#include "positionalServo.hpp"
 #include <cstring>
 
 /**
@@ -27,6 +28,14 @@ public:
      * @brief Method to process serial input and change configuration values based on the received message.
      */
     void processAndChangeConfig();
+
+
+    /**
+     * @brief Moves the servos to specified positions based on serial input.
+     * The expected input format is any combination of commands: "A90", "D30 B45", "A90 C120", etc.
+     * where the letter represents the servo and the number represents the position.
+     */
+    void moveServosFromSerial();
 
 private:
 

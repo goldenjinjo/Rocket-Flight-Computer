@@ -76,3 +76,60 @@ bool SerialAction::changeConfigValue(const char* command) {
 
     return true;
 }
+
+
+void SerialAction::moveServosFromSerial() {
+
+    // servo instance
+    PositionalServo servo;
+
+    bool serialServoControlState = false;
+    
+    
+    if (Serial.available()) {
+        String input = Serial.readStringUntil('\n');
+        if (input == "start") {
+            serialServoControlState = true;
+            LEDBlink(G_LED, 500);
+        }
+    }
+
+    while (serialServoControlState) {
+        if (Serial.available()) {
+            String input = Serial.readStringUntil('\n');
+            input.trim(); // Remove any leading/trailing whitespace
+            if (input == "end") {
+                serialServoControlState = false;
+                LEDBlink(R_LED, 1000);
+                break;
+            }
+
+            int len = input.length();
+            int i = 0;
+
+            while (i < len) {
+                char servoID = input[i];
+                int positionStart = ++i;
+
+                while (i < len && isDigit(input[i])) {
+                    i++;
+                }
+
+                int position = input.substring(positionStart, i).toInt();
+
+                if (DEBUG) {
+                    Serial.print("Servo ");
+                    Serial.print(servoID);
+                    Serial.print(": Moving to position ");
+                    Serial.println(position);
+                }
+
+                servo.moveServoByID(servoID, position);
+
+                while (i < len && input[i] == ' ') {
+                    i++;
+                }
+            }
+        }
+    }
+}
