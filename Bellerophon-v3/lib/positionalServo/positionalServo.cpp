@@ -38,10 +38,15 @@ void PositionalServo::moveServoByID(char id, int position) {
     ServoObject* servoObj = findServoByID(id);
     if (servoObj) {
         // Ensure position is within bounds
-        if (position < minPos) position = minPos;
-        if (position > maxPos) position = maxPos;
+        position = boundaryCheck(position);
         move(*servoObj, position);
     }
+}
+
+int PositionalServo::boundaryCheck(int position) {
+    if (position < minPos) position = minPos;
+    if (position > maxPos) position = maxPos;
+    return position;
 }
 
 PositionalServo::ServoObject* PositionalServo::findServoByID(char id) {

@@ -133,10 +133,8 @@ void SerialAction::moveServosFromSerial() {
             char servoID = input[i];
             int positionStart = ++i;
 
-            // Check if the position is negative
-            bool isNegative = false;
+            // allow negative numbers
             if (i < len && input[i] == '-') {
-                isNegative = true;
                 i++;
             }
 
@@ -150,12 +148,7 @@ void SerialAction::moveServosFromSerial() {
             strncpy(positionStr, &input[positionStart], i - positionStart);
             positionStr[i - positionStart] = '\0';
             int position = atoi(positionStr);
-
-            // Apply the negative sign if needed
-            if (isNegative) {
-                position = -position;
-            }
-
+            
             if (DEBUG) {
                 Serial.print("Servo ");
                 Serial.print(servoID);
@@ -175,6 +168,9 @@ void SerialAction::moveServosFromSerial() {
 
             // Calculate the new center position
             float newCenterPos = oldCenterPos + position;
+
+            // constrain position to be within min and max value of deflection
+            newCenterPos = servo.boundaryCheck(newCenterPos);
 
             // Write the new center position to the config
             config.writeConfigValueFromString(configKey, newCenterPos);

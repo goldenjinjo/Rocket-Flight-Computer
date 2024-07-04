@@ -106,6 +106,14 @@ public:
      */
     void stopByID(char id);
 
+
+    /**
+     * @brief Ensures the position is within the defined bounds.
+     * @param position The position to check.
+     * @return The adjusted position within bounds.
+     */
+    int boundaryCheck(int position);
+
 };
 
 #endif // POSITIONAL_SERVO_HPP
