@@ -157,8 +157,8 @@ void ConfigFileManager::AssignConfigValue(uint8_t key, float value) {
     }
 
     *(CONFIG_KEYS[key].variable) = value;
-    Serial.print("Assigned value ");
-    Serial.print(value);
-    Serial.print(" to key ");
-    Serial.println(keyToString(key));
+    // Serial.print("Assigned value ");
+    // Serial.print(value);
+    // Serial.print(" to key ");
+    // Serial.println(keyToString(key));
 }

@@ -30,24 +30,57 @@ void SerialAction::checkSerialForMode() {
     delete[] message; // Free the allocated message buffer
 }
 
-void SerialAction::processAndChangeConfig() {
-    char* input = communicator.readSerialMessage();
-    if (SerialCommunicator::isNullOrEmpty(input)) {
-        delete[] input;
-        return;
-    }
-
-    if (!changeConfigValue(input)) {
-        Serial.println("Failed to handle serial command.");
-    }
-    delete[] input; // Free the allocated memory
-}
-
-bool SerialAction::changeConfigValue(const char* command) {
-    // Check if the command is nullptr
-    if (command == nullptr) {
+bool SerialAction::confirmAction(const char* SERIAL_MESSAGE) {
+     if(!communicator.waitForMessage(SERIAL_MESSAGE, modeActivationWaitPeriod)){
+        // Return false and change mode to 0 if message if expected message not
+        // received
+        LEDBlink(R_LED, 1000);
+        mode = 0;
         return false;
     }
+
+    // else return true
+    LEDBlink(G_LED, 1000);
+    return true;
+
+}
+
+void SerialAction::processAndChangeConfig() {
+    // Wait for unique message to confirm config mode
+   if(!confirmAction(CHANGE_SETTINGS)){
+        return;
+   }
+
+    while(true) {
+
+        char* input = communicator.readSerialMessage();
+
+        if(strcmp(input, CANCEL_MSG_REQUEST) == 0) {
+            delete[] input; // Free the memory allocated for the message
+            mode = 0;
+            LEDBlink(B_LED, 1000);
+            return;
+        }
+        
+        if (!SerialCommunicator::isNullOrEmpty(input)) {
+            if (!changeConfigValue(input)) {
+                Serial.println("Failed to handle serial command.");
+                LEDBlink(R_LED, 1000);
+                buzzerFailure();
+            } else {
+                LEDBlink(G_LED, 1000);
+                buzzerSuccess();
+            }
+        }
+
+        delete[] input; // Free the allocated memory
+
+    }
+}
+
+
+bool SerialAction::changeConfigValue(const char* command) {
+   
     // Find the colon character to separate key and value
     const char* colonPos = strchr(command, ':');
     if (colonPos == nullptr) {
@@ -68,9 +101,7 @@ bool SerialAction::changeConfigValue(const char* command) {
         Serial.print(" to ");
         Serial.println(value);
     } else {
-        Serial.print("Failed to set ");
-        Serial.print(key);
-        Serial.println(" value.");
+        // return false if invalid key
         return false;
     }
 
@@ -103,7 +134,6 @@ void SerialAction::moveServosFromSerial() {
             delete[] input;
             continue;
         }
-        
         // Trim whitespace from input
         char* trimmedInput = communicator.trimWhitespace(input);
 

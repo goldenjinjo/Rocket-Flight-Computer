@@ -42,10 +42,10 @@ void setup() {
     startUp();
 
    delay(1000);
-   printConfigKeysToSerial();
 
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;
+
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -88,13 +88,9 @@ void loop()
             break;
         }
         case FIN_CONTROL_MODE: {
-            // Move fins based on serial input
-            // type "start" to enter mode, otherwise does nothing
-            // type "end" to exit
             serialAction.moveServosFromSerial();
             break;
         }
-
         case CONFIG_MODE: {
             serialAction.processAndChangeConfig();
             break;

@@ -26,6 +26,7 @@ public:
 
      /**
      * @brief Method to process serial input and change configuration values based on the received message.
+     * MESSAGE STRUCTURE: CONFIG_NAME:VALUE
      */
     void processAndChangeConfig();
 
@@ -47,8 +48,14 @@ private:
     bool changeConfigValue(const char* command);
 
 
+    bool confirmAction(const char* SERIAL_MESSAGE);
+
+
     SerialCommunicator& communicator; ///< Reference to the SerialCommunicator instance
     ConfigFileManager& config; ///< Reference to the ConfigFileManager instance
+
+    // Time to wait for a message before cancelling a mode operation
+    uint32_t modeActivationWaitPeriod = 1000 * 60 * 3; // 3 minutes
 };
 
 #endif // SERIAL_ACTION_HPP
