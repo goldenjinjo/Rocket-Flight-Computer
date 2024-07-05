@@ -129,6 +129,8 @@ def communicate_with_serial(string):
 
     select_serial_action(string, ser)
 
+
+# TODO create proper abstractions here
 def select_serial_action(string, ser):
     global stop_threads
 
@@ -145,6 +147,9 @@ def select_serial_action(string, ser):
         print(f"{string}: Not a recognized action.")
         return
     
+    if string == GO_TO_STANDBY:
+        print("Going to standby")
+
     if string == GO_TO_READ:
         user_input = input("Would you like to request a file download? (yes/no): ").strip().lower()
         if user_input == 'yes':
@@ -162,12 +167,25 @@ def select_serial_action(string, ser):
                 write_to_serial(ser, CANCEL_MSG_REQUEST)
             except Exception as e:
                 print_debug(f"Error writing to serial port: {e}")
-    
-    if string == GO_TO_STANDBY:
-        print("Going to standby")
 
     if string == GO_TO_PURGE:
         print("Purging all data from flash. RIP.")
+        user_input = input("WARNING! You are about to delete all files on flash memory. \
+        Type 'yes' to confirm, or 'no' to cancel. ").strip().lower()
+        if user_input == 'yes':
+            try:
+                write_to_serial(ser, DELETE_FILE_MESSAGE)
+            except serial.SerialException as e:
+                print_debug(f"Error with serial: {e}")
+            except Exception as e:
+                print_debug(f"Unexpected error: {e}")
+        else:
+            print("Files will not be deleted. Returning to standby.")
+            time.sleep(1)
+            try:
+                write_to_serial(ser, CANCEL_MSG_REQUEST)
+            except Exception as e:
+                print_debug(f"Error writing to serial port: {e}")
 
     if string == GO_TO_LOGGING:
         print("Begin Logging Sequence")

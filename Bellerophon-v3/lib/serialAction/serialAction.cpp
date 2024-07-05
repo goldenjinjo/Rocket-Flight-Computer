@@ -31,7 +31,6 @@ void SerialAction::checkSerialForMode() {
     delete[] message; // Free the allocated message buffer
 }
 
-
 void SerialAction::processAndChangeConfig() {
     // Wait for unique message to confirm config mode
    if(!confirmAction(CHANGE_SETTINGS_MESSAGE)){
@@ -69,7 +68,6 @@ void SerialAction::processAndChangeConfig() {
         delete[] input; // Free the allocated memory
     }
 }
-
 
 bool SerialAction::changeConfigValue(const char* command) {
    
@@ -189,9 +187,7 @@ void SerialAction::moveServosFromSerial() {
 void SerialAction::serialFileTransfer() {
     
     // Check for incoming serial message, return to standby if not receieved
-    if(!communicator.waitForMessage(REQUEST_FILE_DOWNLOAD, modeActivationWaitPeriod)){
-        LEDBlink(R_LED, 500);
-        mode = 0;
+    if(!confirmAction(REQUEST_FILE_DOWNLOAD)){
         return;
     }
     // Send all files if correct message receieved
@@ -212,6 +208,16 @@ void SerialAction::serialFileTransfer() {
 
     // return to standby
     mode = 0;
+}
+
+/// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
+/// TODO: create new new public method for serial based deletion, either individual files or all files and make this one private
+void SerialAction::purgeDataFromSerial() {
+
+    if(!confirmAction(DELETE_FILE_MESSAGE)){
+        return;
+    }
+    logger.deleteAllFiles();
 }
 
 /*

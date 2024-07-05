@@ -44,6 +44,9 @@ public:
      */
     void serialFileTransfer();
 
+
+    void purgeDataFromSerial();
+
 private:
 
     /**
