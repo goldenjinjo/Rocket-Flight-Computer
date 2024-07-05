@@ -106,6 +106,8 @@ void SerialAction::moveServosFromSerial() {
         return;
     }
 
+    LEDBlink(G_LED, 500);
+
     while (true) {
         // Use communicator to read the serial message
         char* input = communicator.readSerialMessage();  // Assuming a buffer size of 100
@@ -166,11 +168,9 @@ void SerialAction::moveServosFromSerial() {
             // to the servo boundary +- maxDeflection
             newCenterPos = servo.maxSetAngleCheck(newCenterPos);
 
-            if (DEBUG) {
-                Serial.print("Moving ");
-                Serial.print(newCenterPos - oldCenterPos);
-                Serial.println(" degrees");
-            }
+            Serial.print("Moving ");
+            Serial.print(newCenterPos - oldCenterPos);
+            Serial.println(" degrees");
 
             // Write the new center position to the config
             config.writeConfigValueFromString(configKey, newCenterPos);
