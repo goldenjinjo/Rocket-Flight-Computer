@@ -149,12 +149,6 @@ void SerialAction::moveServosFromSerial() {
             positionStr[i - positionStart] = '\0';
             int position = atoi(positionStr);
             
-            if (DEBUG) {
-                Serial.print("Servo ");
-                Serial.print(servoID);
-                Serial.print(": Moving to position ");
-                Serial.println(position);
-            }
 
             // Move the corresponding servo to the specified position
             servo.moveServoRelativeToCenter(servoID, position);
@@ -164,13 +158,20 @@ void SerialAction::moveServosFromSerial() {
             snprintf(configKey, sizeof(configKey), "SERVO_%c_CENTER_POSITION", servoID);
 
             // Retrieve the old center position
-            float oldCenterPos = config.getConfigValue(configKey);  // Assuming this function exists and works
+            float oldCenterPos = config.getConfigValue(configKey);
 
             // Calculate the new center position
             float newCenterPos = oldCenterPos + position;
 
-            // constrain position to be within min and max value of deflection
-            newCenterPos = servo.boundaryCheck(newCenterPos);
+            // constrain the new set pos to be at least equal
+            // to the servo boundary +- maxDeflection
+            newCenterPos = servo.maxSetAngleCheck(newCenterPos);
+
+            if (DEBUG) {
+                Serial.print("Moving ");
+                Serial.print(newCenterPos - oldCenterPos);
+                Serial.println(" degrees");
+            }
 
             // Write the new center position to the config
             config.writeConfigValueFromString(configKey, newCenterPos);
@@ -183,8 +184,6 @@ void SerialAction::moveServosFromSerial() {
         delete[] input;  // Free the allocated memory
     }
 }
-
-
 
 /*
 UTILS
