@@ -210,6 +210,7 @@ def select_serial_action(string, ser):
             print(
             "Settings Mode Entered.\n"
             "Type " + REQUEST_SETTINGS_INFO_MESSAGE + " for List of Configurable Settings\n"
+            "Type " + RESET_CONFIG_MESSAGE + " to restore default values\n"
             "Type in format: SETTING_NAME:VALUE to change a given setting\n"
             "e.g. MAIN_DELAY:10\n"
             )

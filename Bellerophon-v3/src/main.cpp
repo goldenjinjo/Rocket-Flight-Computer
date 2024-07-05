@@ -41,6 +41,7 @@ void setup() {
     // play start up sequence
     startUp();
 
+
    delay(1000);
 
     ///TODO: set mode manager with getters and setters
