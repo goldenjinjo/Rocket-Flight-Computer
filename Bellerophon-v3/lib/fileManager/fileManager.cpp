@@ -11,6 +11,8 @@ bool FileManager::initialize() {
 
     // Load the index file and read the counters
     loadIndexFile();
+
+    return true;
 }
 
 void FileManager::initializeFileItem(FileItem& fileItem, const char* name) {
