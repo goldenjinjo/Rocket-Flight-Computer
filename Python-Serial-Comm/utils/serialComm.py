@@ -157,10 +157,9 @@ def select_serial_action(string, ser):
                 print_debug(f"Unexpected error: {e}")
         else:
             print("Files will not be downloaded. Returning to standby.")
-            time.sleep(3)
+            time.sleep(1)
             try:
                 write_to_serial(ser, CANCEL_MSG_REQUEST)
-                write_to_serial(ser, GO_TO_STANDBY)
             except Exception as e:
                 print_debug(f"Error writing to serial port: {e}")
     
