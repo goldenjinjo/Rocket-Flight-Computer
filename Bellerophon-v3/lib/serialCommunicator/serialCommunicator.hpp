@@ -40,15 +40,25 @@ public:
      */
     bool waitForMessage(const char* expectedMessage, uint32_t timeout);
 
+    /**
+     * @brief Reads a message from the serial buffer, trims whitespace, and returns the trimmed message.
+     * @return A pointer to the trimmed C-style string. The caller is responsible for freeing the memory.
+     */
+    char* readSerialMessage();
 
-
-     /**
+    /**
      * @brief Trims leading and trailing whitespace from a C-style string.
      * @param input The input C-style string to be trimmed.
      * @return A pointer to the trimmed string.
      */
     char* trimWhitespace(char* input);
 
+    /**
+     * @brief Checks if the given message contains any whitespace characters.
+     * @param message The message to check.
+     * @return True if the message contains whitespace, false otherwise.
+     */
+    static bool containsWhiteSpace(char* message);
 
     /**
      * @brief Utility function to check if a message is null or empty.
@@ -57,21 +67,11 @@ public:
      */
     static bool isNullOrEmpty(const char* message);
 
-
-
-
-    bool readMessageWithPrefixSuffix(char* buffer, int bufferSize);
-
-
-    /**
-     * @brief Reads a message from the serial buffer, trims whitespace, and returns the trimmed message.
-     * @return A pointer to the trimmed C-style string. The caller is responsible for freeing the memory.
-     */
-    char* readSerialMessage();
-
-    bool containsWhiteSpace(char* message);
-
 private:
+    
+    /*
+        ||| PRIVATE MEMBERS |||
+    */
     uint32_t baudRate;   ///< The baud rate for serial communication.
     const char prefix;   ///< The prefix for messages.
     const char suffix;   ///< The suffix for messages.
@@ -80,6 +80,19 @@ private:
     bool prefixFound;
     char* input;
     int bufferSize = 100;
+
+
+    /*
+        ||| PRIVATE METHODS |||
+    */
+
+    /**
+     * @brief Reads a message from the serial input with specified prefix and suffix.
+     * @param buffer The buffer to store the read message.
+     * @param bufferSize The size of the buffer.
+     * @return True if a valid message is found, false otherwise.
+     */
+    bool readMessageWithPrefixSuffix(char* buffer, int bufferSize);
 
 };
 
