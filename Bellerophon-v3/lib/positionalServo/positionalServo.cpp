@@ -30,6 +30,12 @@ void PositionalServo::stopByID(char id) {
     }
 }
 
+void PositionalServo::centerAllServoPositions() {
+    for (auto& pair : servoMap) {
+        stop(pair.second);
+    }
+}
+
 int PositionalServo::maxSetAngleCheck(int position) {
     
     if (position < (minPos+maxDeflectionAngle)){
@@ -54,6 +60,8 @@ void PositionalServo::initialize() {
 
     // Activate all servos
     activateAll();
+    // set initial servo positions
+    centerAllServoPositions();
 }
 
 void PositionalServo::moveServoByID(char id, int position) {

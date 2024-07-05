@@ -154,6 +154,11 @@ public:
     void stopByID(char id);
 
     /**
+     * @brief Resets all servo positions to their center positions.
+     */
+    void centerAllServoPositions();
+
+    /**
      * @brief Ensures the position is within the defined bounds.
      * @param position The position to check.
      * @return The adjusted position within bounds.
