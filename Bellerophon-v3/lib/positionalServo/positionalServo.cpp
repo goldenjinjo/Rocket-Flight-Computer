@@ -3,13 +3,7 @@
 /*
 PUBLIC
 */
-PositionalServo::PositionalServo() {
-    initialize();
-}
-
-PositionalServo::~PositionalServo() {
-    deactivateAll();
-}
+PositionalServo::PositionalServo() {}
 
 void PositionalServo::moveServoRelativeToCenter(char id, int& relativePosition) {
     ServoObject* servoObj = findServoByID(id);

@@ -56,11 +56,6 @@ private:
     */
 
     /**
-     * @brief Initializes the servo map with predefined pins and center positions.
-     */
-    void initialize();
-
-    /**
      * @brief Moves a servo to the specified position by its ID.
      * @param id The identifier of the servo to move.
      * @param position The position to move the servo to (0-180 degrees).
@@ -133,10 +128,9 @@ public:
     PositionalServo();
 
     /**
-     * @brief Destructor for the PositionalServo class.
-     * Releases servos from active control.
+     * @brief Initializes the servo map with predefined pins and center positions.
      */
-    ~PositionalServo();
+    void initialize();
 
     /**
      * @brief Moves the specified servo based on its relative center position.

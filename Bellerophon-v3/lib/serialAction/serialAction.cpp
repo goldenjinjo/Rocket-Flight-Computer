@@ -1,8 +1,9 @@
 #include "serialAction.hpp"
 
 
-SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, DataLogger& logger)
- : communicator(communicator), config(config), logger(logger) {}
+SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, 
+DataLogger& logger, PositionalServo& servo)
+ : communicator(communicator), config(config), logger(logger), servo(servo)  {}
 
 void SerialAction::checkSerialForMode() {
     // Call readSerialMessage to get the message
@@ -99,8 +100,6 @@ bool SerialAction::changeConfigValue(const char* command) {
 }
 
 void SerialAction::moveServosFromSerial() {
-    // Servo instance
-    PositionalServo servo;
 
     if (!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)) {
         return;

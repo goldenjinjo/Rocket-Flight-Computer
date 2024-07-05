@@ -18,7 +18,7 @@ public:
      * @brief Constructor for SerialAction.
      * @param communicator A reference to an instance of SerialCommunicator to be used for serial actions.
      */
-    SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, DataLogger& logger);
+    SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, DataLogger& logger, PositionalServo& servo);
 
     /**
      * @brief Method to check and switch between serial modes based on the received message.
@@ -72,6 +72,7 @@ private:
     SerialCommunicator& communicator; ///< Reference to the SerialCommunicator instance
     ConfigFileManager& config; ///< Reference to the ConfigFileManager instance
     DataLogger& logger; //<Reference to DataLogger instance
+    PositionalServo& servo; //<Reference to Servo instance
 
     // Time to wait for a message before cancelling a mode operation
     uint32_t modeActivationWaitPeriod = 1000 * 60 * 3; // 3 minutes
