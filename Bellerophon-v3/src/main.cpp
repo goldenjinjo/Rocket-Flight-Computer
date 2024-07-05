@@ -21,10 +21,10 @@
 
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
 FileManager fm;
+ConfigFileManager config(fm);
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
-ConfigFileManager config(fm);
-SerialAction serialAction(serialComm, config, logger);
+SerialAction serialAction(serialComm, config, logger, controlFins);
 
 void setup() {
 
@@ -37,6 +37,7 @@ void setup() {
     fm.initialize();
     // Config must be initalised first after FileManager, as it declares all external variables, including debug
     config.initialize();
+    controlFins.initialize();
     logger.initialize();
     // play start up sequence
     startUp();
