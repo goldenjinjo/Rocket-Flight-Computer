@@ -1,7 +1,7 @@
 #ifndef CONFIG_FILE_MANAGER_HPP
 #define CONFIG_FILE_MANAGER_HPP
 
-#include "FileManager.hpp"
+#include "fileManager.hpp"
 #include "configKeys.hpp"
 #include <map>
 
