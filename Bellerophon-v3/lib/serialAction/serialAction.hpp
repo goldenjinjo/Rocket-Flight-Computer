@@ -31,7 +31,6 @@ public:
      */
     void processAndChangeConfig();
 
-
     /**
      * @brief Moves the servos to specified positions based on serial input.
      * The expected input format is any combination of commands: "A90", "D30 B45", "A90 C120", etc.
@@ -44,7 +43,11 @@ public:
      */
     void serialFileTransfer();
 
-
+    /**
+     * @brief Purges all data based on a serial command confirmation.
+     *        If the DELETE_FILE_MESSAGE is confirmed via serial communication, all files are deleted.
+     *        If the confirmation fails, the operation is aborted.
+     */
     void purgeDataFromSerial();
 
 private:
@@ -56,7 +59,13 @@ private:
      */
     bool changeConfigValue(const char* command);
 
-
+    /**
+     * @brief Confirms a specific action by waiting for a designated serial message within a specified time period.
+     * @param SERIAL_MESSAGE The expected message to confirm the action.
+     * @return True if the expected message is received within the wait period, false otherwise.
+     *         If the message is not received, the mode is set to 0 and a red LED blink is triggered.
+     *         If the message is received, a green LED blink is triggered.
+     */
     bool confirmAction(const char* SERIAL_MESSAGE);
 
 
