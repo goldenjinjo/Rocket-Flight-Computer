@@ -99,7 +99,6 @@ void FileManager::createNewDataFile() {
     updateIndexFile(); 
 }
 
-
 /*
     FILES READING AND MANIPULATION
 */
@@ -240,16 +239,16 @@ bool FileManager::openFileForWrite(FileItem& fileItem) {
     }
     // else return true
     return true;
-
 }
 
 bool FileManager::setFilePosition(FileItem& fileItem, uint32_t position) {
     if (!fileItem.type.seekSet(position)) {
+        // return false and close file if unable to set pos
         Serial.println("Failed to seek to position.");
         closeFile(fileItem);
         return false;
     }
-
+    // return true if successfully set pos
     return true;
 }
 

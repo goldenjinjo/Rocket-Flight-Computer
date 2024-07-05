@@ -38,9 +38,9 @@ public:
         const char* name;
     };
 
-    FileItem logFile;
-    FileItem dataFile;
-    FileItem configFile;
+    FileItem logFile; // File for logging flight events
+    FileItem dataFile; // File for recording sensor data
+    FileItem configFile; // File for settings management system
     FileItem indexFile; // File for tracking file naming counters
 
 
@@ -100,8 +100,6 @@ public:
      */
     bool createFile(FileItem& fileItem);
 
-    
-
     /**
     @brief Closes the specified file.
     @param fileItem The FileItem struct containing the file to close.
@@ -117,7 +115,14 @@ public:
      */
     void print(FileItem& fileItem, const char* message);
 
-
+    /**
+     * @brief Reads a float value from a specified position in a file.
+     * @param fileItem The file item to read from.
+     * @param position The position in the file from which to read the float value.
+     * @param value Reference to store the read float value.
+     * @return True if the float value is successfully read, false otherwise.
+     *         If reading fails at any step, an error message is printed and the file is closed.
+     */
     bool readFloatFromFile(FileItem& fileItem, uint32_t position, float& value);
 
      /**
@@ -157,11 +162,22 @@ private:
      */
     void createNewDataFile();
 
-
+    /**
+     * @brief Opens a file for writing.
+     * @param fileItem The file item to be opened for writing.
+     * @return True if the file is successfully opened for writing, false otherwise.
+     *         If the file cannot be opened, an error message is printed.
+     */
     bool openFileForWrite(FileItem& fileItem);
 
+    /**
+     * @brief Sets the file position to a specified location.
+     * @param fileItem The file item whose position is to be set.
+     * @param position The position to set in the file.
+     * @return True if the position is successfully set, false otherwise.
+     *         If the position cannot be set, an error message is printed and the file is closed.
+     */
     bool setFilePosition(FileItem& fileItem, uint32_t position);
 };
 
 #endif // FILE_MANAGER_HPP
-
