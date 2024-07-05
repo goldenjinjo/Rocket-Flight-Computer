@@ -58,6 +58,13 @@ void SerialAction::processAndChangeConfig() {
             printConfigKeysToSerial();
             continue;
         }
+
+         if(strcmp(input, RESET_CONFIG_MESSAGE) == 0) {
+            config.restoreDefaults();
+            continue;
+        }
+
+
         
         if (!changeConfigValue(input)) {
             LEDBlink(R_LED, 1000);
