@@ -193,13 +193,19 @@ bool FileManager::readFloatFromFile(FileItem& fileItem, uint32_t position, float
     }
 
     closeFile(fileItem);
+
+    return true;
 }
 
 bool FileManager::writeFloatToFile(FileItem& fileItem, uint32_t position, float value) {
     
-    openFileForWrite(fileItem);
+    if(!openFileForWrite(fileItem)) {
+        return false;
+    }
    
-    setFilePosition(fileItem, position);
+    if(!setFilePosition(fileItem, position)){
+        return false;
+    }
 
     if (fileItem.type.write((uint8_t*)&value, sizeof(value)) != sizeof(value)) {
         Serial.println("Failed to write float value.");
