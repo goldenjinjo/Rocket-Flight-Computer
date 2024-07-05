@@ -1,7 +1,8 @@
 #include "serialAction.hpp"
 
 
-SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config) : communicator(communicator), config(config) {}
+SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, DataLogger& logger)
+ : communicator(communicator), config(config), logger(logger) {}
 
 void SerialAction::checkSerialForMode() {
     // Call readSerialMessage to get the message
@@ -183,6 +184,34 @@ void SerialAction::moveServosFromSerial() {
         }
         delete[] input;  // Free the allocated memory
     }
+}
+
+void SerialAction::serialFileTransfer() {
+    
+    // Check for incoming serial message, return to standby if not receieved
+    if(!communicator.waitForMessage(REQUEST_FILE_DOWNLOAD, modeActivationWaitPeriod)){
+        LEDBlink(R_LED, 500);
+        mode = 0;
+        return;
+    }
+    // Send all files if correct message receieved
+    LEDBlink(G_LED, 500);
+    logger.sendAllFiles();
+
+    // Send the end-of-transmission acknowledgment
+    Serial.println(ALL_FILES_SENT);
+   
+    // Wait for confirmation
+    if (!communicator.waitForMessage(ALL_FILES_SENT_ACK, modeActivationWaitPeriod)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+    } else {
+        buzzerSuccess();
+        LEDBlink(G_LED, 1000);
+    }
+
+    // return to standby
+    mode = 0;
 }
 
 /*

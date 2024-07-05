@@ -5,6 +5,7 @@
 #include "constants.hpp"
 #include "configFileManager.hpp"
 #include "positionalServo.hpp"
+#include "dataLogger.hpp"
 #include <cstring>
 
 /**
@@ -17,7 +18,7 @@ public:
      * @brief Constructor for SerialAction.
      * @param communicator A reference to an instance of SerialCommunicator to be used for serial actions.
      */
-    SerialAction(SerialCommunicator& communicator, ConfigFileManager& config);
+    SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, DataLogger& logger);
 
     /**
      * @brief Method to check and switch between serial modes based on the received message.
@@ -38,6 +39,11 @@ public:
      */
     void moveServosFromSerial();
 
+    /**
+     * @brief  Handles the serial file transfer process.
+     */
+    void serialFileTransfer();
+
 private:
 
     /**
@@ -53,6 +59,7 @@ private:
 
     SerialCommunicator& communicator; ///< Reference to the SerialCommunicator instance
     ConfigFileManager& config; ///< Reference to the ConfigFileManager instance
+    DataLogger& logger; //<Reference to DataLogger instance
 
     // Time to wait for a message before cancelling a mode operation
     uint32_t modeActivationWaitPeriod = 1000 * 60 * 3; // 3 minutes

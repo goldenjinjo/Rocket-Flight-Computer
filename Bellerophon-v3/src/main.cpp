@@ -24,7 +24,7 @@ FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
-SerialAction serialAction(serialComm, config);
+SerialAction serialAction(serialComm, config, logger);
 
 void setup() {
 
@@ -71,7 +71,7 @@ void loop()
         }    
         case READING_MODE: {
             // communicate with python serial to download flash data
-            logger.serialFileTransfer();
+            serialAction.serialFileTransfer();
             break;
         } 
         case PURGE_MODE: {

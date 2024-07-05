@@ -64,16 +64,10 @@ public:
      */
     void sendAllFiles();
 
-    /**
-     * @brief  Handles the serial file transfer process.
-     */
-    void serialFileTransfer();
 
-    
     void logData();
 
    
-
     // ------------------------- MEMBERS ------------------------- //
     // Tracks time since program inception
     unsigned long currentTime = millis();

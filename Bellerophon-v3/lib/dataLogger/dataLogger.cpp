@@ -122,33 +122,7 @@ void DataLogger::sendAllFiles() {
         // Read the data from the current file and send it over Serial
         readDataFromFile(fileName.c_str());
     }
-    
-    // Send the end-of-transmission acknowledgment
-    //serialComm.sendSerialMessage(ALL_FILES_SENT);
-    Serial.println(ALL_FILES_SENT);
-   
-    // Wait for the next file to be sent
-    if (!serialComm.waitForMessage(ALL_FILES_SENT_ACK, timeout)) {
-        // Handle timeout (optional)
-        buzzerFailure();
-        return;
-    } else {
-        buzzerSuccess();
-        LEDBlink(G_LED, 1000);
-    }
 }
-
-void DataLogger::serialFileTransfer() {
-    // Check for incoming serial message
-    if(serialComm.waitForMessage(REQUEST_FILE_DOWNLOAD, timeout)){
-        LEDBlink(G_LED, 500);
-        sendAllFiles();
-    } else {
-        LEDBlink(R_LED, 500);
-        mode = 0;
-    }
-}
-
 
 void DataLogger::deleteAllFiles() {
     // update files.fileNames array, just in case
