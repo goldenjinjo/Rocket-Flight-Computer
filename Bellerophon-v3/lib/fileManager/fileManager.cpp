@@ -1,4 +1,4 @@
-#include "FileManager.hpp"
+#include "fileManager.hpp"
 
 FileManager::FileManager() {}
 

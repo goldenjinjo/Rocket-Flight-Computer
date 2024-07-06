@@ -1,4 +1,4 @@
-#include "SerialCommunicator.hpp"
+#include "serialCommunicator.hpp"
 
 SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix)
     : baudRate(baudRate), prefix(prefix), suffix(suffix) {

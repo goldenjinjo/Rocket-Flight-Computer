@@ -6,7 +6,7 @@
  * It ensures that the configuration keys are correctly mapped to their global variables.
  */
 
-#include "ConfigKeys.hpp"
+#include "configKeys.hpp"
 
 // Define the global variables without initializing them
 #define X(name, defaultValue) float name;
