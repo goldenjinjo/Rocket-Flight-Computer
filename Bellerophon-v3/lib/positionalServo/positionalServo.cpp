@@ -30,22 +30,12 @@ void PositionalServo::centerAllServoPositions() {
     }
 }
 
-int PositionalServo::maxSetAngleCheck(int position) {
-    
-    if (position < (minPos+maxDeflectionAngle)){
-        position = minPos +maxDeflectionAngle;
-    } 
-    if (position > (maxPos- maxDeflectionAngle)){
-        position = (maxPos - maxDeflectionAngle);
-    } 
-    return position;
-}
-
-void PositionalServo::updateCenterPosition(char id, int position){
-    
-    position = maxSetAngleCheck(position);
-    
+void PositionalServo::updateCenterPosition(char id, int& position){
+    // check servo is within bounds
+    maxSetAngleCheck(position);
+    // find servo
     ServoObject* servoObj = findServoByID(id);
+    // update center pos and move servo to it
     if (servoObj) {
         servoObj->centerPos = position;
         stop(*servoObj);
@@ -97,6 +87,15 @@ void PositionalServo::stop(ServoObject& servoObj) {
     move(servoObj, servoObj.centerPos);
 }
 
+void PositionalServo::maxSetAngleCheck(int& position) {
+    if (position < (minPos + maxDeflectionAngle)){
+        position = minPos + maxDeflectionAngle;
+    } 
+    if (position > (maxPos - maxDeflectionAngle)){
+        position = (maxPos - maxDeflectionAngle);
+    }
+}
+
 void PositionalServo::boundaryCheck(int& position) {
     if (position < minPos) position = minPos;
     if (position > maxPos) position = maxPos;
@@ -141,5 +140,3 @@ void PositionalServo::move(ServoObject& servoObj, uint8_t position) {
     // Move the servo to the specified position
     servoObj.servo.write(position);
 }
-
-

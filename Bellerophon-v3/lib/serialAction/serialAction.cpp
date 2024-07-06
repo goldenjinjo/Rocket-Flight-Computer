@@ -155,31 +155,25 @@ void SerialAction::moveServosFromSerial() {
             strncpy(positionStr, &input[positionStart], i - positionStart);
             positionStr[i - positionStart] = '\0';
             int position = atoi(positionStr);
-            
-
-            // Move the corresponding servo to the specified position
-            servo.moveServoRelativeToCenter(servoID, position);
 
             // Update the config for the SERVO_CHAR_CENTER_POSITION
             char configKey[30];
             snprintf(configKey, sizeof(configKey), "SERVO_%c_CENTER_POSITION", servoID);
 
             // Retrieve the old center position
-            float oldCenterPos = config.getConfigValue(configKey);
+            int oldCenterPos = static_cast<int>(config.getConfigValue(configKey));
 
-            // Calculate the new center position
-            float newCenterPos = oldCenterPos + position;
+            int newCenterPos = oldCenterPos + position;
 
-            // constrain the new set pos to be at least equal
-            // to the servo boundary +- maxDeflection
-            newCenterPos = servo.maxSetAngleCheck(newCenterPos);
+            // Move the corresponding servo to the specified position
+            servo.updateCenterPosition(servoID, newCenterPos);
+
+            // Write the new center position to the config
+            config.writeConfigValueFromString(configKey, position);
 
             Serial.print("Moving ");
             Serial.print(newCenterPos - oldCenterPos);
             Serial.println(" degrees");
-
-            // Write the new center position to the config
-            config.writeConfigValueFromString(configKey, newCenterPos);
 
             // Skip any spaces between commands
             while (i < len && isspace(input[i])) {

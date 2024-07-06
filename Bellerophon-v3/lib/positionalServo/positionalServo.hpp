@@ -77,6 +77,13 @@ private:
 
     /**
      * @brief Ensures the position is within the defined bounds.
+     * @param position The position to check,
+     * passed by reference to allow modification.
+     */
+    void maxSetAngleCheck(int& position);
+
+    /**
+     * @brief Ensures the position is within the defined bounds.
      * @param position The position to check.
      */
     void boundaryCheck(int& position);
@@ -152,20 +159,14 @@ public:
      */
     void centerAllServoPositions();
 
-    /**
-     * @brief Ensures the position is within the defined bounds.
-     * @param position The position to check.
-     * @return The adjusted position within bounds.
-     */
-    int maxSetAngleCheck(int position);
-
       /**
-     * @brief Updates the center position of a servo with the given ID.
+     * @brief Updates the center position of a servo with the given ID
+     * and moves it to the new position.
      * @param id The ID of the servo.
-     * @param position The new center position to set after being 
-     * constrained by maxSetAngleCheck.
+     * @param position The new center position to set, 
+     * passed by reference to allow modification.
      */
-    void updateCenterPosition(char id, int position);
+    void updateCenterPosition(char id, int& position);
 };
 
 #endif // POSITIONAL_SERVO_HPP
