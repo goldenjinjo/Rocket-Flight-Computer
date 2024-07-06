@@ -1,4 +1,4 @@
-#include "PositionalServo.hpp"
+#include "positionalServo.hpp"
 
 /*
 PUBLIC
@@ -39,6 +39,17 @@ int PositionalServo::maxSetAngleCheck(int position) {
         position = (maxPos - maxDeflectionAngle);
     } 
     return position;
+}
+
+void PositionalServo::updateCenterPosition(char id, int position){
+    
+    position = maxSetAngleCheck(position);
+    
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        servoObj->centerPos = position;
+        stop(*servoObj);
+    }
 }
 
 /*

@@ -158,6 +158,14 @@ public:
      * @return The adjusted position within bounds.
      */
     int maxSetAngleCheck(int position);
+
+      /**
+     * @brief Updates the center position of a servo with the given ID.
+     * @param id The ID of the servo.
+     * @param position The new center position to set after being 
+     * constrained by maxSetAngleCheck.
+     */
+    void updateCenterPosition(char id, int position);
 };
 
 #endif // POSITIONAL_SERVO_HPP
