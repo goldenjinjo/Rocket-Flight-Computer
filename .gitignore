@@ -8,3 +8,6 @@ flightData/
 # ignore python stuff
 __pycache__/
 venv/
+
+# MAC OS
+.DS_Store
