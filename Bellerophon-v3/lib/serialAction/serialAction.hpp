@@ -60,6 +60,28 @@ private:
     bool changeConfigValue(const char* command);
 
     /**
+     * @brief Moves the servo to a new position and updates the configuration.
+     *
+     * This method moves the specified servo to a new position relative to its current center position.
+     * It updates the configuration file with the new center position of the servo.
+     *
+     * @param servoID The character representing the servo ID.
+     * @param position The new position to move the servo to, relative to its current center position.
+     */
+    void moveServoandUpdateConfig(char servoID, int position);
+    
+    /**
+     * @brief Processes a command to move servos based on the input string.
+     *
+     * This method parses the input string to extract servo commands, validates the servo IDs, and moves the
+     * corresponding servos to the specified positions. It handles multiple commands in a single input string.
+     *
+     * @param input The input string containing servo commands.
+     */
+    void processServoCommand(const char* input);
+
+
+    /**
      * @brief Confirms a specific action by waiting for a designated serial message within a specified time period.
      * @param SERIAL_MESSAGE The expected message to confirm the action.
      * @return True if the expected message is received within the wait period, false otherwise.
@@ -68,6 +90,17 @@ private:
      */
     bool confirmAction(const char* SERIAL_MESSAGE);
 
+    /**
+     * @brief Checks if the input command is a cancel request.
+     *
+     * This method checks whether the provided input matches the predefined cancel message.
+     * If the input is a cancel request, it performs necessary actions such as blinking the LED,
+     * resetting the mode, and freeing the allocated memory for the input.
+     *
+     * @param input The input command to be checked.
+     * @return true if the input is a cancel request, false otherwise.
+ */
+    bool checkForCancelRequest(const char* input);
 
     SerialCommunicator& communicator; ///< Reference to the SerialCommunicator instance
     ConfigFileManager& config; ///< Reference to the ConfigFileManager instance

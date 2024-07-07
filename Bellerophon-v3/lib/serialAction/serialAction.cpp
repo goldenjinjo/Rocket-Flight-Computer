@@ -32,6 +32,126 @@ void SerialAction::checkSerialForMode() {
     delete[] message; // Free the allocated message buffer
 }
 
+
+void SerialAction::moveServosFromSerial() {
+
+    if (!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)) {
+        return;
+    }
+    // indicate start of servo control mode
+    LEDBlink(G_LED, 500);
+
+    while (true) {
+        // Use communicator to read the serial message
+        char* input = communicator.readSerialMessage();
+
+        // If input is null or empty, continue to the next iteration
+        if (communicator.isNullOrEmpty(input)) {
+            delete[] input;
+            continue;
+        }
+
+        // Cancel out of servo control and return to standby
+        if(checkForCancelRequest(input)){
+            return;
+        }
+
+        processServoCommand(input);
+
+        delete[] input;  // Free the allocated memory
+    }
+}
+
+void SerialAction::moveServoandUpdateConfig(char servoID, int position) {
+    // Update the config for the SERVO_CHAR_CENTER_POSITION
+    char configKey[30];
+    snprintf(configKey, sizeof(configKey), "SERVO_%c_CENTER_POSITION", servoID);
+
+    // Retrieve the old center position
+    int oldCenterPos = static_cast<int>(config.getConfigValue(configKey));
+
+    int newCenterPos = oldCenterPos + position;
+
+    // Move the corresponding servo to the specified position
+    servo.updateCenterPosition(servoID, newCenterPos);
+
+    // Write the new center position to the config
+    config.writeConfigValueFromString(configKey, newCenterPos);
+
+    Serial.print("Moving ");
+    Serial.print(newCenterPos - oldCenterPos);
+    Serial.println(" degrees");
+}
+
+void SerialAction::processServoCommand(const char* input) {
+    int len = strlen(input);
+    int i = 0;
+
+    while (i < len) {
+        char servoID = input[i];
+        if (!servo.isValidServoID(servoID)) {
+            i++;
+            continue;
+        }
+        int positionStart = ++i;
+
+        if (i < len && input[i] == '-') {
+            i++;
+        }
+
+        while (i < len && isdigit(input[i])) {
+            i++;
+        }
+
+        char positionStr[10];
+        strncpy(positionStr, &input[positionStart], i - positionStart);
+        positionStr[i - positionStart] = '\0';
+        int position = atoi(positionStr);
+
+        moveServoandUpdateConfig(servoID, position);
+
+        while (i < len && isspace(input[i])) {
+            i++;
+        }
+    }
+}
+
+void SerialAction::serialFileTransfer() {
+    
+    // Check for incoming serial message, return to standby if not receieved
+    if(!confirmAction(REQUEST_FILE_DOWNLOAD)){
+        return;
+    }
+    // Send all files if correct message receieved
+    LEDBlink(G_LED, 500);
+    logger.sendAllFiles();
+
+    // Send the end-of-transmission acknowledgment
+    Serial.println(ALL_FILES_SENT);
+   
+    // Wait for confirmation
+    if (!communicator.waitForMessage(ALL_FILES_SENT_ACK, modeActivationWaitPeriod)) {
+        // Handle timeout (optional)
+        buzzerFailure();
+    } else {
+        buzzerSuccess();
+        LEDBlink(G_LED, 1000);
+    }
+
+    // return to standby
+    mode = 0;
+}
+
+/// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
+/// TODO: create new new public method for serial based deletion, either individual files or all files and make this one private
+void SerialAction::purgeDataFromSerial() {
+
+    if(!confirmAction(DELETE_FILE_MESSAGE)){
+        return;
+    }
+    logger.deleteAllFiles();
+}
+
 void SerialAction::processAndChangeConfig() {
     // Wait for unique message to confirm config mode
    if(!confirmAction(CHANGE_SETTINGS_MESSAGE)){
@@ -47,10 +167,7 @@ void SerialAction::processAndChangeConfig() {
             continue;
         }
 
-        if(strcmp(input, CANCEL_MSG_REQUEST) == 0) {
-            delete[] input; // Free the memory allocated for the message
-            mode = 0;
-            LEDBlink(B_LED, 1000);
+        if(checkForCancelRequest(input)){
             return;
         }
 
@@ -63,9 +180,7 @@ void SerialAction::processAndChangeConfig() {
             config.restoreDefaults();
             continue;
         }
-
-
-        
+    
         if (!changeConfigValue(input)) {
             LEDBlink(R_LED, 1000);
         } else {
@@ -106,119 +221,8 @@ bool SerialAction::changeConfigValue(const char* command) {
     return true;
 }
 
-void SerialAction::moveServosFromSerial() {
 
-    if (!confirmAction(MANUAL_SERVO_CONTROL_MESSAGE)) {
-        return;
-    }
 
-    LEDBlink(G_LED, 500);
-
-    while (true) {
-        // Use communicator to read the serial message
-        char* input = communicator.readSerialMessage();  // Assuming a buffer size of 100
-
-        // If input is null or empty, continue to the next iteration
-        if (communicator.isNullOrEmpty(input)) {
-            delete[] input;
-            continue;
-        }
-
-        // Cancel out of servo control and return to standby
-        if (strcmp(input, CANCEL_MSG_REQUEST) == 0) {
-            LEDBlink(R_LED, 1000);
-            mode = 0;
-            delete[] input;  // Free the allocated memory
-            return;
-        }
-
-        int len = strlen(input);
-        int i = 0;
-
-        // Loop through the input string
-        while (i < len) {
-            char servoID = input[i];
-            int positionStart = ++i;
-
-            // allow negative numbers
-            if (i < len && input[i] == '-') {
-                i++;
-            }
-
-            // Find the end of the position number
-            while (i < len && isdigit(input[i])) {
-                i++;
-            }
-
-            // Extract and convert the position substring to an integer
-            char positionStr[10];  // Assuming the position will not be longer than 9 digits
-            strncpy(positionStr, &input[positionStart], i - positionStart);
-            positionStr[i - positionStart] = '\0';
-            int position = atoi(positionStr);
-
-            // Update the config for the SERVO_CHAR_CENTER_POSITION
-            char configKey[30];
-            snprintf(configKey, sizeof(configKey), "SERVO_%c_CENTER_POSITION", servoID);
-
-            // Retrieve the old center position
-            int oldCenterPos = static_cast<int>(config.getConfigValue(configKey));
-
-            int newCenterPos = oldCenterPos + position;
-
-            // Move the corresponding servo to the specified position
-            servo.updateCenterPosition(servoID, newCenterPos);
-
-            // Write the new center position to the config
-            config.writeConfigValueFromString(configKey, newCenterPos);
-
-            Serial.print("Moving ");
-            Serial.print(newCenterPos - oldCenterPos);
-            Serial.println(" degrees");
-
-            // Skip any spaces between commands
-            while (i < len && isspace(input[i])) {
-                i++;
-            }
-        }
-        delete[] input;  // Free the allocated memory
-    }
-}
-
-void SerialAction::serialFileTransfer() {
-    
-    // Check for incoming serial message, return to standby if not receieved
-    if(!confirmAction(REQUEST_FILE_DOWNLOAD)){
-        return;
-    }
-    // Send all files if correct message receieved
-    LEDBlink(G_LED, 500);
-    logger.sendAllFiles();
-
-    // Send the end-of-transmission acknowledgment
-    Serial.println(ALL_FILES_SENT);
-   
-    // Wait for confirmation
-    if (!communicator.waitForMessage(ALL_FILES_SENT_ACK, modeActivationWaitPeriod)) {
-        // Handle timeout (optional)
-        buzzerFailure();
-    } else {
-        buzzerSuccess();
-        LEDBlink(G_LED, 1000);
-    }
-
-    // return to standby
-    mode = 0;
-}
-
-/// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
-/// TODO: create new new public method for serial based deletion, either individual files or all files and make this one private
-void SerialAction::purgeDataFromSerial() {
-
-    if(!confirmAction(DELETE_FILE_MESSAGE)){
-        return;
-    }
-    logger.deleteAllFiles();
-}
 
 /*
 UTILS
@@ -234,4 +238,14 @@ bool SerialAction::confirmAction(const char* SERIAL_MESSAGE) {
     // else return true
     LEDBlink(G_LED, 1000);
     return true;
+}
+
+bool SerialAction::checkForCancelRequest(const char* input) {
+    if (strcmp(input, CANCEL_MSG_REQUEST) == 0) {
+            LEDBlink(R_LED, 1000);
+            mode = 0;
+            delete[] input;  // Free the allocated memory
+            return true;
+        }
+    return false;
 }

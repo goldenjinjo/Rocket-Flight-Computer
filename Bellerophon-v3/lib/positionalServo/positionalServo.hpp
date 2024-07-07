@@ -159,7 +159,7 @@ public:
      */
     void centerAllServoPositions();
 
-      /**
+    /**
      * @brief Updates the center position of a servo with the given ID
      * and moves it to the new position.
      * @param id The ID of the servo.
@@ -167,6 +167,18 @@ public:
      * passed by reference to allow modification.
      */
     void updateCenterPosition(char id, int& position);
+
+    /**
+     * @brief Checks if the provided servo ID is valid.
+     *
+     * This method validates whether the given servo ID exists in the servoMap.
+     * It helps in ensuring that operations are performed only on valid servo IDs.
+     *
+     * @param id The character representing the servo ID to be validated.
+     * @return true if the servo ID is valid and exists in the servoMap, false otherwise.
+     */
+    bool isValidServoID(char id);
+
 };
 
 #endif // POSITIONAL_SERVO_HPP

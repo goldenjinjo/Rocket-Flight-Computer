@@ -42,6 +42,10 @@ void PositionalServo::updateCenterPosition(char id, int& position){
     }
 }
 
+bool PositionalServo::isValidServoID(char id) {
+    return servoMap.find(id) != servoMap.end();
+}
+
 /*
 PRIVATE
 */
@@ -70,16 +74,14 @@ void PositionalServo::moveServoByID(char id, int position) {
 }
 
 PositionalServo::ServoObject* PositionalServo::findServoByID(char id) {
-    auto it = servoMap.find(id);
-    if (it != servoMap.end()) {
-        return &it->second;
-    } else {
+    if (!isValidServoID(id)) {
         if (DEBUG) {
             Serial.print("Invalid servo ID: ");
             Serial.println(id);
         }
         return nullptr;
     }
+    return &servoMap[id];
 }
 
 void PositionalServo::stop(ServoObject& servoObj) {

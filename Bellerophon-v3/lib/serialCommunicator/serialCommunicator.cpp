@@ -155,3 +155,4 @@ bool SerialCommunicator::containsWhiteSpace(char* message) {
     }
     return false;
 }
+
