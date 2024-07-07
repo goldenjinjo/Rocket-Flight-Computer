@@ -169,7 +169,7 @@ void SerialAction::moveServosFromSerial() {
             servo.updateCenterPosition(servoID, newCenterPos);
 
             // Write the new center position to the config
-            config.writeConfigValueFromString(configKey, position);
+            config.writeConfigValueFromString(configKey, newCenterPos);
 
             Serial.print("Moving ");
             Serial.print(newCenterPos - oldCenterPos);
