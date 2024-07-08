@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "serialAction.hpp"
 #include "pyroController.hpp"
+#include "LEDController.hpp"
 
 // Class Declarations
 
@@ -29,6 +30,10 @@ SerialAction serialAction(serialComm, config, logger, controlFins);
 
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
+
+LEDController greenLED(G_LED);
+LEDController flashLED(FLASH_LED);
+LEDController redLED(R_LED);
 
 
 
@@ -72,6 +77,14 @@ void loop()
         
         case STANDBY_MODE: {
             // do nothing
+            greenLED.blink(3000);
+            flashLED.blink(1500);
+            if(!greenLED.isPowered()){
+                redLED.turnOn();
+            } else {
+                redLED.turnOff();
+            }
+
             break;
         }    
         case READING_MODE: {
