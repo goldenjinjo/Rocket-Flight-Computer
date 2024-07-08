@@ -10,65 +10,74 @@
 #include "dataLogger.hpp"
 #include "positionalServo.hpp"
 #include <BasicLinearAlgebra.h>
-
+#include "serialCommunicator.hpp"
+#include "fileManager.hpp"
+#include "configFileManager.hpp"
+#include "configKeys.hpp"
+#include "constants.hpp"
+#include "serialAction.hpp"
 
 // Class Declarations
 
-DataLogger logger;
+SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
+FileManager fm;
+ConfigFileManager config(fm);
 PositionalServo controlFins;
-
-
+DataLogger logger(serialComm, fm);
+SerialAction serialAction(serialComm, config, logger, controlFins);
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
-    Serial.begin(2000000);
+    serialComm.begin();
 
     // Set pin types and configure LEDs
     peripheralInitialize();
-  
+    // initilize classes
+    fm.initialize();
+    // Config must be initalised first after FileManager, as it declares all external variables, including debug
+    config.initialize();
+    controlFins.initialize();
+    logger.initialize();
     // play start up sequence
     startUp();
 
-    // initilize classes
-    logger.initialize();
-     
+
+   delay(1000);
+
+    ///TODO: set mode manager with getters and setters
+   mode = BOOTUP_MODE;
 
 }
 // keep track of previous tones
 int previousMode = -1;  
 // MAIN LOOP
+
 void loop()
 {
     // Read serial monitor and change mode if input is given as:
     // mode:MODE_NUM
-    /// TODO: create universal serial interface in python. There are timing issues with this configuration
-    checkSerialforMode();
-
-    // Play a tone to indicate mode of operation
+    serialAction.checkSerialForMode();
+    // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
         buzzerModeSelect(mode);
         previousMode = mode;
     }
 
     switch (mode) {
+        
         case STANDBY_MODE: {
-            // Cycle through all LEDS in 1 second flashes
-            // cycleLEDS(500);
-            delay(500);
+            // do nothing
             break;
         }    
         case READING_MODE: {
             // communicate with python serial to download flash data
-            logger.serialFileTransfer();
+            serialAction.serialFileTransfer();
             break;
         } 
         case PURGE_MODE: {
             // delete all files from flash memory
-            /// TODO: add serial confirmation check
-            /// TODO: have this do nothing if there are already zero files, or maybe move to standby mode
-            /// TODO: create new new public method for serial based deletion, either individual files or all files and make this one private
-            logger.deleteAllFiles();
+            serialAction.purgeDataFromSerial();
             break;
         }
         case LOGGING_MODE: {
@@ -77,19 +86,15 @@ void loop()
             break;
         }
         case FIN_CONTROL_MODE: {
-            // Move fins based on serial input
-            // type "start" to enter mode, otherwise does nothing
-            // type "end" to exit
-            controlFins.moveServosFromSerial();
+            serialAction.moveServosFromSerial();
             break;
         }
-        default: {
-            // Handle invalid mode
+        case CONFIG_MODE: {
+            serialAction.processAndChangeConfig();
             break;
         }
     }
 }
-
 
 
 

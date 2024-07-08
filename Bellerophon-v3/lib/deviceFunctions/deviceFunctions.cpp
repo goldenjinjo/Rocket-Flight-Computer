@@ -107,6 +107,23 @@ void buzzerModeSelect(int mode) {
           }
           break;
 
+      case CONFIG_MODE:
+        // Config mode: Beep - Beep-beep - Beep (1 short beep, 1 double beep, 1 short beep)
+        tone(BUZZER, 1000, 500); // 1kHz tone for 0.5 seconds
+        delay(500);
+        noTone(BUZZER);
+        delay(250); // Pause between beeps
+        for (int i = 0; i < 2; i++) {
+          tone(BUZZER, 1000, 250); // 1kHz tone for 0.25 seconds
+          delay(250);
+          noTone(BUZZER);
+          delay(250); // Short pause between beeps
+        }
+        tone(BUZZER, 1000, 500); // 1kHz tone for 0.5 seconds
+        delay(500);
+        noTone(BUZZER);
+        break;
+
     default:
       // No mode selected or invalid mode
       noTone(BUZZER);
@@ -174,20 +191,3 @@ void startUp() {
   }
 }
 
-// create functionality for switching between serial modes
-void checkSerialforMode() {
-  // Check for mode change command from serial input
-  /// TODO: create interface with python for this
-  if (Serial.available()) {
-      String input = Serial.readStringUntil('\n');
-      input.trim(); // Remove any leading/trailing whitespace
-
-      /// TODO: fix magic numbers, iterate over a mode array instead
-      if (input.startsWith("mode:")) {
-          char newMode = input.charAt(5); // Get the mode character
-          if (newMode >= '0' && newMode <= '4') {
-              mode = newMode - '0';  // Convert char to int
-          }
-      }
-  }
-}

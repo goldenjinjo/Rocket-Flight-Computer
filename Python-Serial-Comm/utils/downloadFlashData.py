@@ -2,11 +2,9 @@ import sys
 import time
 import os
 import zlib
-import time
-from constants import *
-from config import *
-from helperFunc import *
-
+from constants.constants import *
+from config.config import *
+from utils.helperFunc import *
 
 def ensure_directory(directory):
     if not os.path.exists(directory):
@@ -45,18 +43,18 @@ def download_flash_data(ser):
         ser.reset_input_buffer()
 
         # Send handshake message and wait for acknowledgment
-        send_handshake(ser)
-        start_time = time.time()
-        while True:
-            if ser.in_waiting > 0:
-                response = ser.readline().decode('utf-8').strip()
-                print_debug(f"Received response: {response}")
-                if response == ACK_MESSAGE:
-                    print_debug(f"Received acknowledgment: {ACK_MESSAGE}")
-                    break
-            if time.time() - start_time > TIMEOUT_SECONDS:
-                print_debug("Handshake timed out. Exiting...")
-                sys.exit()
+        # send_handshake(ser)
+        # start_time = time.time()
+        # while True:
+        #     if ser.in_waiting > 0:
+        #         response = read_from_serial(ser)
+        #         print_debug(f"Received response: {response}")
+        #         if response == ACK_MESSAGE:
+        #             print_debug(f"Received acknowledgment: {ACK_MESSAGE}")
+        #             break
+        #     if time.time() - start_time > TIMEOUT_SECONDS:
+        #         print_debug("Handshake timed out. Exiting...")
+        #         sys.exit()
 
         while True:
             file_name_received = False
@@ -65,7 +63,7 @@ def download_flash_data(ser):
 
             while True:
                 if ser.in_waiting > 0:
-                    response = ser.readline().decode('utf-8').strip()
+                    response = read_from_serial(ser)
                     print_debug(f"Received response: {response}")
 
                     if response.startswith("FILE_NAME:"):
@@ -79,9 +77,9 @@ def download_flash_data(ser):
                     elif response == ALL_FILES_SENT:
                         # Exit out of code loop after receiving message
                         print_debug("All files have been sent. Sending acknowledgment...")
-                        ser.write(ALL_FILES_SENT_ACK.encode('utf-8'))
+                        write_to_serial(ser, ALL_FILES_SENT_ACK)
                         time.sleep(1)
-                        ser.write(GO_TO_STANDBY.encode('utf-8'))
+                        write_to_serial(ser, GO_TO_STANDBY)
                         sys.exit()
 
             if file_name_received:
@@ -92,7 +90,7 @@ def download_flash_data(ser):
                 # Does not write to file if it is found to already exist
                 if os.path.exists(output_file_path):
                     print_debug(f"File {file_name} already exists. Skipping download.")
-                    ser.write(FILE_COPY_MESSAGE.encode('utf-8'))
+                    write_to_serial(ser, FILE_COPY_MESSAGE)
                 else:
                     # Open file for writing
                     with open(output_file_path, 'w') as f:
@@ -100,11 +98,11 @@ def download_flash_data(ser):
                         crc = 0
                         while True:
                             # Read data from serial port
-                            data = ser.readline().decode('utf-8').strip()  # Decode bytes to string
+                            data = read_from_serial(ser)  # Decode bytes to string
                             print_debug(f"Received data: {data}")
                             if data == END_OF_TRANSMISSION_MESSAGE.strip():
                                 print_debug(f"End of transmission for {file_name} received.")
-                                ser.write(END_OF_TRANSMISSION_ACK.encode('utf-8'))
+                                write_to_serial(ser, END_OF_TRANSMISSION_ACK)
                                 break
                             if data:  # Check if data is not empty
                                 # Write data to file

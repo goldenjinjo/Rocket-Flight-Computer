@@ -1,34 +1,98 @@
+#ifndef POSITIONAL_SERVO_HPP
+#define POSITIONAL_SERVO_HPP
+
 #include <Servo.h>
 #include "pinAssn.hpp"
 #include <array>
+#include <unordered_map>
 #include <Arduino.h>
-#include "config.hpp"
+#include "configKeys.hpp"
 #include "deviceFunctions.hpp"
 
+/**
+ * @class PositionalServo
+ * @brief Manages multiple servos, allowing activation, deactivation, movement to specified positions,
+ *        and movement relative to a center position. Includes boundary checks to ensure servo positions
+ *        remain within safe limits.
+ */
 class PositionalServo {
 private:
-    // Methods
-    void initialize();
-
+    /*
+        PRIVATE MEMBERS
+    */
+    
+    /**
+     * @struct ServoObject
+     * @brief Represents a servo with its associated pin and center position.
+     */
     struct ServoObject {
-        Servo servo;
-        int pin;
+        Servo servo;     ///< The servo object
+        int pin;         ///< The pin to which the servo is attached
+        int centerPos;   ///< The center position for the servo
     };
 
-    // Members
-    // Array to hold Servo Objects
-    std::array<ServoObject, 4> servos;
-    // Default position for servo
-    uint8_t servoZeroValue = 0;
-    // bool to determine while loop lock for servo control
-    bool serialServoControlState = false;
-
-public:
     /**
-     * @brief Constructor for the PositionalServo class.
-     * Initializes the servos.
+     * @brief Map to hold Servo ID to ServoObject mapping
      */
-    PositionalServo();
+    std::unordered_map<char, ServoObject> servoMap;
+
+    /**
+     * @brief Minimum position for the servos
+     */
+    const int minPos = 0;
+
+    /**
+     * @brief Maximum position for the servos
+     */
+    const int maxPos = 180;
+
+    /**
+     * @brief Maximum angle servo can deflect from an initial position
+     */
+    const int maxDeflectionAngle = 30;
+
+    /*
+        PRIVATE METHODS
+    */
+
+    /**
+     * @brief Moves a servo to the specified position by its ID.
+     * @param id The identifier of the servo to move.
+     * @param position The position to move the servo to (0-180 degrees).
+     */
+    void moveServoByID(char id, int position);
+
+    /**
+     * @brief Finds the servo object by its ID.
+     * @param id The identifier of the servo.
+     * @return A pointer to the ServoObject if found, nullptr otherwise.
+     */
+    ServoObject* findServoByID(char id);
+
+    /**
+     * @brief Stops the specified servo by moving it to the center position.
+     * @param servoObj The servo object to be stopped.
+     */
+    void stop(ServoObject& servoObj);
+
+    /**
+     * @brief Ensures the position is within the defined bounds.
+     * @param position The position to check,
+     * passed by reference to allow modification.
+     */
+    void maxSetAngleCheck(int& position);
+
+    /**
+     * @brief Ensures the position is within the defined bounds.
+     * @param position The position to check.
+     */
+    void boundaryCheck(int& position);
+
+    /**
+     * @brief Ensures the relative position does not exceed maximum deflection angles.
+     * @param position The relative position to check.
+     */
+    void maxDeflectionCheck(int& position);
 
     /**
      * @brief Activates the specified servo by attaching it to its pin.
@@ -59,19 +123,63 @@ public:
      */
     void move(ServoObject& servoObj, uint8_t position);
 
-    /**
-     * @brief Stops the specified servo by moving it to the zero position.
-     * @param servoObj The servo object to be stopped.
-     */
-    void stop(ServoObject& servoObj);
+public:
+    /*
+        PUBLIC METHODS
+    */
 
     /**
-     * @brief Moves the servos to specified positions based on serial input.
-     * The expected input format is any combination of commands: "A90", "D30 B45", "A90 C120", etc.
-     * where the letter represents the servo and the number represents the position.
+     * @brief Constructor for the PositionalServo class.
+     * Initializes the servos and locks them into position.
      */
-    void moveServosFromSerial();
+    PositionalServo();
+
+    /**
+     * @brief Initializes the servo map with predefined pins and center positions.
+     */
+    void initialize();
+
+    /**
+     * @brief Moves the specified servo based on its relative center position.
+     * Allows moving forward and backward from the center position.
+     * @param id The identifier of the servo to move.
+     * @param relativePosition The position relative to the center position.
+     * Positive values move forward, negative values move backward.
+     */
+    void moveServoRelativeToCenter(char id, int& relativePosition);
+
+    /**
+     * @brief Stops the specified servo by its ID.
+     * @param id The identifier of the servo to stop.
+     */
+    void stopByID(char id);
+
+    /**
+     * @brief Resets all servo positions to their center positions.
+     */
+    void centerAllServoPositions();
+
+    /**
+     * @brief Updates the center position of a servo with the given ID
+     * and moves it to the new position.
+     * @param id The ID of the servo.
+     * @param position The new center position to set, 
+     * passed by reference to allow modification.
+     */
+    void updateCenterPosition(char id, int& position);
+
+    /**
+     * @brief Checks if the provided servo ID is valid.
+     *
+     * This method validates whether the given servo ID exists in the servoMap.
+     * It helps in ensuring that operations are performed only on valid servo IDs.
+     *
+     * @param id The character representing the servo ID to be validated.
+     * @return true if the servo ID is valid and exists in the servoMap, false otherwise.
+     */
+    bool isValidServoID(char id);
+
 };
 
-
+#endif // POSITIONAL_SERVO_HPP
 

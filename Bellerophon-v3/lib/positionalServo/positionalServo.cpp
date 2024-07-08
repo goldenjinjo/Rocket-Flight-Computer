@@ -1,22 +1,119 @@
 #include "positionalServo.hpp"
 
-PositionalServo::PositionalServo() {
-    initialize();
-}
+/*
+PUBLIC
+*/
+PositionalServo::PositionalServo() {}
 
-void PositionalServo::initialize() {
-    // Assign pins to each servo
-    servos[0] = {Servo(), SERVO_PIN_A};
-    servos[1] = {Servo(), SERVO_PIN_B};
-    servos[2] = {Servo(), SERVO_PIN_C};
-    servos[3] = {Servo(), SERVO_PIN_D};
-
-    // Activate all servos
-    for (auto& servoObj : servos) {
-        activate(servoObj);
+void PositionalServo::moveServoRelativeToCenter(char id, int& relativePosition) {
+    ServoObject* servoObj = findServoByID(id);
+    
+    // Ensure relativePosition is within the allowed range
+    maxDeflectionCheck(relativePosition);
+    
+    if (servoObj) {
+        int newPosition = servoObj->centerPos + relativePosition;
+        moveServoByID(id, newPosition);
     }
 }
 
+void PositionalServo::stopByID(char id) {
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        stop(*servoObj);
+    }
+}
+
+void PositionalServo::centerAllServoPositions() {
+    for (auto& pair : servoMap) {
+        stop(pair.second);
+    }
+}
+
+void PositionalServo::updateCenterPosition(char id, int& position){
+    // check servo is within bounds
+    maxSetAngleCheck(position);
+    // find servo
+    ServoObject* servoObj = findServoByID(id);
+    // update center pos and move servo to it
+    if (servoObj) {
+        servoObj->centerPos = position;
+        stop(*servoObj);
+    }
+}
+
+bool PositionalServo::isValidServoID(char id) {
+    return servoMap.find(id) != servoMap.end();
+}
+
+/*
+PRIVATE
+*/
+
+void PositionalServo::initialize() {
+    // Assign pins and IDs to each servo and populate the map
+    servoMap['A'] = {Servo(), SERVO_PIN_A, static_cast<int>(SERVO_A_CENTER_POSITION)};
+    servoMap['B'] = {Servo(), SERVO_PIN_B, static_cast<int>(SERVO_B_CENTER_POSITION)};
+    servoMap['C'] = {Servo(), SERVO_PIN_C, static_cast<int>(SERVO_C_CENTER_POSITION)};
+    servoMap['D'] = {Servo(), SERVO_PIN_D, static_cast<int>(SERVO_D_CENTER_POSITION)};
+
+    // Activate all servos
+    activateAll();
+    // set initial servo positions
+    centerAllServoPositions();
+}
+
+void PositionalServo::moveServoByID(char id, int position) {
+    ServoObject* servoObj = findServoByID(id);
+    if (servoObj) {
+        // Ensure position is within bounds
+        boundaryCheck(position);
+        // move servo
+        move(*servoObj, position);
+    }
+}
+
+PositionalServo::ServoObject* PositionalServo::findServoByID(char id) {
+    if (!isValidServoID(id)) {
+        if (DEBUG) {
+            Serial.print("Invalid servo ID: ");
+            Serial.println(id);
+        }
+        return nullptr;
+    }
+    return &servoMap[id];
+}
+
+void PositionalServo::stop(ServoObject& servoObj) {
+    // Move the servo to the center position
+    move(servoObj, servoObj.centerPos);
+}
+
+void PositionalServo::maxSetAngleCheck(int& position) {
+    if (position < (minPos + maxDeflectionAngle)){
+        position = minPos + maxDeflectionAngle;
+    } 
+    if (position > (maxPos - maxDeflectionAngle)){
+        position = (maxPos - maxDeflectionAngle);
+    }
+}
+
+void PositionalServo::boundaryCheck(int& position) {
+    if (position < minPos) position = minPos;
+    if (position > maxPos) position = maxPos;
+}
+
+void PositionalServo::maxDeflectionCheck(int& position) {
+     if (position > maxDeflectionAngle) {
+        position = maxDeflectionAngle;
+    } else if (position < -maxDeflectionAngle) {
+        position = -maxDeflectionAngle;
+    }
+}
+
+/*
+ARDUINO SERVO class wrappers
+*/
 void PositionalServo::activate(ServoObject& servoObj) {
     // Attach the servo to its pin
     servoObj.servo.attach(servoObj.pin);
@@ -29,112 +126,19 @@ void PositionalServo::deactivate(ServoObject& servoObj) {
 
 void PositionalServo::activateAll() {
     // Activate all servos
-    for (auto& servoObj : servos) {
-        activate(servoObj);
+    for (auto& pair : servoMap) {
+        activate(pair.second);
     }
 }
 
 void PositionalServo::deactivateAll() {
     // Deactivate all servos
-    for (auto& servoObj : servos) {
-        deactivate(servoObj);
+    for (auto& pair : servoMap) {
+        deactivate(pair.second);
     }
 }
 
 void PositionalServo::move(ServoObject& servoObj, uint8_t position) {
-    // Activate servo in case it was deactivated
-    activate(servoObj);
-
     // Move the servo to the specified position
     servoObj.servo.write(position);
 }
-
-void PositionalServo::stop(ServoObject& servoObj) {
-    // Move the servo to the zero position
-    move(servoObj, servoZeroValue);
-}
-
-void PositionalServo::moveServosFromSerial() {
-    
-    if (Serial.available()) {
-        String input = Serial.readStringUntil('\n');
-        if(input == "start"){
-            serialServoControlState = true;
-            LEDBlink(G_LED, 500);
-        }
-    }
-
-    while(serialServoControlState) {
-        // Check if data is available on the Serial port
-        if (Serial.available()) {
-            // Read the incoming data until a newline character is encountered
-            String input = Serial.readStringUntil('\n');
-            input.trim(); // Remove any leading/trailing whitespace
-            if(input == "end"){
-                serialServoControlState = false;
-                LEDBlink(R_LED, 1000);
-                break;
-            }
-
-            int len = input.length(); // Get the length of the input string
-            int i = 0; // Initialize the index to parse the input
-
-            // Loop through the input string
-            while (i < len) {
-                char servoID = input[i]; // Get the servo identifier (e.g., 'A', 'B', 'C', 'D')
-                int positionStart = ++i; // Move to the next character which should be the start of the position number
-
-                // Find the end of the position number
-                while (i < len && isDigit(input[i])) {
-                    i++; // Increment index until a non-digit character is found
-                }
-
-                // Convert the position substring to an integer
-                int position = input.substring(positionStart, i).toInt();
-
-                if (DEBUG) {
-                    Serial.print("Servo ");
-                    Serial.print(servoID);
-                    Serial.print(": Moving to position ");
-                    Serial.println(position);
-                }
-
-                // Move the corresponding servo to the specified position
-                switch (servoID) {
-                    case 'A':
-                        move(servos[0], position); // Move servo A
-                        break;
-                    case 'B':
-                        move(servos[1], position); // Move servo B
-                        break;
-                    case 'C':
-                        move(servos[2], position); // Move servo C
-                        break;
-                    case 'D':
-                        move(servos[3], position); // Move servo D
-                        break;
-                    default:
-                        if (DEBUG) {
-                            Serial.print("Invalid servo ID: ");
-                            Serial.println(servoID);
-                        }
-                        // Handle invalid servoID if necessary
-                        break;
-                }
-
-                // Skip any spaces between commands
-                while (i < len && input[i] == ' ') {
-                    i++; // Increment index to skip spaces
-                }
-            }
-        }
-    }
-}
-
-
-
-
-
-
-
-

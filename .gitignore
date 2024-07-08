@@ -1,7 +1,13 @@
-#ignore .vscode file created by platformio.ini
-.vscode
-#ignore .pio build created by platformio
+# VS CODE / PlatformIO
 .pio
+.vscode/
 
 #ignore files from flight data
 flightData/
+
+# ignore python stuff
+__pycache__/
+venv/
+
+# MAC OS
+.DS_Store

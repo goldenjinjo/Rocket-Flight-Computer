@@ -1,49 +1,70 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
+
+#include <stdint.h>
+#include "configKeys.hpp"
 
 // for declaring constants and measured values
 
-#define SPI_SPEED SD_SCK_MHZ(4)
+
+/// TODO: find a file to define this in, not suitable for constants folder
+extern int mode;
+
+// Serial messaging
+extern const char* HANDSHAKE_MESSAGE;
+extern const char* ACK_MESSAGE;
+extern const char* END_OF_TRANSMISSION_MESSAGE;
+extern const char* END_OF_TRANSMISSION_ACK;
+extern const char* FILE_COPY_MESSAGE;
+extern const char* ALL_FILES_SENT;
+extern const char* ALL_FILES_SENT_ACK;
+extern const char* REQUEST_FILE_DOWNLOAD;
+extern const char* CHANGE_SETTINGS_MESSAGE;
+extern const char* MANUAL_SERVO_CONTROL_MESSAGE;
+extern const char* CANCEL_MSG_REQUEST;
+extern const char* REQUEST_SETTINGS_INFO_MESSAGE;
+extern const char* DELETE_FILE_MESSAGE;
+extern const char* RESET_CONFIG_MESSAGE;
+
+// Serial message formatting
+extern const char PREFIX;
+extern const char SUFFIX;
+extern const int BAUD_RATE;
+
+
+// File naming configuration
+extern const char* logFilePrefix;
+extern const char* logFileSuffix;
+extern const char* dataFilePrefix;
+extern const char* dataFileSuffix;
+extern const char* debugPrefix;
+extern const uint8_t zeroPadding;
+
 
 // Standard deviation of the model, aka model error
-// TODO: This must be tuned
-#define SIGMA_M 10
+extern const int SIGMA_M;
 
 // Standard deviations of altitude and acceleration measurements
-// TODO: These must be determined experimentally
-#define SIGMA_S 3
-#define SIGMA_A 2
+extern const int SIGMA_S;
+extern const int SIGMA_A;
 
-// Period to buffer initial altitude measurements
-#define ALTITUDE_BUFFER_PERIOD 2000
+// Atmospheric Pressure at Sea-Level in hPa
+extern const float P_0;
+extern const float L_B;
+extern const float EXP;
+extern const float C_TO_K;
 
-//Atmospheric Pressure at Sea-Level in hPa
-#define P_0 1013.25
-#define L_B 0.0065
-#define EXP 1/5.257
-#define C_TO_K 273.15
 
-// 1G offset for accelerometer, accelerometer will measure 0g when in unpowered flight
-#define G_OFFSET 9.81
 
-// Constant used for recursive filter on acceleration measurements.
-#define RECURSIVE_CONSTANT 0.875
-
-// Launch detect thresholds for velocity and acceleration
-#define LAUNCH_VEL_THRESHOLD 15
-#define LAUNCH_ACC_THRESHOLD 60
-
-// Time the rocket must spend with a velocity estimate below 0 before apgoee is decided 
-#define APOGEE_TIMER 100
-
-// Landing velocity threshold (i.e. if velocity is lower than this consider the rocket landed)
-#define LANDING_VEL_THERSHOLD 1
-
-//Small epsilon for comparing values
-#define EPSILON 0.01
+// Mode configurations
+#define STANDBY_MODE 0 
+#define  READING_MODE 1
+#define  PURGE_MODE 2
+#define LOGGING_MODE 3
+#define FIN_CONTROL_MODE 4
+#define CONFIG_MODE 5
 
 
 
 
-
-#endif // CONSTANTS_H
+#endif // CONSTANTS_HPP
