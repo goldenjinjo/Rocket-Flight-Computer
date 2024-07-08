@@ -25,10 +25,10 @@ FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
-SerialAction serialAction(serialComm, config, logger);
+SerialAction serialAction(serialComm, config, logger, controlFins);
 
 // test instance of pyro class for drogue
-PyroController drogue(PYRO_DROGUE, 20000);
+PyroController drogue(PYRO_DROGUE, 5000);
 
 
 
@@ -72,11 +72,6 @@ void loop()
         
         case STANDBY_MODE: {
             // do nothing
-
-            if(drogue.trigger()){
-                LEDBlink(PRESSURE_LED, 1000);
-            }
-
             break;
         }    
         case READING_MODE: {
@@ -101,6 +96,13 @@ void loop()
         case CONFIG_MODE: {
             serialAction.processAndChangeConfig();
             break;
+        }
+        case BARO_ONLY_FLIGHT_MODE: {
+            if(drogue.trigger()){
+                LEDBlink(PRESSURE_LED, 1000);
+            }
+            break;
+
         }
     }
 }

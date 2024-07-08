@@ -124,6 +124,21 @@ void buzzerModeSelect(int mode) {
         noTone(BUZZER);
         break;
 
+      case BARO_ONLY_FLIGHT_MODE:
+        // Baro-only flight mode: Long beep - Short beep - Long beep
+        tone(BUZZER, 1200, 1000); // 1.2kHz tone for 1 second
+        delay(1000);
+        noTone(BUZZER);
+        delay(500);
+        tone(BUZZER, 1200, 500);  // 1.2kHz tone for 0.5 seconds
+        delay(500);
+        noTone(BUZZER);
+        delay(500);
+        tone(BUZZER, 1200, 1000); // 1.2kHz tone for 1 second
+        delay(1000);
+        noTone(BUZZER);
+        break;
+
     default:
       // No mode selected or invalid mode
       noTone(BUZZER);

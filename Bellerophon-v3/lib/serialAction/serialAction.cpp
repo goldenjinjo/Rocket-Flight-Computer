@@ -21,7 +21,7 @@ void SerialAction::checkSerialForMode() {
     }
 
     char newMode = message[5]; // Get the mode character
-    if (newMode >= '0' && newMode <= '5') {
+    if (newMode >= '0' && newMode < '0' + NUM_MODES) {
         mode = newMode - '0';  // Convert char to int
         Serial.print("Mode changed to: ");
         Serial.println(mode);

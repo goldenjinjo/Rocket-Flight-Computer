@@ -63,7 +63,9 @@ extern const float C_TO_K;
 #define LOGGING_MODE 3
 #define FIN_CONTROL_MODE 4
 #define CONFIG_MODE 5
+#define BARO_ONLY_FLIGHT_MODE 6
 
+#define NUM_MODES 7
 
 
 
