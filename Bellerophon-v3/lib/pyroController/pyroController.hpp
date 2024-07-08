@@ -2,6 +2,7 @@
 #define PYROCONTROLLER_HPP
 
 #include <Arduino.h>
+#include "pinController.hpp"
 
 /**
  * @class PyroController
@@ -35,6 +36,8 @@ private:
     uint32_t _holdDuration;    // Duration for which the pyro charge stays high
     bool _isTriggered;         // Indicates if the trigger sequence is in progress
     uint32_t _startTime;       // Time when the trigger sequence started
+
+    PinController _pinControl; // Wrapper for pin control operations
 
     /**
      * @brief Initializes the pin and sets it to LOW.

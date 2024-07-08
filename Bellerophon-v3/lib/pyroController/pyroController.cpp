@@ -2,14 +2,14 @@
 
 // Constructor to initialize the PyroController with a specific pin and delay
 PyroController::PyroController(uint8_t pin, uint32_t triggerDelay)
-    : _pin(pin), _triggerDelay(triggerDelay), _holdDuration(1000), _isTriggered(false), _startTime(0) {
+    : _pinControl(pin), _triggerDelay(triggerDelay), _holdDuration(1000), _isTriggered(false), _startTime(0) {
     initialize();
 }
 
 // Initializes the pin and sets it to LOW
 void PyroController::initialize() {
-    pinMode(_pin, OUTPUT);
-    digitalWrite(_pin, LOW);
+    _pinControl.setMode(OUTPUT);
+    _pinControl.digitalWrite(LOW);
 }
 
 // Method to initiate the trigger sequence
@@ -28,10 +28,10 @@ bool PyroController::handleTriggerSequence() {
     if (_isTriggered) {
         if (currentTime - _startTime >= _triggerDelay && currentTime - _startTime < _triggerDelay + _holdDuration) {
             // After the initial delay, set the pin HIGH and hold it for the hold duration
-            digitalWrite(_pin, HIGH);
+            _pinControl.digitalWrite(HIGH);
         } else if (currentTime - _startTime >= _triggerDelay + _holdDuration) {
             // After the hold duration, set the pin LOW and reset the trigger state
-            digitalWrite(_pin, LOW);
+            _pinControl.digitalWrite(LOW);
             _isTriggered = false;
             return true; // Trigger sequence is completed
         }
