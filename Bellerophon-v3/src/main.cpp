@@ -16,15 +16,21 @@
 #include "configKeys.hpp"
 #include "constants.hpp"
 #include "serialAction.hpp"
+#include "pyroController.hpp"
 
 // Class Declarations
 
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
 FileManager fm;
-ConfigFileManager config(fm);
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
-SerialAction serialAction(serialComm, config, logger, controlFins);
+ConfigFileManager config(fm);
+SerialAction serialAction(serialComm, config, logger);
+
+// test instance of pyro class for drogue
+PyroController drogue(PYRO_DROGUE, 20000);
+
+
 
 void setup() {
 
@@ -37,11 +43,9 @@ void setup() {
     fm.initialize();
     // Config must be initalised first after FileManager, as it declares all external variables, including debug
     config.initialize();
-    controlFins.initialize();
     logger.initialize();
     // play start up sequence
     startUp();
-
 
    delay(1000);
 
@@ -68,6 +72,11 @@ void loop()
         
         case STANDBY_MODE: {
             // do nothing
+
+            if(drogue.trigger()){
+                LEDBlink(PRESSURE_LED, 1000);
+            }
+
             break;
         }    
         case READING_MODE: {
@@ -95,6 +104,3 @@ void loop()
         }
     }
 }
-
-
-
