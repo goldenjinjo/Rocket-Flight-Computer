@@ -30,6 +30,15 @@ public:
      */
     bool trigger();
 
+        /**
+     * @brief Method to cancel the trigger sequence.
+     * 
+     * Sets the pyro pin to LOW, resets timers and resets the _isTriggered flag to false.
+     * If the _isTriggered flag was never raised, method does nothing.
+     * @return bool True if trigger was cancelled, False if there was no trigger to cancel.
+     */
+    bool cancelTrigger();
+
     /**
      * @brief Method to check if the pyro controller has ever triggered.
      * @return bool True if the pyro controller has ever triggered, False otherwise.

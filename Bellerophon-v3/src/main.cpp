@@ -100,11 +100,17 @@ void loop()
         case BARO_ONLY_FLIGHT_MODE: {
             // Testing pyro systems
             if(drogue.hasEverTriggered()){
+                LEDBlink(B_LED, 500);
+                delay(1000);
                 break;
             }
             if(drogue.trigger()){
                 LEDBlink(PRESSURE_LED, 500);
+                delay(1000);
             }
+
+            drogue.cancelTrigger();
+
             break;
         }
     }
