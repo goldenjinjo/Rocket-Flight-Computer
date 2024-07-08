@@ -10,7 +10,7 @@ void Timer::start(uint32_t duration) {
         return;
     }
 
-    _startTime = millis();
+    _startTime = Timer::currentTime();
     _duration = duration;
     _running = true;
 }
@@ -20,10 +20,15 @@ bool Timer::hasElapsed() const {
     if (!_running) {
         return false;
     }
-    return (millis() - _startTime) >= _duration;
+    return (Timer::currentTime() - _startTime) >= _duration;
 }
 
 // Resets the timer
 void Timer::reset() {
     _running = false;
+}
+
+// Gets the current time in milliseconds
+uint32_t Timer::currentTime() {
+    return millis();
 }

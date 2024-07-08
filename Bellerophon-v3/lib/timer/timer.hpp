@@ -33,6 +33,13 @@ public:
      */
     void reset();
 
+    /**
+     * @brief Gets the current time in milliseconds.
+     * Wrapper for Arduino millis()
+     * @return The current time in milliseconds.
+     */
+    static uint32_t currentTime();
+
 private:
     uint32_t _startTime; // The start time of the timer
     uint32_t _duration;  // The duration for which the timer should run
