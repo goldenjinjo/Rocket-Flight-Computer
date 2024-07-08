@@ -18,6 +18,7 @@
 #include "serialAction.hpp"
 #include "pyroController.hpp"
 #include "LEDController.hpp"
+#include "buzzerController.hpp"
 
 // Class Declarations
 
@@ -34,6 +35,9 @@ PyroController drogue(PYRO_DROGUE, 2000);
 LEDController greenLED(G_LED);
 LEDController flashLED(FLASH_LED);
 LEDController redLED(R_LED);
+
+BuzzerController buzzer(BUZZER);
+
 
 
 
@@ -76,6 +80,7 @@ void loop()
     greenLED.updateBlinkState();
     redLED.updateBlinkState();
     flashLED.updateBlinkState();
+    buzzer.update();
 
     switch (mode) {
         
@@ -83,11 +88,9 @@ void loop()
             // do nothing
             greenLED.blink(3000);
             flashLED.blink(1500);
-            if(!greenLED.isPowered() && !redLED.isPowered()){
-                redLED.blink(1500);
-            } else if (redLED.isPowered()) {
-                redLED.blink(1500);
-            }
+            buzzer.beep(1000, 600);
+            buzzer.beep(500, 300);
+
             break;
         }    
         case READING_MODE: {
