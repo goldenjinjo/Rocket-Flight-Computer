@@ -30,12 +30,18 @@ public:
      */
     bool trigger();
 
+    /**
+     * @brief Method to check if the pyro controller has ever triggered.
+     * @return bool True if the pyro controller has ever triggered, False otherwise.
+     */
+    bool hasEverTriggered() const;
+
 private:
     uint8_t _pin;              // Pin connected to the pyro charge
     uint32_t _triggerDelay;    // Delay before the pyro charge is triggered
     uint32_t _holdDuration;    // Duration for which the pyro charge stays high
     bool _isTriggered;         // Indicates if the trigger sequence is in progress
-    uint32_t _startTime;       // Time when the trigger sequence started
+    bool _hasEverTriggered;    // Indicates if the pyro controller has ever triggered
 
     PinController _pinControl; // Wrapper for pin control operations
     Timer _triggerTimer; // Timer instance to handle trigger timing
@@ -51,6 +57,11 @@ private:
      * @return bool True if the trigger sequence is completed, False otherwise.
      */
     bool handleTriggerSequence();
+
+    /**
+     * @brief Resets the trigger and hold timers.
+     */
+    void resetTimers();
 };
 
 #endif // PYROCONTROLLER_HPP

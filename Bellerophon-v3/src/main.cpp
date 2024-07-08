@@ -98,11 +98,14 @@ void loop()
             break;
         }
         case BARO_ONLY_FLIGHT_MODE: {
+            // Testing pyro systems
+            if(drogue.hasEverTriggered()){
+                break;
+            }
             if(drogue.trigger()){
                 LEDBlink(PRESSURE_LED, 500);
             }
             break;
-
         }
     }
 }
