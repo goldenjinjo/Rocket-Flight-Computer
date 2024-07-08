@@ -73,18 +73,21 @@ void loop()
         previousMode = mode;
     }
 
+    greenLED.updateBlinkState();
+    redLED.updateBlinkState();
+    flashLED.updateBlinkState();
+
     switch (mode) {
         
         case STANDBY_MODE: {
             // do nothing
             greenLED.blink(3000);
             flashLED.blink(1500);
-            if(!greenLED.isPowered()){
-                redLED.turnOn();
-            } else {
-                redLED.turnOff();
+            if(!greenLED.isPowered() && !redLED.isPowered()){
+                redLED.blink(1500);
+            } else if (redLED.isPowered()) {
+                redLED.blink(1500);
             }
-
             break;
         }    
         case READING_MODE: {

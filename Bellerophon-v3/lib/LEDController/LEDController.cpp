@@ -1,7 +1,7 @@
 #include "LEDController.hpp"
 
 // Constructor to initialize the LEDController with a specific pin
-LEDController::LEDController(uint8_t pin) : _pinControl(pin), _isPowered(false) {
+LEDController::LEDController(uint8_t pin) : _pinControl(pin), _isPowered(false), _lastBlinkDuration(0) {
     initialize();
 }
 
@@ -20,12 +20,20 @@ void LEDController::blink(uint32_t blinkDuration) {
     // or after timer reset
     if(!_blinkTimer.hasElapsed()) {
         _blinkTimer.start(blinkDuration);
+        _lastBlinkDuration = blinkDuration;
         return;
     }
-    // Once timer elapses, turn the LED on, if it was off previously
+    updateBlinkState();
+}
+
+void LEDController::updateBlinkState() {
+     // Once timer elapses, turn the LED on, if it was off previously
     if(_blinkTimer.hasElapsed() && !_isPowered) {
         turnOn();
         _blinkTimer.reset();
+        // restarts timer to allow for one last blink, even if this method
+        // was called in isolation
+        _blinkTimer.start(_lastBlinkDuration);
         return;
     }
     // Once timer elapses, turn the LED off, if it was on previously
