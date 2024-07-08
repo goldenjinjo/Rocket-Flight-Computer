@@ -28,7 +28,7 @@ ConfigFileManager config(fm);
 SerialAction serialAction(serialComm, config, logger, controlFins);
 
 // test instance of pyro class for drogue
-PyroController drogue(PYRO_DROGUE, 5000);
+PyroController drogue(PYRO_DROGUE, 2000);
 
 
 
@@ -99,7 +99,7 @@ void loop()
         }
         case BARO_ONLY_FLIGHT_MODE: {
             if(drogue.trigger()){
-                LEDBlink(PRESSURE_LED, 1000);
+                LEDBlink(PRESSURE_LED, 500);
             }
             break;
 

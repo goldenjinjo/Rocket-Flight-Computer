@@ -16,8 +16,6 @@ public:
      */
     Timer();
 
-    bool startAndCheck(uint32_t duration);
-
     /**
      * @brief Starts the timer with a specific duration.
      * @param duration The duration for which the timer should run (in milliseconds).

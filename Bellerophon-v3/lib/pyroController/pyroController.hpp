@@ -1,8 +1,8 @@
 #ifndef PYROCONTROLLER_HPP
 #define PYROCONTROLLER_HPP
 
-#include <Arduino.h>
 #include "pinController.hpp"
+#include "timer.hpp"
 
 /**
  * @class PyroController
@@ -38,6 +38,8 @@ private:
     uint32_t _startTime;       // Time when the trigger sequence started
 
     PinController _pinControl; // Wrapper for pin control operations
+    Timer _triggerTimer; // Timer instance to handle trigger timing
+    Timer _holdTimer; //  Timer instance to handle the holdDuration
 
     /**
      * @brief Initializes the pin and sets it to LOW.
