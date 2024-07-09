@@ -48,10 +48,17 @@ public:
 
     size_t getQueueSize() const; 
 
+    bool silent(uint32_t duration);
+
+    bool isQueueFull() const;  // New method to check if the queue is full
+
+    void reset();
+
 private:
     uint8_t _pin;              // Pin connected to the buzzer
     Timer _beepTimer;          // Timer for the beep duration
     bool _isPowered;           // Indicates if the buzzer is currently powered on
+    bool _resetting;
     size_t _maxQueueSize;      // Maximum size of the beep command queue
 
     struct BeepCommand {

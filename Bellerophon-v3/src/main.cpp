@@ -36,10 +36,11 @@ LEDController greenLED(G_LED);
 LEDController flashLED(FLASH_LED);
 LEDController redLED(R_LED);
 
-size_t buzzerQueueLimit = 10;
+size_t buzzerQueueLimit = 5;
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
 
-
+Timer testTimer;
+Timer timer2;
 
 
 void setup() {
@@ -91,25 +92,31 @@ void loop()
             greenLED.blink(3000);
             flashLED.blink(1500);
 
-            // only perform queue sequence if buzzer has enough space for it
-            if(buzzer.getQueueSize() > (buzzerQueueLimit - 4)) {
+            // delay(1000);
+
+            // buzzer.beep(30000, 1000);
+
+            // delay(1000);
+
+            // noTone(BUZZER);
+            
+
+
+            // // only perform queue sequence if buzzer has enough space for it
+            if(buzzer.getQueueSize() > (1)) {
                 break;
             }
-            // Queue up multiple buzzes
-            if (buzzer.beep(500, 1000)) {
+            // // Queue up multiple buzzes
+            if (buzzer.beep(1000, 1100)) {
                 Serial.println("Queued beep at 1 kHz");
             }
             
-            if (buzzer.beep(500, 1500)) {
+            if (buzzer.beep(300, 1500)) {
                 Serial.println("Queued beep at 1.5 kHz");
             }
 
-            if (buzzer.beep(500, 2000)) {
-                Serial.println("Queued beep at 2 kHz");
-            }
-
-            if (buzzer.beep(3000, 0)) {
-                Serial.println("Queued 3 seconds of silence");
+            if (buzzer.silent(100000)) {
+                Serial.println("Queued 100 seconds of silence");
             }
 
             break;
