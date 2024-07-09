@@ -18,16 +18,17 @@
 #include "serialAction.hpp"
 #include "pyroController.hpp"
 #include "LEDController.hpp"
-#include "buzzerController.hpp"
+#include "buzzerFunctions.hpp"
 
+size_t buzzerQueueLimit = 20;
 // Class Declarations
-
-SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
+BuzzerFunctions buzzerFunc(BUZZER, buzzerQueueLimit);
+SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX, buzzerFunc);
 FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
-SerialAction serialAction(serialComm, config, logger, controlFins);
+SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc);
 
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
@@ -36,8 +37,10 @@ LEDController greenLED(G_LED);
 LEDController flashLED(FLASH_LED);
 LEDController redLED(R_LED);
 
-size_t buzzerQueueLimit = 6;
+
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
+
+
 
 Timer testTimer;
 
@@ -73,15 +76,15 @@ void loop()
     // mode:MODE_NUM
     serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
-    // if (mode != previousMode) {
-    //     buzzerModeSelect(mode);
-    //     previousMode = mode;
-    // }
+    if (mode != previousMode) {
+        buzzerFunc.modeSelect(mode);
+        previousMode = mode;
+    }
 
     greenLED.updateBlinkState();
     redLED.updateBlinkState();
     flashLED.updateBlinkState();
-    buzzer.update();
+    buzzerFunc.update();
 
     switch (mode) {
         
@@ -90,41 +93,38 @@ void loop()
             greenLED.blink(1000);
             flashLED.blink(1500);
 
+
            
-            testTimer.start(4000);
+            // testTimer.start(4000);
 
-            if (testTimer.hasElapsed()) {
-                Serial.println("Clearing Queue for the test");
-                buzzer.reset();
-                testTimer.reset();
-            }
+            // if (testTimer.hasElapsed()) {
+            //     Serial.println("Clearing Queue for the test");
+            //     buzzer.reset();
+            //     testTimer.reset();
+            // }
             
 
 
-            // // only perform queue sequence if buzzer has enough space for it
-            if(buzzer.getQueueSize() > (1)) {
-                break;
-            }
-            // // Queue up multiple buzzes
-            if (buzzer.beep(1000, 1100)) {
-                Serial.println("Queued beep at 1 kHz");
-            }
+            // // // only perform queue sequence if buzzer has enough space for it
+            // if(buzzer.getQueueSize() > (1)) {
+            //     break;
+            // }
+            // // // Queue up multiple buzzes
+            // if (buzzer.beep(1000, 1100)) {
+            //     Serial.println("Queued beep at 1 kHz");
+            // }
 
             
-            if (buzzer.beep(300, 1500)) {
-                Serial.println("Queued beep at 1.5 kHz");
-            }
+            // if (buzzer.beep(300, 1500)) {
+            //     Serial.println("Queued beep at 1.5 kHz");
+            // }
 
-            if (buzzer.silent(2000)) {
-                Serial.println("Queued 2 second of silences");
-            }
-            if (buzzer.beep(700, 1800)) {
-                Serial.println("Queued beep at 1.5 kHz");
-            }
-
-
-
-
+            // if (buzzer.silent(2000)) {
+            //     Serial.println("Queued 2 second of silences");
+            // }
+            // if (buzzer.beep(700, 1800)) {
+            //     Serial.println("Queued beep at 1.5 kHz");
+            // }
             break;
         }    
         case READING_MODE: {

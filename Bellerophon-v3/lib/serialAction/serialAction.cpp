@@ -2,8 +2,8 @@
 
 
 SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, 
-DataLogger& logger, PositionalServo& servo)
- : communicator(communicator), config(config), logger(logger), servo(servo)  {}
+DataLogger& logger, PositionalServo& servo, BuzzerFunctions& buzzer)
+ : communicator(communicator), config(config), logger(logger), servo(servo), buzzer(buzzer)  {}
 
 void SerialAction::checkSerialForMode() {
     // Call readSerialMessage to get the message
@@ -42,6 +42,11 @@ void SerialAction::moveServosFromSerial() {
     LEDBlink(G_LED, 500);
 
     while (true) {
+
+        // Updates the buzzer state so it does not get stuck even in while loop.
+        /// TODO: remove blocking so we don't need crude solutions like this
+        buzzer.update();
+
         // Use communicator to read the serial message
         char* input = communicator.readSerialMessage();
 
@@ -132,9 +137,9 @@ void SerialAction::serialFileTransfer() {
     // Wait for confirmation
     if (!communicator.waitForMessage(ALL_FILES_SENT_ACK, modeActivationWaitPeriod)) {
         // Handle timeout (optional)
-        buzzerFailure();
+        buzzer.failure();
     } else {
-        buzzerSuccess();
+        buzzer.success();
         LEDBlink(G_LED, 1000);
     }
 
@@ -159,6 +164,10 @@ void SerialAction::processAndChangeConfig() {
    }
 
     while(true) {
+
+        // Updates the buzzer state so it does not get stuck even in while loop.
+        /// TODO: remove blocking so we don't need crude solutions like this
+        buzzer.update();
 
         char* input = communicator.readSerialMessage();
 
@@ -185,7 +194,7 @@ void SerialAction::processAndChangeConfig() {
             LEDBlink(R_LED, 1000);
         } else {
             LEDBlink(G_LED, 1000);
-            buzzerSuccess();
+            buzzer.success();
         }
         
         delete[] input; // Free the allocated memory
