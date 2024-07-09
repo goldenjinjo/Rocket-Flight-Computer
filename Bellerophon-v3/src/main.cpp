@@ -36,7 +36,8 @@ LEDController greenLED(G_LED);
 LEDController flashLED(FLASH_LED);
 LEDController redLED(R_LED);
 
-BuzzerController buzzer(BUZZER);
+size_t buzzerQueueLimit = 10;
+BuzzerController buzzer(BUZZER, buzzerQueueLimit);
 
 
 
@@ -61,6 +62,7 @@ void setup() {
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;
 
+
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -72,10 +74,10 @@ void loop()
     // mode:MODE_NUM
     serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
-    if (mode != previousMode) {
-        buzzerModeSelect(mode);
-        previousMode = mode;
-    }
+    // if (mode != previousMode) {
+    //     buzzerModeSelect(mode);
+    //     previousMode = mode;
+    // }
 
     greenLED.updateBlinkState();
     redLED.updateBlinkState();
@@ -88,8 +90,27 @@ void loop()
             // do nothing
             greenLED.blink(3000);
             flashLED.blink(1500);
-            buzzer.beep(1000, 600);
-            buzzer.beep(500, 300);
+
+            // only perform queue sequence if buzzer has enough space for it
+            if(buzzer.getQueueSize() > (buzzerQueueLimit - 4)) {
+                break;
+            }
+            // Queue up multiple buzzes
+            if (buzzer.beep(500, 1000)) {
+                Serial.println("Queued beep at 1 kHz");
+            }
+            
+            if (buzzer.beep(500, 1500)) {
+                Serial.println("Queued beep at 1.5 kHz");
+            }
+
+            if (buzzer.beep(500, 2000)) {
+                Serial.println("Queued beep at 2 kHz");
+            }
+
+            if (buzzer.beep(3000, 0)) {
+                Serial.println("Queued 3 seconds of silence");
+            }
 
             break;
         }    
