@@ -96,8 +96,6 @@ void DataLogger::readDataFromFile(const char* fileName) {
 
     // handshake to finish file transfer
     if (!serialComm.waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {
-        // Handle timeout (optional)
-        buzzerFailure();
         return;
     }
 }
