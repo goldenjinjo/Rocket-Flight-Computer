@@ -36,6 +36,13 @@ public:
     bool beep(uint32_t beepDuration, uint16_t frequency);
 
     /**
+     * @brief Keeps the buzzer silent for a specified duration.
+     * @param duration The duration (in milliseconds) for which the buzzer should be silent.
+     * @return True if the command was added to the queue, false if the queue is full.
+     */
+    bool silent(uint32_t duration);
+
+    /**
      * @brief Checks if the buzzer is currently on.
      * @return True if the buzzer is on, false otherwise.
      */
@@ -46,19 +53,28 @@ public:
      */
     void update();
 
-    size_t getQueueSize() const; 
+    /**
+     * @brief Returns the current size of the beep queue.
+     * @return The current size of the beep queue.
+     */
+    size_t getQueueSize() const;
 
-    bool silent(uint32_t duration);
+    /**
+     * @brief Checks if the queue is full.
+     * @return True if the queue is full, false otherwise.
+     */
+    bool isQueueFull() const;
 
-    bool isQueueFull() const;  // New method to check if the queue is full
-
+    /**
+     * @brief Sets the reset flag to start clearing the queue incrementally.
+     */
     void reset();
 
 private:
     uint8_t _pin;              // Pin connected to the buzzer
     Timer _beepTimer;          // Timer for the beep duration
     bool _isPowered;           // Indicates if the buzzer is currently powered on
-    bool _resetting;
+    bool _resetting;           // Indicates if the buzzer is in the process of resetting
     size_t _maxQueueSize;      // Maximum size of the beep command queue
 
     struct BeepCommand {
@@ -83,7 +99,31 @@ private:
      * @brief Turns the buzzer off.
      */
     void turnOff();
+
+    /**
+     * @brief Adds a command to the beep queue.
+     * @param beepDuration The duration (in milliseconds) for which the buzzer should beep or be silent.
+     * @param frequency The frequency (in Hertz) of the beep sound, 0 for silence.
+     * @return True if the command was added to the queue, false if the queue is full.
+     */
+    bool pushCommand(uint32_t beepDuration, uint16_t frequency);
+
+    /**
+     * @brief Clears one element from the beep queue.
+     */
+    void clearQueue();
+
+    /**
+     * @brief Handles the buzzer state when it is powered.
+     */
+    void handlePoweredState();
+
+    /**
+     * @brief Processes the next command in the beep queue.
+     */
+    void processNextCommand();
 };
 
 #endif // BUZZERCONTROLLER_HPP
+
 

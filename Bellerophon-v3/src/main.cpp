@@ -36,12 +36,10 @@ LEDController greenLED(G_LED);
 LEDController flashLED(FLASH_LED);
 LEDController redLED(R_LED);
 
-size_t buzzerQueueLimit = 5;
+size_t buzzerQueueLimit = 6;
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
 
 Timer testTimer;
-Timer timer2;
-
 
 void setup() {
 
@@ -89,16 +87,17 @@ void loop()
         
         case STANDBY_MODE: {
             // do nothing
-            greenLED.blink(3000);
+            greenLED.blink(1000);
             flashLED.blink(1500);
 
-            // delay(1000);
+           
+            testTimer.start(4000);
 
-            // buzzer.beep(30000, 1000);
-
-            // delay(1000);
-
-            // noTone(BUZZER);
+            if (testTimer.hasElapsed()) {
+                Serial.println("Clearing Queue for the test");
+                buzzer.reset();
+                testTimer.reset();
+            }
             
 
 
@@ -110,14 +109,21 @@ void loop()
             if (buzzer.beep(1000, 1100)) {
                 Serial.println("Queued beep at 1 kHz");
             }
+
             
             if (buzzer.beep(300, 1500)) {
                 Serial.println("Queued beep at 1.5 kHz");
             }
 
-            if (buzzer.silent(100000)) {
-                Serial.println("Queued 100 seconds of silence");
+            if (buzzer.silent(2000)) {
+                Serial.println("Queued 2 second of silences");
             }
+            if (buzzer.beep(700, 1800)) {
+                Serial.println("Queued beep at 1.5 kHz");
+            }
+
+
+
 
             break;
         }    
