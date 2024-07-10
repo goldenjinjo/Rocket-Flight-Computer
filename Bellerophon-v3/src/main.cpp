@@ -9,7 +9,6 @@
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
 #include "positionalServo.hpp"
-#include <BasicLinearAlgebra.h>
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
 #include "configFileManager.hpp"
@@ -36,10 +35,6 @@ SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, L
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
 
-BuzzerController buzzer(BUZZER, buzzerQueueLimit);
-
-Timer testTimer;
-
 void setup() {
 
     Wire.begin(); // Join i2c bus
@@ -56,8 +51,6 @@ void setup() {
 
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;
-
-
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -82,38 +75,6 @@ void loop()
         case STANDBY_MODE: {
             // do nothing
             LED.cycleLEDs(5000);
-
-           ///TODO: create a test instance of this
-            // testTimer.start(4000);
-
-            // if (testTimer.hasElapsed()) {
-            //     Serial.println("Clearing Queue for the test");
-            //     buzzer.reset();
-            //     testTimer.reset();
-            // }
-            
-
-
-            // // // only perform queue sequence if buzzer has enough space for it
-            // if(buzzer.getQueueSize() > (1)) {
-            //     break;
-            // }
-            // // // Queue up multiple buzzes
-            // if (buzzer.beep(1000, 1100)) {
-            //     Serial.println("Queued beep at 1 kHz");
-            // }
-
-            
-            // if (buzzer.beep(300, 1500)) {
-            //     Serial.println("Queued beep at 1.5 kHz");
-            // }
-
-            // if (buzzer.silent(2000)) {
-            //     Serial.println("Queued 2 second of silences");
-            // }
-            // if (buzzer.beep(700, 1800)) {
-            //     Serial.println("Queued beep at 1.5 kHz");
-            // }
             break;
         }    
         case READING_MODE: {
