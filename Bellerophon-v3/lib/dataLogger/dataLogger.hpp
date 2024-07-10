@@ -5,7 +5,6 @@
 #include <CRC32.h>
 #include <vector>
 #include <string>
-#include "deviceFunctions.hpp"
 #include "configKeys.hpp"
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
