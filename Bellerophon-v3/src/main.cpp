@@ -53,9 +53,7 @@ void setup() {
     config.initialize();
     logger.initialize();
     // play start up sequence
-    startUp();
-
-   delay(1000);
+    //startUp();
 
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;
@@ -84,10 +82,7 @@ void loop()
         
         case STANDBY_MODE: {
             // do nothing
-            LED.blink(G_LED, 1000);
-            LED.blink(PRESSURE_LED, 2000);
-            LED.blink(R_LED, 500);
-
+            LED.cycleLEDs(5000);
 
            ///TODO: create a test instance of this
             // testTimer.start(4000);

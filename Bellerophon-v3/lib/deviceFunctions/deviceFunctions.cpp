@@ -23,22 +23,6 @@ void peripheralInitialize() {
   digitalWrite(FLASH_LED, LOW);
 }
 
-// Cycle through all LEDs
-void cycleLEDS(uint32_t blinkTime) {
-    delay(blinkTime);
-    LEDBlink(PRESSURE_LED, blinkTime);
-    delay(blinkTime);
-    LEDBlink(IMU_LED, blinkTime);
-    delay(blinkTime);
-    LEDBlink(FLASH_LED, blinkTime);
-    delay(blinkTime);
-    LEDBlink(R_LED, blinkTime);
-    delay(blinkTime);
-    LEDBlink(G_LED, blinkTime);
-    delay(blinkTime);
-    LEDBlink(B_LED, blinkTime);
-}
-
 /// TODO: make multithreaded
 void LEDBlink(uint8_t LED_PIN, uint32_t blinkTime) {
   digitalWrite(LED_PIN, HIGH);

@@ -31,8 +31,19 @@ public:
      */
     bool isValidLED(uint8_t pin) const;
 
+    /**
+     * @brief Light all LEDs in LED map in sequential order in infinite loop.
+     * 
+     * @details Time to complete full loop = blinkDuration * number of unique
+     * LEDs in map
+     * @param blinkDuration Duration for each LED to be on for before moving to
+     * next.
+     */
+    void cycleLEDs(uint32_t blinkDuration);
+
 private:
     std::map<uint8_t, LEDController> _leds; // Map of pin numbers to LEDController instances
+    Timer intervalTimer; // used to provide wait time between successive led commands in a function
 
     /**
      * @brief Initializes the predefined LEDs.

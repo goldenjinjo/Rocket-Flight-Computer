@@ -5,7 +5,7 @@
 LEDManager::LEDManager() {
     initializeLEDs();
 }
-    
+
 // Initializes the predefined LEDs
 void LEDManager::initializeLEDs() {
     _leds.emplace(R_LED, LEDController(R_LED));
@@ -35,3 +35,29 @@ void LEDManager::updateAllLEDS() {
 bool LEDManager::isValidLED(uint8_t pin) const {
     return _leds.find(pin) != _leds.end();
 }
+
+void LEDManager::cycleLEDs(uint32_t blinkTime) {
+    static bool ledBlinking = false;
+    static auto currentIt = _leds.begin();
+    // repeat LED cycle, by resetting at end
+    // of map
+    if (currentIt == _leds.end()) {
+        currentIt = _leds.begin();
+    }
+
+    if (!ledBlinking) {
+        blink(currentIt->first, blinkTime);
+        ledBlinking = true;
+        intervalTimer.start(blinkTime);
+    }
+    // do nothing if timer has not elapsed
+    if(!intervalTimer.hasElapsed()) {
+        return;
+    }
+    // rest timer and blink state
+    ledBlinking = false;
+    intervalTimer.reset();
+    // move to next LED
+    ++currentIt;
+}
+

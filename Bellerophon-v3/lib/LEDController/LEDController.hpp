@@ -46,7 +46,6 @@ public:
      */
     bool isPowered() const;
 
-
 private:
     PinController _pinControl; // Wrapper for pin control operations
     Timer _blinkTimer;         // Timer for the blink duration
