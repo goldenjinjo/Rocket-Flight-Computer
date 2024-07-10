@@ -44,9 +44,6 @@ void setup() {
 
     Wire.begin(); // Join i2c bus
     serialComm.begin();
-
-    // Set pin types and configure LEDs
-    peripheralInitialize();
     // initilize classes
     fm.initialize();
     // Config must be initalised first after FileManager, 
@@ -55,6 +52,7 @@ void setup() {
     logger.initialize();
     // play start up sequence
     //startUp();
+    LED.startUp();
 
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;

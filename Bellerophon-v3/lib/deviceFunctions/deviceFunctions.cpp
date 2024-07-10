@@ -3,63 +3,24 @@
 // TODO: Format this into a peripheral class
 // TODO: Make multi-threaded using internal/external timers
 
-
-// buzzer patterns to indicate success or failure
-
-void peripheralInitialize() {
-  pinMode(R_LED, OUTPUT);
-  pinMode(G_LED, OUTPUT);
-  pinMode(B_LED, OUTPUT);
-  pinMode(PRESSURE_LED, OUTPUT);
-  pinMode(IMU_LED, OUTPUT);
-  pinMode(FLASH_LED, OUTPUT);
-
-  // Set LEDS to low in case previous program left it HIGH
-  digitalWrite(R_LED, LOW);
-  digitalWrite(G_LED, LOW);
-  digitalWrite(B_LED, LOW);
-  digitalWrite(PRESSURE_LED, LOW);
-  digitalWrite(IMU_LED, LOW);
-  digitalWrite(FLASH_LED, LOW);
-}
-
 void startUp() {
   // Activate Buzzers to Confirm Code started
 
   // play normal start up sounds if debug is not enabled 
   if(!DEBUG){
   tone(BUZZER, 700, 500);
-  digitalWrite(R_LED, HIGH);
-  digitalWrite(G_LED, HIGH);
-  delay(250);
-  digitalWrite(R_LED, LOW);
-  digitalWrite(G_LED, LOW);
-  delay(250);
+  delay(500);
   tone(BUZZER, 600, 1000);
-  digitalWrite(R_LED, HIGH);
-  digitalWrite(G_LED, HIGH);
   delay(500);
-  digitalWrite(R_LED, LOW);
-  digitalWrite(G_LED, LOW);
   delay(500);
-  digitalWrite(R_LED, HIGH);
-  digitalWrite(G_LED, HIGH);
   tone(BUZZER, 700, 500);
   delay(500);
-  digitalWrite(R_LED, LOW);
-  digitalWrite(G_LED, LOW);;
   tone(BUZZER, 800, 1250);
-  delay(1250);
   } else {
-    digitalWrite(R_LED, HIGH);
     tone(BUZZER, 700, 500);
     delay(500);
-    digitalWrite(R_LED, LOW);
     delay(500);
-    digitalWrite(R_LED, HIGH);
     tone(BUZZER, 700, 500);
-    delay(500);
-    digitalWrite(R_LED,LOW);
   }
 }
 

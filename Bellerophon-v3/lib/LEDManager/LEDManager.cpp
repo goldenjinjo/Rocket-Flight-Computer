@@ -61,3 +61,19 @@ void LEDManager::cycleLEDs(uint32_t blinkTime) {
     ++currentIt;
 }
 
+
+
+void LEDManager::startUp() {
+    if(DEBUG) {
+        debugStartUp();
+        return;
+    }
+    blink(B_LED, 1000);
+    blink(G_LED, 2000);
+    blink(R_LED, 3000);
+  }
+
+void LEDManager::debugStartUp() {
+  blink(R_LED, 750);
+}
+

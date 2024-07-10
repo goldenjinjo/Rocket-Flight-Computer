@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "LEDController.hpp"
+#include "configKeys.hpp"
 
 class LEDManager {
 public:
@@ -40,6 +41,10 @@ public:
      * next.
      */
     void cycleLEDs(uint32_t blinkDuration);
+
+    void debugStartUp();
+
+    void startUp();
 
 private:
     std::map<uint8_t, LEDController> _leds; // Map of pin numbers to LEDController instances
