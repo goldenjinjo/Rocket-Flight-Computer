@@ -51,8 +51,8 @@ void setup() {
     config.initialize();
     logger.initialize();
     // play start up sequence
-    //startUp();
     LED.startUp();
+    buzzerFunc.startUp();
 
     ///TODO: set mode manager with getters and setters
    mode = BOOTUP_MODE;

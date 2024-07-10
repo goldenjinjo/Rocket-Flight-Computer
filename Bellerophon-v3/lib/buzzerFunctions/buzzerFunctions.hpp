@@ -24,26 +24,70 @@ public:
      */
     void modeSelect(int mode);
 
+    /**
+     * @brief Plays the success sequence on the buzzer.
+     */
     void success();
 
+    /**
+     * @brief Plays the failure sequence on the buzzer.
+     */
     void failure();
 
     /**
-     * @brief Updates the buzzer state. This should be called in the main loop to ensure non-blocking behavior.
+     * @brief Plays the startup sequence on the buzzer,
+     * variable based on debug mode
+     */
+    void startUp();
+
+    /**
+     * @brief Updates the buzzer state. This should be called in the main loop 
+     * to ensure non-blocking behavior.
      */
     void update();
 
 private:
     BuzzerController _buzzer;
 
-    // Mode functions
+    /**
+     * @brief Plays the standby mode sequence on the buzzer.
+     */
     void standbyMode();
+
+    /**
+     * @brief Plays the reading mode sequence on the buzzer.
+     */
     void readingMode();
+
+    /**
+     * @brief Plays the purge mode sequence on the buzzer.
+     */
     void purgeMode();
+
+    /**
+     * @brief Plays the logging mode sequence on the buzzer.
+     */
     void loggingMode();
+
+    /**
+     * @brief Plays the fin control mode sequence on the buzzer.
+     */
     void finControlMode();
+
+    /**
+     * @brief Plays the config mode sequence on the buzzer.
+     */
     void configMode();
+
+    /**
+     * @brief Plays the baro-only flight mode sequence on the buzzer.
+     */
     void baroOnlyFlightMode();
+
+    /**
+     * @brief Plays the debug startup sequence on the buzzer.
+     */
+    void debugStartUp();
 };
 
 #endif // BUZZER_FUNCTIONS_HPP

@@ -127,3 +127,26 @@ void BuzzerFunctions::failure() {
     _buzzer.silent(500);
     _buzzer.beep(500, 400);  // Slightly higher low tone
 }
+
+
+void BuzzerFunctions::startUp() {
+  if(DEBUG){
+    debugStartUp();
+    return;
+  }
+  // Queue buzzer tones
+  _buzzer.beep(500,700);
+  _buzzer.beep(1000, 600);
+  _buzzer.beep(500, 700);
+  _buzzer.beep(1250, 800);
+  // give a 2 second pause in case another function is queued
+  _buzzer.silent(2000);
+}
+
+void BuzzerFunctions::debugStartUp() {
+    _buzzer.beep(500, 700);
+    _buzzer.silent(500);
+    _buzzer.beep(500, 700);
+    // give a 2 second pause in case another function is queued
+    _buzzer.silent(2000);
+}
