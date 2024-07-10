@@ -76,6 +76,10 @@ size_t BuzzerController::getQueueSize() const {
     return _beepQueue.size();
 }
 
+size_t BuzzerController::getMaxQueueSize() const {
+    return _maxQueueSize;
+}
+
 // Checks if the queue is full
 bool BuzzerController::isQueueFull() const {
     return getQueueSize() >= _maxQueueSize;

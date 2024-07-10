@@ -1,11 +1,16 @@
 #include "BuzzerFunctions.hpp"
 
 // Constructor to initialize the BuzzerFunctions with a specific pin
-BuzzerFunctions::BuzzerFunctions(uint8_t pin, size_t maxQueueSize)
-    : _buzzer(pin, maxQueueSize) {}
+BuzzerFunctions::BuzzerFunctions(BuzzerController& buzzer)
+    : _buzzer(buzzer) {}
 
 // Selects the buzzer mode
 void BuzzerFunctions::modeSelect(int mode) {
+
+    if(!isSpaceInQueue(8)){
+    return;
+    }
+
     switch (mode) {
         case STANDBY_MODE:
             standbyMode();
@@ -108,6 +113,9 @@ void BuzzerFunctions::baroOnlyFlightMode() {
 
 // Success sequence: High tone - Higher tone - High tone - Higher tone
 void BuzzerFunctions::success() {
+    if(!isSpaceInQueue(7)){
+    return;
+    }
     _buzzer.beep(200, 900);  // High tone
     _buzzer.silent(200); 
     _buzzer.beep(200, 1300); // Higher tone
@@ -119,6 +127,10 @@ void BuzzerFunctions::success() {
 
 // Failure sequence: Low tones with pauses
 void BuzzerFunctions::failure() {
+
+    if(!isSpaceInQueue(7)){
+    return;
+    }
     _buzzer.beep(500, 100);  // Low tone
     _buzzer.silent(500);
     _buzzer.beep(500, 200);  // Slightly higher low tone
@@ -128,8 +140,12 @@ void BuzzerFunctions::failure() {
     _buzzer.beep(500, 400);  // Slightly higher low tone
 }
 
-
 void BuzzerFunctions::startUp() {
+  
+  if(!isSpaceInQueue(6)){
+    return;
+  }
+
   if(DEBUG){
     debugStartUp();
     return;
@@ -149,4 +165,8 @@ void BuzzerFunctions::debugStartUp() {
     _buzzer.beep(500, 700);
     // give a 2 second pause in case another function is queued
     _buzzer.silent(2000);
+}
+
+bool BuzzerFunctions::isSpaceInQueue(size_t queueNum) {
+    return (_buzzer.getQueueSize() < (_buzzer.getMaxQueueSize() - queueNum));
 }

@@ -16,7 +16,7 @@ public:
      * @param pin The pin number the buzzer is connected to.
      * @param maxQueueSize The maximum size of the command queue (default is 10).
      */
-    BuzzerFunctions(uint8_t pin, size_t maxQueueSize = 10);
+    BuzzerFunctions(BuzzerController& buzzer);
 
     /**
      * @brief Selects the buzzer mode.
@@ -47,7 +47,9 @@ public:
     void update();
 
 private:
-    BuzzerController _buzzer;
+    BuzzerController& _buzzer;
+
+    size_t _maxQueueSize = 20;
 
     /**
      * @brief Plays the standby mode sequence on the buzzer.
@@ -88,6 +90,14 @@ private:
      * @brief Plays the debug startup sequence on the buzzer.
      */
     void debugStartUp();
+
+    /**
+     * @brief Helper func to check if there is enough room left in queue
+     * for an additional queueNum beep queues. Used to prevent tone 
+     * sequences from playing when there is not enough space.
+     * @return 
+     */
+    bool isSpaceInQueue(size_t queueNum);
 };
 
 #endif // BUZZER_FUNCTIONS_HPP

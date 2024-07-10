@@ -20,9 +20,10 @@
 #include "buzzerFunctions.hpp"
 #include "LEDManager.hpp"
 
-size_t buzzerQueueLimit = 20;
+size_t buzzerQueueLimit = 50;
 // Class Declarations
-BuzzerFunctions buzzerFunc(BUZZER, buzzerQueueLimit);
+BuzzerController buzzer(BUZZER, buzzerQueueLimit);
+BuzzerFunctions buzzerFunc(buzzer);
 LEDManager LED;
 
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX, buzzerFunc);

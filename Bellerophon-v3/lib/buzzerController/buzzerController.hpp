@@ -60,6 +60,12 @@ public:
     size_t getQueueSize() const;
 
     /**
+     * @brief Returns the max size of the beep queue.
+     * @return The max size of the beep queue.
+     */
+    size_t getMaxQueueSize() const;
+
+    /**
      * @brief Checks if the queue is full.
      * @return True if the queue is full, false otherwise.
      */
