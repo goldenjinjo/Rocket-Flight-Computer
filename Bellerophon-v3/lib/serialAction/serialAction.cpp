@@ -2,8 +2,9 @@
 
 
 SerialAction::SerialAction(SerialCommunicator& communicator, ConfigFileManager& config, 
-DataLogger& logger, PositionalServo& servo, BuzzerFunctions& buzzer)
- : communicator(communicator), config(config), logger(logger), servo(servo), buzzer(buzzer)  {}
+DataLogger& logger, PositionalServo& servo, BuzzerFunctions& buzzer, LEDManager& LED)
+ : communicator(communicator), config(config), logger(logger),
+  servo(servo), buzzer(buzzer), LED(LED)  {}
 
 void SerialAction::checkSerialForMode() {
     // Call readSerialMessage to get the message
@@ -39,13 +40,14 @@ void SerialAction::moveServosFromSerial() {
         return;
     }
     // indicate start of servo control mode
-    LEDBlink(G_LED, 500);
+    LED.blink(G_LED, 500);
 
     while (true) {
 
         // Updates the buzzer state so it does not get stuck even in while loop.
         /// TODO: remove blocking so we don't need crude solutions like this
         buzzer.update();
+        LED.updateAllLEDS();
 
         // Use communicator to read the serial message
         char* input = communicator.readSerialMessage();
@@ -128,7 +130,7 @@ void SerialAction::serialFileTransfer() {
         return;
     }
     // Send all files if correct message receieved
-    LEDBlink(G_LED, 500);
+    LED.blink(G_LED, 500);
     logger.sendAllFiles();
 
     // Send the end-of-transmission acknowledgment
@@ -140,7 +142,7 @@ void SerialAction::serialFileTransfer() {
         buzzer.failure();
     } else {
         buzzer.success();
-        LEDBlink(G_LED, 1000);
+        LED.blink(G_LED, 1000);
     }
 
     // return to standby
@@ -168,6 +170,7 @@ void SerialAction::processAndChangeConfig() {
         // Updates the buzzer state so it does not get stuck even in while loop.
         /// TODO: remove blocking so we don't need crude solutions like this
         buzzer.update();
+        LED.updateAllLEDS();
 
         char* input = communicator.readSerialMessage();
 
@@ -191,9 +194,9 @@ void SerialAction::processAndChangeConfig() {
         }
     
         if (!changeConfigValue(input)) {
-            LEDBlink(R_LED, 1000);
+            LED.blink(R_LED, 1000);
         } else {
-            LEDBlink(G_LED, 1000);
+            LED.blink(G_LED, 1000);
             buzzer.success();
         }
         
@@ -240,18 +243,18 @@ bool SerialAction::confirmAction(const char* SERIAL_MESSAGE) {
      if(!communicator.waitForMessage(SERIAL_MESSAGE, modeActivationWaitPeriod)){
         // Return false and change mode to 0 if message if expected message not
         // received
-        LEDBlink(R_LED, 1000);
+        LED.blink(R_LED, 1000);
         mode = 0;
         return false;
     }
     // else return true
-    LEDBlink(G_LED, 1000);
+    LED.blink(G_LED, 1000);
     return true;
 }
 
 bool SerialAction::checkForCancelRequest(const char* input) {
     if (strcmp(input, CANCEL_MSG_REQUEST) == 0) {
-            LEDBlink(R_LED, 1000);
+            LED.blink(R_LED, 1000);
             mode = 0;
             delete[] input;  // Free the allocated memory
             return true;

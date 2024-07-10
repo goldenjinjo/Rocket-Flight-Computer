@@ -31,7 +31,7 @@ FileManager fm;
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
-SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc);
+SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
 
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
@@ -49,7 +49,8 @@ void setup() {
     peripheralInitialize();
     // initilize classes
     fm.initialize();
-    // Config must be initalised first after FileManager, as it declares all external variables, including debug
+    // Config must be initalised first after FileManager, 
+    //as it declares all external variables, including debug
     config.initialize();
     logger.initialize();
     // play start up sequence
@@ -143,13 +144,11 @@ void loop()
         case BARO_ONLY_FLIGHT_MODE: {
             // Testing pyro systems
             if(drogue.hasEverTriggered()){
-                LEDBlink(B_LED, 500);
-                delay(1000);
+                LED.blink(B_LED, 2000);
                 break;
             }
             if(drogue.trigger()){
-                LEDBlink(PRESSURE_LED, 500);
-                delay(1000);
+                LED.blink(PRESSURE_LED, 500);
             }
 
             drogue.cancelTrigger();

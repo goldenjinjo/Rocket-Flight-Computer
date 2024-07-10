@@ -141,7 +141,6 @@ void DataLogger::deleteAllFiles() {
     }
         
     Serial.println("All files deleted.");
-    LEDBlink(R_LED, 2000);
 
     // update fileNames array, which now should be empty
     files.updateFileList();

@@ -23,19 +23,6 @@ void peripheralInitialize() {
   digitalWrite(FLASH_LED, LOW);
 }
 
-/// TODO: make multithreaded
-void LEDBlink(uint8_t LED_PIN, uint32_t blinkTime) {
-  digitalWrite(LED_PIN, HIGH);
-  delay(blinkTime);
-  digitalWrite(LED_PIN, LOW);
-}
-
-void LEDBlinkRED() {
-  digitalWrite(R_LED, HIGH);
-  delay(2000);
-  digitalWrite(R_LED, LOW);
-}
-
 void startUp() {
   // Activate Buzzers to Confirm Code started
 
