@@ -46,15 +46,18 @@ public:
     bool hasEverTriggered() const;
 
 private:
+    // Classes
+    PinController _pinControl; // Wrapper for pin control operations
+    Timer _triggerTimer; // Timer instance to handle trigger timing
+    Timer _holdTimer; //  Timer instance to handle the holdDuration
+    // Members
     uint8_t _pin;              // Pin connected to the pyro charge
     uint32_t _triggerDelay;    // Delay before the pyro charge is triggered
     uint32_t _holdDuration;    // Duration for which the pyro charge stays high
     bool _isTriggered;         // Indicates if the trigger sequence is in progress
     bool _hasEverTriggered;    // Indicates if the pyro controller has ever triggered
 
-    PinController _pinControl; // Wrapper for pin control operations
-    Timer _triggerTimer; // Timer instance to handle trigger timing
-    Timer _holdTimer; //  Timer instance to handle the holdDuration
+ 
 
     /**
      * @brief Initializes the pin and sets it to LOW.
