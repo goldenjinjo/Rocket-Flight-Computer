@@ -19,10 +19,13 @@
 #include "pyroController.hpp"
 #include "LEDController.hpp"
 #include "buzzerFunctions.hpp"
+#include "LEDManager.hpp"
 
 size_t buzzerQueueLimit = 20;
 // Class Declarations
 BuzzerFunctions buzzerFunc(BUZZER, buzzerQueueLimit);
+LEDManager LED;
+
 SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX, buzzerFunc);
 FileManager fm;
 PositionalServo controlFins;
@@ -33,14 +36,7 @@ SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc);
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
 
-LEDController greenLED(G_LED);
-LEDController flashLED(FLASH_LED);
-LEDController redLED(R_LED);
-
-
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
-
-
 
 Timer testTimer;
 
@@ -81,17 +77,16 @@ void loop()
         previousMode = mode;
     }
 
-    greenLED.updateBlinkState();
-    redLED.updateBlinkState();
-    flashLED.updateBlinkState();
     buzzerFunc.update();
+    LED.updateAllLEDS();
 
     switch (mode) {
         
         case STANDBY_MODE: {
             // do nothing
-            greenLED.blink(1000);
-            flashLED.blink(1500);
+            LED.blink(G_LED, 1000);
+            LED.blink(PRESSURE_LED, 2000);
+            LED.blink(R_LED, 500);
 
 
            ///TODO: create a test instance of this
