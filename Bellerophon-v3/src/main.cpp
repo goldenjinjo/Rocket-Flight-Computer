@@ -46,12 +46,11 @@ void setup() {
     //as it declares all external variables, including debug
     config.initialize();
     logger.initialize();
+    controlFins.initialize();
     // play start up sequence
     LED.startUp();
     buzzerFunc.startUp();
 
-    ///TODO: set mode manager with getters and setters
-   mode = BOOTUP_MODE;
 }
 // keep track of previous tones
 int previousMode = -1;  
