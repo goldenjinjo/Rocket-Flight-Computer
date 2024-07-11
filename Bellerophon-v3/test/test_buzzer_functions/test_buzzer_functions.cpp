@@ -3,12 +3,11 @@
 #include "pinAssn.hpp"
 
 // Create an instance of BuzzerFunctions
-BuzzerFunctions buzzerFunctions(BUZZER, 50);
+BuzzerController buzzer(BUZZER, 50);
+BuzzerFunctions buzzerFunctions(buzzer);
 
 // Setup function runs before each test
 void setUp(void) {
-    // Initialize the buzzer
-    buzzerFunctions = BuzzerFunctions(BUZZER, 50);
 }
 
 // Teardown function runs after each test
@@ -45,18 +44,17 @@ void test_silence(void) {
 
 void setup() {
     // Initialize the Arduino framework
-    delay(5000); // Delay to wait for previous buzzer test to run through
 
     // Start Unity test framework
     UNITY_BEGIN();
 
     // Run the test cases
     RUN_TEST(test_success_sequence);
-    delay(2000);
+    delay(3000);
     RUN_TEST(test_failure_sequence);
-    delay(2000);
+    delay(3000);
     RUN_TEST(test_startup_sequence);
-
+    delay(3000);
     // Finish Unity test framework
     UNITY_END();
 }
