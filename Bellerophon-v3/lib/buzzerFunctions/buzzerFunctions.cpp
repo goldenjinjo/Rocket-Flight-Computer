@@ -7,7 +7,7 @@ BuzzerFunctions::BuzzerFunctions(BuzzerController& buzzer)
 // Selects the buzzer mode
 void BuzzerFunctions::modeSelect(int mode) {
 
-    if(!isSpaceInQueue(8)){
+    if(!isSpaceInQueue(9)){
     return;
     }
 
@@ -54,6 +54,7 @@ void BuzzerFunctions::update() {
 // Standby mode: Single long beep
 void BuzzerFunctions::standbyMode() {
     _buzzer.beep(1500, 1000); // 1kHz tone for 1.5 seconds
+    _buzzer.silent(500);
 }
 
 // Reading mode: Beep - Beep - Beep (3 short beeps)
@@ -62,6 +63,7 @@ void BuzzerFunctions::readingMode() {
         _buzzer.beep(500, 900 + (30 * i)); // Start with 900Hz tone
         _buzzer.silent(167); // Short pause between beeps
     }
+    _buzzer.silent(500);
 }
 
 // Purge mode: Beeeep - Beeeeep - Beeeeep (3 long beeps)
@@ -70,6 +72,7 @@ void BuzzerFunctions::purgeMode() {
         _buzzer.beep(1000, 1000); // 1kHz tone for 1 second
         _buzzer.silent(500); // Pause between beeps
     }
+    _buzzer.silent(500);
 }
 
 // Logging mode: Beep-beep - Beep-beep (2 double beeps)
@@ -81,6 +84,7 @@ void BuzzerFunctions::loggingMode() {
         }
         _buzzer.silent(500); // Pause between double beeps
     }
+    _buzzer.silent(500);
 }
 
 // Fin control mode: Rapid short beeps
@@ -89,6 +93,7 @@ void BuzzerFunctions::finControlMode() {
         _buzzer.beep(100, 2000); // 2kHz tone for 0.1 seconds
         _buzzer.silent(100); // Short pause between beeps
     }
+    _buzzer.silent(500);
 }
 
 // Config mode: Beep - Beep-beep - Beep (1 short beep, 1 double beep, 1 short beep)
@@ -100,6 +105,8 @@ void BuzzerFunctions::configMode() {
         _buzzer.silent(250); // Short pause between beeps
     }
     _buzzer.beep(500, 1000); // 1kHz tone for 0.5 seconds
+
+    _buzzer.silent(500);
 }
 
 // Baro-only flight mode: Long beep - Short beep - Long beep
@@ -109,11 +116,13 @@ void BuzzerFunctions::baroOnlyFlightMode() {
     _buzzer.beep(500, 1200); // 1.2kHz tone for 0.5 seconds
     _buzzer.silent(500); // Pause between beeps
     _buzzer.beep(1000, 1200); // 1.2kHz tone for 1 second
+
+    _buzzer.silent(500);
 }
 
 // Success sequence: High tone - Higher tone - High tone - Higher tone
 void BuzzerFunctions::success() {
-    if(!isSpaceInQueue(7)){
+    if(!isSpaceInQueue(8)){
     return;
     }
     _buzzer.beep(200, 900);  // High tone
@@ -123,12 +132,14 @@ void BuzzerFunctions::success() {
     _buzzer.beep(200, 900);  // High tone
     _buzzer.silent(200); 
     _buzzer.beep(200, 1300); // Higher tone
+
+    _buzzer.silent(500);
 }
 
 // Failure sequence: Low tones with pauses
 void BuzzerFunctions::failure() {
 
-    if(!isSpaceInQueue(7)){
+    if(!isSpaceInQueue(8)){
     return;
     }
     _buzzer.beep(500, 100);  // Low tone
@@ -138,6 +149,8 @@ void BuzzerFunctions::failure() {
     _buzzer.beep(500, 100);  // Low tone
     _buzzer.silent(500);
     _buzzer.beep(500, 400);  // Slightly higher low tone
+
+    _buzzer.silent(500);
 }
 
 void BuzzerFunctions::startUp() {
