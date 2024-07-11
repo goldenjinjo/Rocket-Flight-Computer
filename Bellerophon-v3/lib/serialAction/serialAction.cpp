@@ -156,7 +156,14 @@ void SerialAction::purgeDataFromSerial() {
     if(!confirmAction(DELETE_FILE_MESSAGE)){
         return;
     }
+    ///TODO: make this a bool, in case there was any issue deleting files
     logger.deleteAllFiles();
+
+    // Return to standby
+    buzzer.success();
+    LED.blink(FLASH_LED, 1000);
+    mode = 0;
+
 }
 
 void SerialAction::processAndChangeConfig() {
