@@ -1,50 +1,73 @@
-#ifndef PRESSURE_SENSOR_H
-#define PRESSURE_SENSOR_H
+#ifndef PRESSURE_SENSOR_HPP
+#define PRESSURE_SENSOR_HPP
 
-#include "Wire.h"
 #include "SparkFunMPL3115A2.h"
+#include "sensor.hpp"
 #include "constants.hpp"
 
-class pressureSensor {
-private:
-    // ------------------------- MEMBERS ------------------------- //
-    MPL3115A2 baro; // MPL3115A2 object for pressure sensing
-
+/**
+ * @class PressureSensor
+ * @brief Derived class for handling pressure sensor operations.
+ *
+ * This class inherits from the Sensor base class and implements
+ * the specific functionalities for a pressure sensor.
+ */
+class PressureSensor : public Sensor {
 public:
-    // ------------------------- METHODS ------------------------- //
     /**
-     * @brief  Constructor for pressureSensor class.
-     * @param  rate Oversample rate for sensor readings.
+     * @brief Constructor with oversample rate as argument.
+     * 
+     * @param rate The oversample rate for the pressure sensor.
      */
-    pressureSensor(byte rate);
-    
+    PressureSensor(byte rate);
+
     /**
-     * @brief  Initialize the pressure sensor.
-     * @param  rate Oversample rate for sensor readings.
+     * @brief Initialize the pressure sensor.
+     *
+     * This method initializes the pressure sensor hardware.
      */
-    void init(byte rate);
-    
+    void initialize() override;
+
     /**
-     * @brief  Get altitude from the pressure sensor.
-     * @return Altitude in meters.
+     * @brief Update the pressure sensor data.
+     *
+     * This method reads and updates the pressure sensor data.
      */
-    float getAltitude();
-    
+    void update() override;
+
     /**
-     * @brief  Get pressure from the pressure sensor.
-     * @return Pressure in Pascals (Pa).
+     * @brief Get the current pressure sensor data.
+     *
+     * This method returns the current pressure sensor data.
+     * 
+     * @return Current pressure sensor data.
      */
-    float getPressure();
-    
+    float getData() override;
+
     /**
-     * @brief  Get temperature from the pressure sensor.
-     * @return Temperature in degrees Celsius (°C).
+     * @brief Get the current temperature from the sensor.
+     *
+     * This method reads and returns the current temperature.
+     * 
+     * @return Current temperature.
      */
     float getTemperature();
 
-    // ------------------------- MEMBERS ------------------------- //
-    float pressure; // Current pressure reading
-    float temp; // Current temperature reading
+    /**
+     * @brief Calculate and return altitude based on pressure and temperature.
+     *
+     * This method calculates and returns the altitude.
+     * 
+     * @return Calculated altitude.
+     */
+    float getAltitude();
+
+private:
+
+    float pressure_;       ///< Current pressure value
+    float temp_;           ///< Current temperature value
+    byte oversampleRate_;  ///< Oversample rate for the sensor
+    MPL3115A2 baro_; ///< Instance of the pressure sensor library
 };
 
-#endif // PRESSURE_SENSOR_H
+#endif // PRESSURESENSOR_HPP
