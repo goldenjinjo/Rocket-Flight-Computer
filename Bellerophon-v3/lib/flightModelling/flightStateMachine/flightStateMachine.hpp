@@ -11,7 +11,7 @@
 class FlightStateMachine {
 private:
     FlightState currentState;
-    pressureSensor pressure;
+    PressureSensor pressure;
     IMUSensor imu;
     PyroController pyroDrogue;
     PyroController pyroMain;

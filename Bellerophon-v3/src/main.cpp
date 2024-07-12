@@ -37,6 +37,9 @@ SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, L
 // test instance of pyro class for drogue
 PyroController drogue(PYRO_DROGUE, 2000);
 
+Timer testTimer;
+PressureSensor pressure(1);
+
 void setup() {
 
     Wire.begin(); // Join i2c bus
@@ -51,6 +54,8 @@ void setup() {
     // play start up sequence
     LED.startUp();
     buzzerFunc.startUp();
+
+    pressure.initialize();
 
 }
 // keep track of previous tones
@@ -103,6 +108,18 @@ void loop()
         }
         case BARO_ONLY_FLIGHT_MODE: {
             /// TODO: write this
+
+            testTimer.start(1000);
+
+            pressure.update();
+
+            if (testTimer.hasElapsed()) {
+                testTimer.reset();
+                Serial.println(pressure.getData());
+                Serial.println(pressure.getAltitude());
+                Serial.println(pressure.getTemperature());
+            }
+
             break;
         }
     }

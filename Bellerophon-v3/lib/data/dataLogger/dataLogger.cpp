@@ -167,7 +167,7 @@ void DataLogger::logData() {
     // put all sensors into sensor array
     // TODO: Abstract this to dataLogger class
     // TODO: improve speed. Last check, 13ms between loops. Way too slow.
-    sensorArray[0] = baro.getPressure();
+    sensorArray[0] = baro.getData();
     sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
     sensorArray[2] = acc[0];
     sensorArray[3] = acc[1];

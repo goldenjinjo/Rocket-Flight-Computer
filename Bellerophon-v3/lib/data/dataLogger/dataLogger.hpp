@@ -73,7 +73,7 @@ public:
  
     // Sensor Objects
     // set oversample rate (lower, faster)
-    pressureSensor baro;
+    PressureSensor baro;
     // Change address to low or high based on PCB design
     IMUSensor imu;
 
