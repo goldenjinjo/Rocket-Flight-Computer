@@ -1,7 +1,7 @@
 #include "serialCommunicator.hpp"
 
-SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix)
-    : baudRate(baudRate), prefix(prefix), suffix(suffix) {
+SerialCommunicator::SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix, BuzzerFunctions& buzzer)
+    : baudRate(baudRate), prefix(prefix), suffix(suffix), buzzer(buzzer) {
 
     // Allocate memory for the input buffer
     input = new char[bufferSize];
@@ -62,6 +62,10 @@ bool SerialCommunicator::waitForMessage(const char* expectedMessage, uint32_t ti
 
     // Loop until the timeout period elapses
     while (millis() - startTime < timeout) {
+        // Updates the buzzer state so it does not get stuck even in while loop.
+        /// TODO: remove blocking so we don't need crude solutions like this
+        buzzer.update();
+
         // Read the serial message, which trims whitespace and returns the message
         char* message = readSerialMessage();
 

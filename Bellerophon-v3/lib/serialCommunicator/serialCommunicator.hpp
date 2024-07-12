@@ -1,9 +1,9 @@
 #ifndef SERIALCOMMUNICATOR_HPP
 #define SERIALCOMMUNICATOR_HPP
 
-#include <Arduino.h>
 #include "configKeys.hpp"
 #include "constants.hpp"
+#include "buzzerFunctions.hpp"
 
 /**
  * @class SerialCommunicator
@@ -17,7 +17,7 @@ public:
      * @param prefix The prefix for messages.
      * @param suffix The suffix for messages.
      */
-    SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix);
+    SerialCommunicator(uint32_t baudRate, const char prefix, const char suffix, BuzzerFunctions& buzzer);
 
     ~SerialCommunicator(); // Destructor declaration
 
@@ -80,6 +80,8 @@ private:
     bool prefixFound;
     char* input;
     int bufferSize = 100;
+
+    BuzzerFunctions& buzzer;
 
 
     /*

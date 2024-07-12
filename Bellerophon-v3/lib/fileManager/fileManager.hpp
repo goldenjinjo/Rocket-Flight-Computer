@@ -9,7 +9,6 @@
 #include "configKeys.hpp"
 #include "constants.hpp"
 #include "pinAssn.hpp"
-#include "deviceFunctions.hpp"
 
 
 /**

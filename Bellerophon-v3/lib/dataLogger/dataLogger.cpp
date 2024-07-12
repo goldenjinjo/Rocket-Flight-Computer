@@ -96,8 +96,6 @@ void DataLogger::readDataFromFile(const char* fileName) {
 
     // handshake to finish file transfer
     if (!serialComm.waitForMessage(END_OF_TRANSMISSION_ACK, 1000)) {
-        // Handle timeout (optional)
-        buzzerFailure();
         return;
     }
 }
@@ -143,7 +141,6 @@ void DataLogger::deleteAllFiles() {
     }
         
     Serial.println("All files deleted.");
-    LEDBlink(R_LED, 2000);
 
     // update fileNames array, which now should be empty
     files.updateFileList();

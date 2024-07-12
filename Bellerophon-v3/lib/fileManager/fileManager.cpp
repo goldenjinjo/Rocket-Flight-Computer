@@ -145,7 +145,6 @@ bool FileManager::deleteFile(const char* fileName) {
         return sd.remove(fileName);
 
     } else {
-        buzzerFailure();
         Serial.println("File not found, nothing deleted\n");
         return false;
     }

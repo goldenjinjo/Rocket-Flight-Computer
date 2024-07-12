@@ -5,9 +5,7 @@
 #include "pinAssn.hpp"
 #include <array>
 #include <unordered_map>
-#include <Arduino.h>
 #include "configKeys.hpp"
-#include "deviceFunctions.hpp"
 
 /**
  * @class PositionalServo

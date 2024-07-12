@@ -9,44 +9,47 @@
 #include "IMUSensor.hpp"
 #include "dataLogger.hpp"
 #include "positionalServo.hpp"
-#include <BasicLinearAlgebra.h>
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
 #include "configFileManager.hpp"
 #include "configKeys.hpp"
 #include "constants.hpp"
 #include "serialAction.hpp"
+#include "pyroController.hpp"
+#include "LEDController.hpp"
+#include "buzzerFunctions.hpp"
+#include "LEDManager.hpp"
 
+size_t buzzerQueueLimit = 50;
 // Class Declarations
+BuzzerController buzzer(BUZZER, buzzerQueueLimit);
+BuzzerFunctions buzzerFunc(buzzer);
+LEDManager LED;
 
-SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX);
+SerialCommunicator serialComm(BAUD_RATE, PREFIX, SUFFIX, buzzerFunc);
 FileManager fm;
-ConfigFileManager config(fm);
 PositionalServo controlFins;
 DataLogger logger(serialComm, fm);
-SerialAction serialAction(serialComm, config, logger, controlFins);
+ConfigFileManager config(fm);
+SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
+
+// test instance of pyro class for drogue
+PyroController drogue(PYRO_DROGUE, 2000);
 
 void setup() {
 
     Wire.begin(); // Join i2c bus
     serialComm.begin();
-
-    // Set pin types and configure LEDs
-    peripheralInitialize();
     // initilize classes
     fm.initialize();
-    // Config must be initalised first after FileManager, as it declares all external variables, including debug
+    // Config must be initalised first after FileManager, 
+    //as it declares all external variables, including debug
     config.initialize();
-    controlFins.initialize();
     logger.initialize();
+    controlFins.initialize();
     // play start up sequence
-    startUp();
-
-
-   delay(1000);
-
-    ///TODO: set mode manager with getters and setters
-   mode = BOOTUP_MODE;
+    LED.startUp();
+    buzzerFunc.startUp();
 
 }
 // keep track of previous tones
@@ -60,14 +63,18 @@ void loop()
     serialAction.checkSerialForMode();
     // Play a tone to indicate mode of opera tion
     if (mode != previousMode) {
-        buzzerModeSelect(mode);
+        buzzerFunc.modeSelect(mode);
         previousMode = mode;
     }
+
+    buzzerFunc.update();
+    LED.updateAllLEDS();
 
     switch (mode) {
         
         case STANDBY_MODE: {
             // do nothing
+            LED.cycleLEDs(5000);
             break;
         }    
         case READING_MODE: {
@@ -93,8 +100,9 @@ void loop()
             serialAction.processAndChangeConfig();
             break;
         }
+        case BARO_ONLY_FLIGHT_MODE: {
+            /// TODO: write this
+            break;
+        }
     }
 }
-
-
-
