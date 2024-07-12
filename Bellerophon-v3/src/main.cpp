@@ -19,6 +19,7 @@
 #include "LEDController.hpp"
 #include "buzzerFunctions.hpp"
 #include "LEDManager.hpp"
+#include "flightStateMachine.hpp"
 
 size_t buzzerQueueLimit = 50;
 // Class Declarations

@@ -1,6 +1,0 @@
-#ifndef STATE_SPACE_HPP
-#define STATE_SPACE_HPP
-
-
-
-#endif // STATE_SPACE_HPP
