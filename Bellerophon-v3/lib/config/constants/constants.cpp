@@ -34,13 +34,6 @@ const int SIGMA_M = 10;
 const int SIGMA_S = 3;
 const int SIGMA_A = 2;
 
-// Atmospheric Pressure at Sea-Level in hPa
-const float P_0 = 1013.25;
-const float L_B = 0.0065;
-const float EXP = 1 / 5.257;
-const float C_TO_K = 273.15;
-
-
 // File naming configuration
 const char* logFilePrefix = "log_";
 const char* logFileSuffix = ".txt";
