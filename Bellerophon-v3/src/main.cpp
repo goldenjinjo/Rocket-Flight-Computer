@@ -38,7 +38,7 @@ SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, L
 PyroController drogue(PYRO_DROGUE, 2000);
 
 Timer testTimer;
-PressureSensor pressure(1);
+PressureSensor pressure(2);
 
 void setup() {
 
@@ -60,6 +60,8 @@ void setup() {
 }
 // keep track of previous tones
 int previousMode = -1;  
+int time1 = 0;
+int time2 = 0;
 // MAIN LOOP
 
 void loop()
@@ -109,16 +111,18 @@ void loop()
         case BARO_ONLY_FLIGHT_MODE: {
             /// TODO: write this
 
-            testTimer.start(1000);
-
+            
+            time1 = Timer::currentTime();
             pressure.update();
 
-            if (testTimer.hasElapsed()) {
-                testTimer.reset();
-                Serial.println(pressure.getData());
-                Serial.println(pressure.getAltitude());
-                Serial.println(pressure.getTemperature());
-            }
+            Serial.println("-------------");
+            
+            Serial.println(pressure.getData());
+            Serial.println(pressure.getAltitude());
+            Serial.println(pressure.getTemperature());
+            time2 = Timer::currentTime();
+            Serial.println(time2 - time1);
+            Serial.println("-------------");
 
             break;
         }

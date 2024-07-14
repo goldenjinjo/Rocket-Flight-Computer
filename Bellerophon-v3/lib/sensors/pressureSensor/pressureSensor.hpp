@@ -4,6 +4,7 @@
 #include "SparkFunMPL3115A2.h"
 #include "sensor.hpp"
 #include "constants.hpp"
+#include "configKeys.hpp"
 
 /**
  * @class PressureSensor

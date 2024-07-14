@@ -9,6 +9,7 @@ PressureSensor::PressureSensor(byte rate) : oversampleRate_(rate) {
 // Initialize the sensor
 void PressureSensor::initialize() {
     baro_.begin();
+    baro_.setModeActive();
     baro_.setOversampleRate(oversampleRate_); // Set oversample rate
     baro_.enableEventFlags(); 
     baro_.setModeBarometer(); 
@@ -33,7 +34,6 @@ float PressureSensor::getTemperature() {
 // Calculate and return altitude based on pressure and temperature
 float PressureSensor::getAltitude() {
     pressure_ = getData();
-    temp_ = getTemperature();
-    return pow(P_0 / pressure_, EXP) * (temp_ + C_TO_K) / L_B;
+    return 44330.77 * (1 - pow(pressure_ / (REFERENCE_PRESSURE), 0.1902632));
 }
 

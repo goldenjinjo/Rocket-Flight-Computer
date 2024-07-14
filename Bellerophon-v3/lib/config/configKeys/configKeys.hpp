@@ -50,7 +50,8 @@ struct ConfigKey {
     X(SERVO_A_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo A Based on Fin Alignment */ \
     X(SERVO_B_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo B Based on Fin Alignment */ \
     X(SERVO_C_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo C Based on Fin Alignment */ \
-    X(SERVO_D_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo D Based on Fin Alignment */
+    X(SERVO_D_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo D Based on Fin Alignment */ \
+    X(REFERENCE_PRESSURE, 101325) /* Sea Level Pressure for barometric altitude estimation */
 
 // Declare the global variables
 #define X(name, defaultValue) extern float name;
