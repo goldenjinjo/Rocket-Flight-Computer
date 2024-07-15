@@ -34,11 +34,8 @@ DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
 SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
 
-// test instance of pyro class for drogue
-PyroController drogue(PYRO_DROGUE, 2000);
-
 Timer testTimer;
-PressureSensor pressure(2);
+FlightStateMachine flightState;
 
 void setup() {
 
@@ -55,7 +52,6 @@ void setup() {
     LED.startUp();
     buzzerFunc.startUp();
 
-    pressure.initialize();
 
 }
 // keep track of previous tones
@@ -113,13 +109,9 @@ void loop()
 
             
             time1 = Timer::currentTime();
-            pressure.update();
+           
+            flightState.update();
 
-            Serial.println("-------------");
-            
-            Serial.println(pressure.getData());
-            Serial.println(pressure.getAltitude());
-            Serial.println(pressure.getTemperature());
             time2 = Timer::currentTime();
             Serial.println(time2 - time1);
             Serial.println("-------------");

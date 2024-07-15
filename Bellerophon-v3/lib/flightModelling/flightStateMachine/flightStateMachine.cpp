@@ -1,12 +1,36 @@
-// FlightStateMachine.cpp
 #include "FlightStateMachine.hpp"
 
-FlightStateMachine::FlightStateMachine() : currentState(FlightState::PRE_LAUNCH), pressure(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
-pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), pyroMain(PYRO_MAIN, MAIN_DELAY)  {
+FlightStateMachine::FlightStateMachine()
+    : currentState(FlightState::PRE_LAUNCH), 
+      pressureSensor(1), 
+      altitudeProcessor(10), // History size of 10
+      velocityProcessor(10), // History size of 10
+      imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
+      pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
+      pyroMain(PYRO_MAIN, MAIN_DELAY) {
     // Initialize sensors and actuators
+    pressureSensor.initialize();
 }
 
 void FlightStateMachine::update() {
+    updateSensorData();
+    handleStateTransition();
+}
+
+void FlightStateMachine::updateSensorData() {
+    pressureSensor.update(); // Update pressure sensor data
+    currentAltitude = pressureSensor.getAltitude(); // Get the current altitude
+    altitudeProcessor.update(currentAltitude); // Update altitude data processor
+
+    float velocity = altitudeProcessor.getDifferentiatedValue();
+    velocityProcessor.update(velocity); // Update velocity data processor
+
+    Serial.println(currentAltitude);
+    Serial.println(velocity);
+    Serial.println("----");
+}
+
+void FlightStateMachine::handleStateTransition() {
     switch (currentState) {
         case FlightState::PRE_LAUNCH:
             handlePreLaunch();
@@ -45,40 +69,53 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 
 void FlightStateMachine::handlePreLaunch() {
     // Pre-launch logic
-    // if (/* condition to start ascent */) {
-    //     transitionToState(FlightState::ASCENT);
-    // }
+    if (currentAltitude > 70) {
+        transitionToState(FlightState::ASCENT);
+    }
 }
 
 void FlightStateMachine::handleAscent() {
     // Ascent logic
-    // if (/* condition to detect apogee */) {
-    //     transitionToState(FlightState::APOGEE);
-    // }
+    float smoothedVelocity = velocityProcessor.getSmoothedValue();
+    
+    // Apogee detection logic
+    if (smoothedVelocity <= APOGEE_VELOCITY_THRESHOLD) {
+        // Optionally, we can add a check to ensure the altitude is not increasing
+        float previousAltitude = altitudeProcessor.getSmoothedValue();
+        if (currentAltitude <= previousAltitude) {
+            transitionToState(FlightState::APOGEE);
+        }
+    }
 }
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
-    transitionToState(FlightState::DESCENT_DROGUE);
+    // Trigger drogue parachute
+    if(pyroDrogue.trigger()) {
+        transitionToState(FlightState::DESCENT_DROGUE);
+    }
 }
 
 void FlightStateMachine::handleDescentDrogue() {
     // Descent under drogue logic
-    // if (/* condition for low altitude detection */) {
-    //     transitionToState(FlightState::LOW_ALTITUDE_DETECTION);
-    // }
+    if (currentAltitude <= MAIN_DEPLOYMENT_ALT) {
+        transitionToState(FlightState::LOW_ALTITUDE_DETECTION);
+    }
 }
 
 void FlightStateMachine::handleLowAltitudeDetection() {
-    // Low altitude detection logic
-    transitionToState(FlightState::DESCENT_MAIN);
+    // Trigger main parachutes
+    if(pyroMain.trigger()){
+        transitionToState(FlightState::DESCENT_MAIN);
+    }
+    
 }
 
 void FlightStateMachine::handleDescentMain() {
     // Descent under main logic
-    // if (/* condition for landing */) {
-    //     transitionToState(FlightState::LANDING);
-    // }
+    if (currentAltitude <= LANDING_ALTITUDE) {
+        transitionToState(FlightState::LANDING);
+    }
 }
 
 void FlightStateMachine::handleLanding() {
