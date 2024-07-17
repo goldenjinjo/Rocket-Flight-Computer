@@ -2,9 +2,9 @@
 
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
-      pressureSensor(1), 
-      altitudeProcessor(10), // History size of 10
-      velocityProcessor(10), // History size of 10
+      pressureSensor(0), 
+      altitudeProcessor(100), // History size of 100
+      velocityProcessor(100), // History size of 100
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
@@ -25,8 +25,10 @@ void FlightStateMachine::updateSensorData() {
     float velocity = altitudeProcessor.getDifferentiatedValue();
     velocityProcessor.update(velocity); // Update velocity data processor
 
-    Serial.println(currentAltitude);
-    Serial.println(velocity);
+    
+    Serial.println(pressureSensor.getData());
+    Serial.println(altitudeProcessor.getSmoothedValue());
+    Serial.println(velocityProcessor.getSmoothedValue());
     Serial.println("----");
 }
 
@@ -68,6 +70,8 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 }
 
 void FlightStateMachine::handlePreLaunch() {
+    
+    
     // Pre-launch logic
     if (currentAltitude > 70) {
         transitionToState(FlightState::ASCENT);

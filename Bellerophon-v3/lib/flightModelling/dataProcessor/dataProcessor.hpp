@@ -1,12 +1,13 @@
 #ifndef DATAPROCESSOR_HPP
 #define DATAPROCESSOR_HPP
 
-#include <vector>
-#include <cstddef>
+#include <cstddef> // Include this header for size_t
+#include "timer.hpp"
 
 class DataProcessor {
 public:
     DataProcessor(size_t historySize, float outlierThreshold = 10.0);
+    ~DataProcessor(); // Add the destructor
     void update(float value);
     float getIntegratedValue() const;
     float getDifferentiatedValue() const;
@@ -14,7 +15,8 @@ public:
     bool isOutlier(float value) const;
 
 private:
-    std::vector<float> dataHistory;
+    float* values;
+    unsigned long* timestamps;
     size_t currentIndex;
     size_t currentSize;
     const size_t historySize;
@@ -27,3 +29,4 @@ private:
 };
 
 #endif // DATAPROCESSOR_HPP
+

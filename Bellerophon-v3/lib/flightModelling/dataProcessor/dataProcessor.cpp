@@ -2,14 +2,22 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 DataProcessor::DataProcessor(size_t historySize, float outlierThreshold)
     : currentIndex(0), currentSize(0), historySize(historySize), outlierThreshold(outlierThreshold) {
-    dataHistory.resize(historySize, 0.0);
+    values = new float[historySize]();
+    timestamps = new unsigned long[historySize]();
+}
+
+DataProcessor::~DataProcessor() {
+    delete[] values;
+    delete[] timestamps;
 }
 
 void DataProcessor::update(float value) {
-    dataHistory[currentIndex] = value;
+    values[currentIndex] = value;
+    timestamps[currentIndex] = Timer::currentTime();
     currentIndex = (currentIndex + 1) % historySize;
     if (currentSize < historySize) {
         ++currentSize;
@@ -37,17 +45,30 @@ float DataProcessor::calculateSmoothedValue() const {
         return 0.0;
     }
 
-    float sum = std::accumulate(dataHistory.begin(), dataHistory.begin() + currentSize, 0.0);
+    float sum = 0.0;
+    for (size_t i = 0; i < currentSize; ++i) {
+        sum += values[i];
+    }
     return sum / static_cast<float>(currentSize);
 }
 
 float DataProcessor::calculateIntegratedValue() const {
-    if (currentSize == 0) {
+    if (currentSize < 2) {
         return 0.0;
     }
 
-    float sum = std::accumulate(dataHistory.begin(), dataHistory.begin() + currentSize, 0.0);
-    return sum; // Assume unit time step
+    float sum = 0.0;
+    for (size_t i = 1; i < currentSize; ++i) {
+        size_t currentIndex = (this->currentIndex + historySize - i) % historySize;
+        size_t previousIndex = (currentIndex + historySize - 1) % historySize;
+
+        float deltaValue = values[currentIndex] - values[previousIndex];
+        float deltaTime = (timestamps[currentIndex] - timestamps[previousIndex]) / 1000.0; // Convert to seconds
+
+        sum += deltaValue * deltaTime;
+    }
+
+    return sum;
 }
 
 float DataProcessor::calculateDifferentiatedValue() const {
@@ -55,12 +76,35 @@ float DataProcessor::calculateDifferentiatedValue() const {
         return 0.0;
     }
 
-    size_t oldestIndex = (currentIndex + 1) % historySize;
-    size_t newestIndex = (currentIndex + historySize - 1) % historySize;
+    float sumDeltaValue = 0.0;
+    float sumDeltaTime = 0.0;
+    for (size_t i = 1; i < currentSize; ++i) {
+        size_t currentIndex = (this->currentIndex + historySize - i) % historySize;
+        size_t previousIndex = (currentIndex + historySize - 1) % historySize;
 
-    float deltaValue = dataHistory[newestIndex] - dataHistory[oldestIndex];
-    float deltaTime = static_cast<float>(currentSize - 1); // Assume 1 unit time step
-    return deltaValue / deltaTime;
+        float deltaValue = values[currentIndex] - values[previousIndex];
+        float deltaTime = (timestamps[currentIndex] - timestamps[previousIndex]) / 1000.0; // Convert to seconds
+
+        sumDeltaValue += deltaValue;
+        sumDeltaTime += deltaTime;
+
+
+        // Check for outliers and skip if detected
+        // if (!detectOutlier(deltaValue / deltaTime)) {
+        //     sumDeltaValue += deltaValue;
+        //     sumDeltaTime += deltaTime;
+        // } else {
+        //     Serial.print("outlier detected: ");
+        //     Serial.println(deltaValue / deltaTime);
+        // }
+    }
+
+    // Avoid division by zero
+    if (sumDeltaTime == 0.0) {
+        return 0.0;
+    }
+
+    return sumDeltaValue / sumDeltaTime;
 }
 
 bool DataProcessor::detectOutlier(float value) const {
