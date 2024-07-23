@@ -20,13 +20,7 @@ void DataProcessor::updateBuffer(float value) {
     }
 }
 
-float DataProcessor::getIntegratedValue() const {
-    return calculateIntegratedValue();
-}
 
-float DataProcessor::getDifferentiatedValue() const {
-    return calculateDifferentiatedValue();
-}
 
 float DataProcessor::getSmoothedValue() const {
     return calculateSmoothedValue();

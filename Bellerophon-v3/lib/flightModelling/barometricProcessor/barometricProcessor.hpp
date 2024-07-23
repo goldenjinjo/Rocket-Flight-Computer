@@ -1,8 +1,8 @@
-#ifndef BAROMETRIC_PROCESSOR_HPP
-#define BAROMETRIC_PROCESSOR_HPP
+#ifndef barometricProcessor_HPP
+#define barometricProcessor_HPP
 
 #include "dataProcessor.hpp"
-#include "PressureSensor.hpp"
+#include "pressureSensor.hpp"
 #include "configKeys.hpp"
 
 /**
@@ -23,7 +23,7 @@ public:
     /**
      * @brief Update the pressure sensor data and process it.
      */
-    void update();
+    void update() override;
 
     /**
      * @brief Get the estimated altitude.
@@ -39,11 +39,28 @@ public:
      */
     float getVerticalVelocity() const;
 
+    /**
+     * @brief Get the maximum recorded altitude.
+     * 
+     * @return Maximum recorded altitude.
+     */
+    float getMaxAltitude() const;
+
+    /**
+     * @brief Get the maximum recorded vertical velocity.
+     * 
+     * @return Maximum recorded vertical velocity.
+     */
+    float getMaxVelocity() const;
+
 private:
     PressureSensor& pressureSensor_;
-    float referencePressure_;
-    bool firstUpdate_;
+    float maxAltitude_;
+    float maxVelocity_;
 
+    float calculateAltitude(float pressure) const; // Helper function to calculate altitude from pressure
+    void updateMaxAltitude(float altitude);
+    void updateMaxVelocity(float velocity);
 };
 
-#endif // BAROMETRIC_PROCESSOR_HPP
+#endif // barometricProcessor_HPP

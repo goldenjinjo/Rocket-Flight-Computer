@@ -1,20 +1,48 @@
 #include "barometricProcessor.hpp"
-#include "timer.hpp"
 
 BarometricProcessor::BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, float outlierThreshold)
-    : DataProcessor(historySize, outlierThreshold), pressureSensor_(pressureSensor) {}
+    : DataProcessor(historySize, outlierThreshold), pressureSensor_(pressureSensor), maxAltitude_(0), maxVelocity_(0) {}
 
 void BarometricProcessor::update() {
     pressureSensor_.update();
     float pressure = pressureSensor_.getData();
-    updateBuffer(pressure); // Use the base class method to update buffer and timestamp
+    float altitude = calculateAltitude(pressure);
+    updateBuffer(altitude); // Use the base class method to update buffer and timestamp
+
+    updateMaxAltitude(altitude);
+
+    float velocity = calculateDifferentiatedValue();
+    updateMaxVelocity(velocity);
 }
 
 float BarometricProcessor::getAltitude() const {
-    float smoothedPressure = getSmoothedValue();
-    return 44330.77 * (1 - pow(smoothedPressure / REFERENCE_PRESSURE, 0.1902632));
+    return getSmoothedValue();
 }
 
 float BarometricProcessor::getVerticalVelocity() const {
-    return getDifferentiatedValue();
+    return calculateDifferentiatedValue();
+}
+
+float BarometricProcessor::getMaxAltitude() const {
+    return maxAltitude_;
+}
+
+float BarometricProcessor::getMaxVelocity() const {
+    return maxVelocity_;
+}
+
+float BarometricProcessor::calculateAltitude(float pressure) const {
+    return 44330.77 * (1 - pow(pressure / REFERENCE_PRESSURE, 0.1902632));
+}
+
+void BarometricProcessor::updateMaxAltitude(float altitude) {
+    if (altitude > maxAltitude_) {
+        maxAltitude_ = altitude;
+    }
+}
+
+void BarometricProcessor::updateMaxVelocity(float velocity) {
+    if (velocity > maxVelocity_) {
+        maxVelocity_ = velocity;
+    }
 }

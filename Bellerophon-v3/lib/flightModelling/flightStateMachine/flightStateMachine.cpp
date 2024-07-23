@@ -3,7 +3,7 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(pressureSensor, 100, 10), // History size of 100
+      altitudeProcessor(pressureSensor, 800, 10),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
@@ -25,6 +25,10 @@ void FlightStateMachine::updateSensorData() {
     Serial.println(pressureSensor.getData());
     Serial.println(currentAltitude);
     Serial.println(velocity);
+    Serial.print("Max Altitude: ");
+    Serial.println(altitudeProcessor.getMaxAltitude());
+    Serial.print("Max Velocity: ");
+    Serial.println(altitudeProcessor.getMaxVelocity());
     Serial.println("----");
 }
 
