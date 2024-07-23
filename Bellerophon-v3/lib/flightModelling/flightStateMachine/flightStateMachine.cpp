@@ -24,7 +24,6 @@ void FlightStateMachine::updateSensorData() {
 
     Serial.println(pressureSensor.getData());
     Serial.println(currentAltitude);
-    Serial.println(pressureSensor.getAltitude());
     Serial.println(velocity);
     Serial.println("----");
 }

@@ -31,9 +31,3 @@ float PressureSensor::getTemperature() {
     return temp_;
 }
 
-// Calculate and return altitude based on pressure and temperature
-float PressureSensor::getAltitude() {
-    pressure_ = getData();
-    return 44330.77 * (1 - pow(pressure_ / (REFERENCE_PRESSURE), 0.1902632));
-}
-
