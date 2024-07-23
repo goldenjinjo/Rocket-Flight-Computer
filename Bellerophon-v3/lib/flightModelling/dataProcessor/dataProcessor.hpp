@@ -146,6 +146,12 @@ protected:
      */
     void stabilize(float value);
 
+    /**
+     * @brief Clear the buffer and reset the processor.
+     */
+    void clearBuffer();
+
+
 private:
     /**
      * @brief Update the sliding window with a new value.

@@ -189,3 +189,24 @@ void DataProcessor::updateSlidingWindow(float value) {
         rateOfChangeWindow.push_back(std::abs(slidingWindow.back() - slidingWindow[slidingWindow.size() - 2]));
     }
 }
+
+void DataProcessor::clearBuffer() {
+    // Reset the index and size counters
+    currentIndex = 0;
+    currentSize = 0;
+
+    // Clear the values and timestamps arrays
+    std::fill(values, values + historySize, 0.0f);
+    std::fill(timestamps, timestamps + historySize, 0);
+
+    // Clear the sliding window and rate of change window
+    slidingWindow.clear();
+    rateOfChangeWindow.clear();
+
+    // Reset the stabilization phase and counter
+    stabilizationPhase = true;
+    stabilizationCount = 0;
+
+    // Reset outlier count
+    outlierCount = 0;
+}

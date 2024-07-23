@@ -3,7 +3,7 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(pressureSensor, 1000, 7),
+      altitudeProcessor(pressureSensor, 500, 5),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
