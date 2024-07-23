@@ -1,10 +1,9 @@
-#include "FlightStateMachine.hpp"
+#include "flightStateMachine.hpp"
 
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(100), // History size of 100
-      velocityProcessor(100), // History size of 100
+      altitudeProcessor(pressureSensor, 100, 10), // History size of 100
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
@@ -18,17 +17,15 @@ void FlightStateMachine::update() {
 }
 
 void FlightStateMachine::updateSensorData() {
-    pressureSensor.update(); // Update pressure sensor data
-    currentAltitude = pressureSensor.getAltitude(); // Get the current altitude
-    altitudeProcessor.update(currentAltitude); // Update altitude data processor
+    altitudeProcessor.update(); // Update altitude processor data
+    currentAltitude = altitudeProcessor.getAltitude(); // Get the current altitude
 
-    float velocity = altitudeProcessor.getDifferentiatedValue();
-    velocityProcessor.update(velocity); // Update velocity data processor
+    velocity = altitudeProcessor.getVerticalVelocity();
 
-    
     Serial.println(pressureSensor.getData());
-    Serial.println(altitudeProcessor.getSmoothedValue());
-    Serial.println(velocityProcessor.getSmoothedValue());
+    Serial.println(currentAltitude);
+    Serial.println(pressureSensor.getAltitude());
+    Serial.println(velocity);
     Serial.println("----");
 }
 
@@ -70,8 +67,6 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 }
 
 void FlightStateMachine::handlePreLaunch() {
-    
-    
     // Pre-launch logic
     if (currentAltitude > 70) {
         transitionToState(FlightState::ASCENT);
@@ -80,15 +75,10 @@ void FlightStateMachine::handlePreLaunch() {
 
 void FlightStateMachine::handleAscent() {
     // Ascent logic
-    float smoothedVelocity = velocityProcessor.getSmoothedValue();
-    
+   
     // Apogee detection logic
-    if (smoothedVelocity <= APOGEE_VELOCITY_THRESHOLD) {
-        // Optionally, we can add a check to ensure the altitude is not increasing
-        float previousAltitude = altitudeProcessor.getSmoothedValue();
-        if (currentAltitude <= previousAltitude) {
-            transitionToState(FlightState::APOGEE);
-        }
+    if (velocity <= APOGEE_VELOCITY_THRESHOLD) {
+        transitionToState(FlightState::APOGEE);
     }
 }
 

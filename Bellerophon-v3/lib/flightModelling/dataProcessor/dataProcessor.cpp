@@ -1,8 +1,4 @@
-#include "DataProcessor.hpp"
-#include <numeric>
-#include <algorithm>
-#include <cmath>
-#include <limits>
+#include "dataProcessor.hpp"
 
 DataProcessor::DataProcessor(size_t historySize, float outlierThreshold)
     : currentIndex(0), currentSize(0), historySize(historySize), outlierThreshold(outlierThreshold) {
@@ -15,7 +11,7 @@ DataProcessor::~DataProcessor() {
     delete[] timestamps;
 }
 
-void DataProcessor::update(float value) {
+void DataProcessor::updateBuffer(float value) {
     values[currentIndex] = value;
     timestamps[currentIndex] = Timer::currentTime();
     currentIndex = (currentIndex + 1) % historySize;
@@ -87,16 +83,6 @@ float DataProcessor::calculateDifferentiatedValue() const {
 
         sumDeltaValue += deltaValue;
         sumDeltaTime += deltaTime;
-
-
-        // Check for outliers and skip if detected
-        // if (!detectOutlier(deltaValue / deltaTime)) {
-        //     sumDeltaValue += deltaValue;
-        //     sumDeltaTime += deltaTime;
-        // } else {
-        //     Serial.print("outlier detected: ");
-        //     Serial.println(deltaValue / deltaTime);
-        // }
     }
 
     // Avoid division by zero

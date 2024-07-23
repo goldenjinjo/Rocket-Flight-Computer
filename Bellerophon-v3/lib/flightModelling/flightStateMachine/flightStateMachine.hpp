@@ -7,7 +7,7 @@
 #include "pyroController.hpp"
 #include "pinAssn.hpp"
 #include "configKeys.hpp"
-#include "dataProcessor.hpp"
+#include "barometricProcessor.hpp"
 
 class FlightStateMachine {
 public:
@@ -20,8 +20,7 @@ private:
     FlightState currentState;
     PressureSensor pressureSensor;
     IMUSensor imu;
-    DataProcessor altitudeProcessor;
-    DataProcessor velocityProcessor;
+    BarometricProcessor altitudeProcessor;
     PyroController pyroDrogue;
     PyroController pyroMain;
 
@@ -38,6 +37,7 @@ private:
     void handleStageSeparation();
 
     float currentAltitude;
+    float velocity;
     const float APOGEE_VELOCITY_THRESHOLD = 0.5; // Example value in m/s
     const float LANDING_ALTITUDE = 10.0; // Example value in meters
 };
