@@ -97,6 +97,9 @@ protected:
     std::deque<float> rateOfChangeWindow; ///< Sliding window for rate of change
     size_t outlierCount; ///< Counter for the number of detected outliers
 
+    Timer stabilizationTimer; ///< Timer instance for stabilization
+    int stabilizationWaitTime = 3000; ///< Time to wait before starting stabilization sequence
+
     /**
      * @brief Update the internal buffer with new data and record the current timestamp.
      * 

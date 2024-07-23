@@ -70,6 +70,14 @@ bool DataProcessor::isStabilized() const {
 }
 
 void DataProcessor::stabilize(float value) {
+    
+    // Wait a period of time before beginning stabilization
+    stabilizationTimer.start(stabilizationWaitTime);
+    if(!stabilizationTimer.hasElapsed()) {
+        // Do not iterate until timer has elapsed
+        return;
+    }
+    
     // During the stabilization phase, we update the buffer without timestamps and check for stabilization
     values[currentIndex] = value;
     currentIndex = (currentIndex + 1) % historySize;
