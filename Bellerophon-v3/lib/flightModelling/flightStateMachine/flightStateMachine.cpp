@@ -3,7 +3,7 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(pressureSensor, 500, 5),
+      altitudeProcessor(pressureSensor, 50, 5),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
@@ -75,8 +75,16 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 
 void FlightStateMachine::handlePreLaunch() {
     // Pre-launch logic
-    if (currentAltitude > 70) {
+
+    if (velocity > LAUNCH_VEL_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
+        return;
+    }
+
+    // redudant altitude check
+    if (currentAltitude > LAUNCH_ALTITUDE_THRESHOLD) {
+        transitionToState(FlightState::ASCENT);
+        return;
     }
 }
 
@@ -91,6 +99,11 @@ void FlightStateMachine::handleAscent() {
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
+    if(altitudeProcessor.getMaxAltitude < MINIMUM_APOGEE) {
+        // Do not allow pyro to trigger if minimum apogee was not reached,
+        /// TODO: create failure mode for this
+        return;
+    }
     // Trigger drogue parachute
     if(pyroDrogue.trigger()) {
         transitionToState(FlightState::DESCENT_DROGUE);

@@ -35,10 +35,10 @@ struct ConfigKey {
  * This macro is used to declare, define, and initialize configuration variables in a consistent manner.
  */
 #define CONFIG_VARIABLES \
-   X(ALTITUDE_BUFFER_PERIOD, 2000.0) /* Period to buffer initial altitude measurements (Unit TBD) */ \
+   X(LAUNCH_ALTITUDE_THRESHOLD, 30) /* Height above ground level to trigger launch detection (meters) */ \
     X(G_OFFSET, 9.81) /* 1G offset for accelerometer, accelerometer will measure 0g when in unpowered flight (unit TBD) */ \
-    X(LAUNCH_VEL_THRESHOLD, 15.0) /* Launch Detect Threshold for Velocity (Unit TBD) */ \
-    X(LAUNCH_ACC_THRESHOLD, 60.0) /* Launch Detect Threshold for Acceleration (Unit TBD) */ \
+    X(LAUNCH_VEL_THRESHOLD, 15.0) /* Launch Detect Threshold for Velocity (m/s) */ \
+    X(LAUNCH_ACC_THRESHOLD, 60.0) /* Launch Detect Threshold for Acceleration (m/s^2) */ \
     X(APOGEE_TIMER, 100.0) /* Time the rocket must spend with a velocity estimate below 0 before apogee is decided (seconds) */ \
     X(LANDING_VEL_THRESHOLD, 1.0) /* Landing velocity threshold (i.e. if velocity is lower than this consider the rocket landed) (Unit TBD) */ \
     X(BOOTUP_MODE, 0) /* Mode that activates when computer resets */ \
@@ -51,7 +51,8 @@ struct ConfigKey {
     X(SERVO_B_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo B Based on Fin Alignment */ \
     X(SERVO_C_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo C Based on Fin Alignment */ \
     X(SERVO_D_CENTER_POSITION, 90.0) /* 0 Deflection Angle for Servo D Based on Fin Alignment */ \
-    X(REFERENCE_PRESSURE, 101325) /* Sea Level Pressure for barometric altitude estimation */
+    X(REFERENCE_PRESSURE, 101325) /* Sea Level Pressure for barometric altitude estimation */ \
+    X(MINIMUM_APOGEE, 100) /* Minimum height above ground level to be reached before pyros are able to be armed (m)  */
 
 // Declare the global variables
 #define X(name, defaultValue) extern float name;
