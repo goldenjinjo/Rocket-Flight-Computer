@@ -53,14 +53,24 @@ public:
      */
     float getMaxVelocity() const;
 
+    /**
+     * @brief Get the ground altitude recorded at end of stabilisation period
+     * 
+     * @return ground altitude
+     */
+    float getGroundAltitude() const;
+
+
 private:
     PressureSensor& pressureSensor_;
     float maxAltitude_;
     float maxVelocity_;
+    float groundAltitude_;
 
     float calculateAltitude(float pressure) const; // Helper function to calculate altitude from pressure
     void updateMaxAltitude();
     void updateMaxVelocity();
+    void updateGroundAltitude();
 };
 
 #endif // barometricProcessor_HPP

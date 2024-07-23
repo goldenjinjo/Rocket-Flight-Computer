@@ -2,7 +2,7 @@
 
 DataProcessor::DataProcessor(size_t historySize, float outlierThreshold)
     : currentIndex(0), currentSize(0), historySize(historySize), outlierThreshold(outlierThreshold),
-      stabilizationPhase(true), stabilizationCount(0), stabilizationLimit(historySize) {
+      stabilizationPhase(true), stabilizationCount(0), stabilizationLimit(historySize), outlierCount(0) {
     values = new float[historySize]();
     timestamps = new unsigned long[historySize]();
 }
@@ -13,17 +13,28 @@ DataProcessor::~DataProcessor() {
 }
 
 void DataProcessor::updateBuffer(float value) {
-    if (stabilizationPhase) {
+    if (!isStabilized()) {
         stabilize(value);
-    } else {
-        values[currentIndex] = value;
-        timestamps[currentIndex] = Timer::currentTime();
-        currentIndex = (currentIndex + 1) % historySize;
-        if (currentSize < historySize) {
-            ++currentSize;
-        }
+        return;
     }
+    
+    if (isOutlier(value)) {
+        outlierCount++;
+        return; // Skip adding this value if it's an outlier
+    }
+ 
+    values[currentIndex] = value;
+    timestamps[currentIndex] = Timer::currentTime();
+    currentIndex = (currentIndex + 1) % historySize;
+    
+    if (currentSize < historySize) {
+        ++currentSize;
+    }
+
+    updateSlidingWindow(value);
+    
 }
+
 
 float DataProcessor::getIntegratedValue() const {
     if (stabilizationPhase) {
@@ -48,6 +59,10 @@ float DataProcessor::getSmoothedValue() const {
 
 bool DataProcessor::isOutlier(float value) const {
     return detectOutlier(value);
+}
+
+size_t DataProcessor::getOutlierCount() const {
+    return outlierCount;
 }
 
 bool DataProcessor::isStabilized() const {
@@ -125,11 +140,44 @@ float DataProcessor::calculateDifferentiatedValue() const {
 }
 
 bool DataProcessor::detectOutlier(float value) const {
-    if (currentSize == 0) {
+    // If the sliding window has fewer than 2 elements, there isn't enough data to compare,
+    // so we cannot determine if the value is an outlier. In this case, return false.
+    if (slidingWindow.size() < 2) {
         return false;
     }
 
-    float mean = calculateSmoothedValue();
-    float diff = std::abs(value - mean);
-    return diff > outlierThreshold;
+    // Get the last value in the sliding window, which is the most recent value added.
+    float lastValue = slidingWindow.back();
+
+    // Calculate the rate of change between the new value and the last value in the sliding window.
+    // The rate of change is the absolute difference between these two values.
+    float rateOfChange = std::abs(value - lastValue);
+
+    // Determine if the rate of change exceeds the outlier threshold. If it does, the value is
+    // considered an outlier, so return true. Otherwise, return false.
+    return rateOfChange > outlierThreshold;
+}
+
+void DataProcessor::updateSlidingWindow(float value) {
+    // If the sliding window has reached its maximum size (historySize), remove the oldest value
+    // from the front to make room for the new value.
+    if (slidingWindow.size() >= historySize) {
+        slidingWindow.pop_front();
+    }
+
+    // Add the new value to the back of the sliding window.
+    slidingWindow.push_back(value);
+
+    // If the rate of change window has reached its maximum size (historySize), remove the oldest
+    // rate of change value from the front to maintain a consistent window size.
+    if (rateOfChangeWindow.size() >= historySize) {
+        rateOfChangeWindow.pop_front();
+    }
+
+    // Calculate the rate of change if there is more than one value in the sliding window.
+    if (slidingWindow.size() > 1) {
+        // The rate of change is the absolute difference between the most recent value and the
+        // second most recent value in the sliding window.
+        rateOfChangeWindow.push_back(std::abs(slidingWindow.back() - slidingWindow[slidingWindow.size() - 2]));
+    }
 }

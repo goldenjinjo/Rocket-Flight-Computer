@@ -1,7 +1,8 @@
 #include "barometricProcessor.hpp"
 
 BarometricProcessor::BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, float outlierThreshold)
-    : DataProcessor(historySize, outlierThreshold), pressureSensor_(pressureSensor), maxAltitude_(0), maxVelocity_(0) {}
+    : DataProcessor(historySize, outlierThreshold), pressureSensor_(pressureSensor), maxAltitude_(0), maxVelocity_(0),
+    groundAltitude_(-999) {}
 
 void BarometricProcessor::update() {
     pressureSensor_.update();
@@ -11,6 +12,13 @@ void BarometricProcessor::update() {
 
     updateMaxAltitude();
     updateMaxVelocity();
+    updateGroundAltitude();
+}
+
+void BarometricProcessor::updateGroundAltitude() {
+    if(isStabilized() && groundAltitude_ == -999) {
+        groundAltitude_ = getAltitude();
+    }
 }
 
 float BarometricProcessor::getAltitude() const {
@@ -19,6 +27,10 @@ float BarometricProcessor::getAltitude() const {
 
 float BarometricProcessor::getVerticalVelocity() const {
     return calculateDifferentiatedValue();
+}
+
+float BarometricProcessor::getGroundAltitude() const {
+    return groundAltitude_;
 }
 
 float BarometricProcessor::getMaxAltitude() const {

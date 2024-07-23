@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <deque>   // Include for the sliding window
 
 /**
  * @class DataProcessor
@@ -75,6 +76,13 @@ public:
      */
     bool isStabilized() const;
 
+    /**
+     * @brief Get the number of detected outliers.
+     * 
+     * @return The number of outliers detected.
+     */
+    size_t getOutlierCount() const;
+
 protected:
     float* values;              ///< Array to store sensor values.
     unsigned long* timestamps;  ///< Array to store timestamps of the sensor values.
@@ -85,6 +93,9 @@ protected:
     bool stabilizationPhase;    ///< Flag indicating if the processor is in the stabilization phase.
     size_t stabilizationCount;  ///< Counter for the stabilization phase.
     const size_t stabilizationLimit; ///< Limit for the stabilization phase.
+    std::deque<float> slidingWindow; ///< Sliding window for robust outlier detection
+    std::deque<float> rateOfChangeWindow; ///< Sliding window for rate of change
+    size_t outlierCount; ///< Counter for the number of detected outliers
 
     /**
      * @brief Update the internal buffer with new data and record the current timestamp.
@@ -117,6 +128,9 @@ protected:
     /**
      * @brief Detect if a value is an outlier.
      * 
+     * This method determines if a given value is an outlier based on the rate of change compared
+     * to the last value in the sliding window.
+     *
      * @param value The value to check.
      * @return True if the value is an outlier, false otherwise.
      */
@@ -128,6 +142,17 @@ protected:
      * @param value The new sensor data value.
      */
     void stabilize(float value);
+
+private:
+    /**
+     * @brief Update the sliding window with a new value.
+     * 
+     * This method adds a new value to the sliding window, ensuring that the window size does not
+     * exceed the history size. It also updates the rate of change window accordingly.
+     *
+     * @param value The new sensor data value to add to the sliding window.
+     */
+    void updateSlidingWindow(float value);
 };
 
 #endif // DATAPROCESSOR_HPP
