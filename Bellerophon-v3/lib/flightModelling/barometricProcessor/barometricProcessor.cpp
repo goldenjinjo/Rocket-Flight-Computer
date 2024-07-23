@@ -9,10 +9,8 @@ void BarometricProcessor::update() {
     float altitude = calculateAltitude(pressure);
     updateBuffer(altitude); // Use the base class method to update buffer and timestamp
 
-    updateMaxAltitude(altitude);
-
-    float velocity = calculateDifferentiatedValue();
-    updateMaxVelocity(velocity);
+    updateMaxAltitude();
+    updateMaxVelocity();
 }
 
 float BarometricProcessor::getAltitude() const {
@@ -35,13 +33,15 @@ float BarometricProcessor::calculateAltitude(float pressure) const {
     return 44330.77 * (1 - pow(pressure / REFERENCE_PRESSURE, 0.1902632));
 }
 
-void BarometricProcessor::updateMaxAltitude(float altitude) {
+void BarometricProcessor::updateMaxAltitude() {
+    float altitude = getAltitude();
     if (altitude > maxAltitude_) {
         maxAltitude_ = altitude;
     }
 }
 
-void BarometricProcessor::updateMaxVelocity(float velocity) {
+void BarometricProcessor::updateMaxVelocity() {
+    float velocity = getVerticalVelocity();
     if (velocity > maxVelocity_) {
         maxVelocity_ = velocity;
     }

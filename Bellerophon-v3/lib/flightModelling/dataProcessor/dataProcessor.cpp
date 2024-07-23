@@ -1,7 +1,8 @@
 #include "dataProcessor.hpp"
 
 DataProcessor::DataProcessor(size_t historySize, float outlierThreshold)
-    : currentIndex(0), currentSize(0), historySize(historySize), outlierThreshold(outlierThreshold) {
+    : currentIndex(0), currentSize(0), historySize(historySize), outlierThreshold(outlierThreshold),
+      stabilizationPhase(true), stabilizationCount(0), stabilizationLimit(historySize) {
     values = new float[historySize]();
     timestamps = new unsigned long[historySize]();
 }
@@ -12,22 +13,58 @@ DataProcessor::~DataProcessor() {
 }
 
 void DataProcessor::updateBuffer(float value) {
-    values[currentIndex] = value;
-    timestamps[currentIndex] = Timer::currentTime();
-    currentIndex = (currentIndex + 1) % historySize;
-    if (currentSize < historySize) {
-        ++currentSize;
+    if (stabilizationPhase) {
+        stabilize(value);
+    } else {
+        values[currentIndex] = value;
+        timestamps[currentIndex] = Timer::currentTime();
+        currentIndex = (currentIndex + 1) % historySize;
+        if (currentSize < historySize) {
+            ++currentSize;
+        }
     }
 }
 
+float DataProcessor::getIntegratedValue() const {
+    if (stabilizationPhase) {
+        return 0.0;
+    }
+    return calculateIntegratedValue();
+}
 
+float DataProcessor::getDifferentiatedValue() const {
+    if (stabilizationPhase) {
+        return 0.0;
+    }
+    return calculateDifferentiatedValue();
+}
 
 float DataProcessor::getSmoothedValue() const {
+    if (stabilizationPhase) {
+        return 0.0;
+    }
     return calculateSmoothedValue();
 }
 
 bool DataProcessor::isOutlier(float value) const {
     return detectOutlier(value);
+}
+
+bool DataProcessor::isStabilized() const {
+    return !stabilizationPhase;
+}
+
+void DataProcessor::stabilize(float value) {
+    // During the stabilization phase, we update the buffer without timestamps and check for stabilization
+    values[currentIndex] = value;
+    currentIndex = (currentIndex + 1) % historySize;
+    if (currentSize < historySize) {
+        ++currentSize;
+    }
+    
+    if (++stabilizationCount >= stabilizationLimit) {
+        stabilizationPhase = false; // Exit stabilization phase
+    }
 }
 
 float DataProcessor::calculateSmoothedValue() const {

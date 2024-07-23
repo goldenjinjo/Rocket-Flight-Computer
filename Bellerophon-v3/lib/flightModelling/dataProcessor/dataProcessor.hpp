@@ -13,7 +13,7 @@
  * @brief Base class for processing sensor data.
  *
  * This class provides methods for smoothing, integrating, and differentiating sensor data.
- * It also includes functionality for detecting outliers.
+ * It also includes functionality for detecting outliers and a stabilization phase.
  */
 class DataProcessor {
 public:
@@ -68,6 +68,13 @@ public:
      */
     bool isOutlier(float value) const;
 
+    /**
+     * @brief Check if the processor has stabilized.
+     * 
+     * @return True if the processor has stabilized, false otherwise.
+     */
+    bool isStabilized() const;
+
 protected:
     float* values;              ///< Array to store sensor values.
     unsigned long* timestamps;  ///< Array to store timestamps of the sensor values.
@@ -75,6 +82,9 @@ protected:
     size_t currentSize;         ///< Current size of the history buffer.
     const size_t historySize;   ///< Maximum size of the history buffer.
     const float outlierThreshold; ///< Threshold for detecting outliers.
+    bool stabilizationPhase;    ///< Flag indicating if the processor is in the stabilization phase.
+    size_t stabilizationCount;  ///< Counter for the stabilization phase.
+    const size_t stabilizationLimit; ///< Limit for the stabilization phase.
 
     /**
      * @brief Update the internal buffer with new data and record the current timestamp.
@@ -111,6 +121,13 @@ protected:
      * @return True if the value is an outlier, false otherwise.
      */
     virtual bool detectOutlier(float value) const;
+
+    /**
+     * @brief Validate the data during the stabilization phase.
+     * 
+     * @param value The new sensor data value.
+     */
+    void stabilize(float value);
 };
 
 #endif // DATAPROCESSOR_HPP

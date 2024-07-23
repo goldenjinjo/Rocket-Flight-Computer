@@ -59,8 +59,8 @@ private:
     float maxVelocity_;
 
     float calculateAltitude(float pressure) const; // Helper function to calculate altitude from pressure
-    void updateMaxAltitude(float altitude);
-    void updateMaxVelocity(float velocity);
+    void updateMaxAltitude();
+    void updateMaxVelocity();
 };
 
 #endif // barometricProcessor_HPP
