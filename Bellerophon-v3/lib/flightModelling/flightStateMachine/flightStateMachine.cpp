@@ -3,8 +3,8 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
+      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
     // Initialize sensors and actuators
@@ -78,6 +78,10 @@ void FlightStateMachine::handleStateTransition() {
             break;
         case FlightState::STAGE_SEPARATION:
             handleStageSeparation();
+            break;
+
+        case FlightState::FAILURE:
+            handleFailure();
             break;
     }
 }
@@ -156,5 +160,10 @@ void FlightStateMachine::handleLanding() {
 
 void FlightStateMachine::handleStageSeparation() {
     // Stage separation logic
+    // Placeholder for future implementation
+}
+
+void FlightStateMachine::handleFailure() {
+    // failure logic
     // Placeholder for future implementation
 }

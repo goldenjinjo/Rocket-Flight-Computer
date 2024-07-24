@@ -42,6 +42,7 @@ private:
     void handleDescentMain();
     void handleLanding();
     void handleStageSeparation();
+    void handleFailure();
 
     float currentAltitude_;
     float currentVelocity_;
