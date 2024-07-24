@@ -47,6 +47,33 @@ public:
      * @return Fused acceleration value.
      */
     float getFusedAcceleration() const;
+
+    /**
+     * @brief Gets the fused ground altitude data from all sensors that can compute it (i.e barometers, gps)
+     * @return Fused ground altitude value.
+     */
+    float getGroundAltitude() const;
+
+    /**
+     * @brief Get the maximum recorded altitude.
+     * 
+     * @return Maximum recorded altitude.
+     */
+    float getMaxAltitude() const;
+
+    /**
+     * @brief Get the maximum recorded vertical velocity.
+     * 
+     * @return Maximum recorded vertical velocity.
+     */
+    float getMaxVelocity() const;
+
+    /**
+     * @brief Get the maximum recorded vertical acceleration.
+     * 
+     * @return Maximum recorded vertical acceleration.
+     */
+    float getMaxAcceleration() const;
 };
 
 #endif // SENSOR_FUSION_HPP

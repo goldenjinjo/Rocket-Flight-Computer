@@ -3,7 +3,7 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 1)),
+      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
@@ -35,8 +35,9 @@ void FlightStateMachine::updateSensorData() {
     
     currentAltitude_ = sensors.getFusedAltitude(); // Get the current altitude
     currentVelocity_ = sensors.getFusedVerticalVelocity(); // get the current velocity
-    maxAltitude_ = altitudeProcessor->getMaxAltitude();
-    maxVelocity_ = altitudeProcessor->getMaxVelocity();
+    groundAltitude_ = sensors.getGroundAltitude();
+    maxAltitude_ = sensors.getMaxAltitude();
+    maxVelocity_ = sensors.getMaxVelocity();
 
     Serial.println(pressureSensor.getData());
     Serial.println(currentAltitude_);
@@ -46,7 +47,7 @@ void FlightStateMachine::updateSensorData() {
     Serial.print("Max Velocity: ");
     Serial.println(maxVelocity_);
     Serial.print("Ground Altitude: ");
-    Serial.println(altitudeProcessor->getGroundAltitude());
+    Serial.println(groundAltitude_);
     Serial.print("Outlier Count: ");
     Serial.println(altitudeProcessor->getOutlierCount());
     Serial.println("----");

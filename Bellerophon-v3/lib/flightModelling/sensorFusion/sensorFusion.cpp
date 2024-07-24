@@ -33,3 +33,35 @@ float SensorFusion::getFusedAcceleration() const {
     }
     return totalAcceleration / sensors.size(); // Simple averaging for now
 }
+
+float SensorFusion::getGroundAltitude() const {
+    float groundAltitude = 0;
+    for (const auto& sensor : sensors) {
+        groundAltitude += sensor->getGroundAltitude();
+    }
+    return groundAltitude / sensors.size(); // Simple averaging for now
+}
+
+float SensorFusion::getMaxVelocity() const {
+    float maxVelocity = 0;
+    for (const auto& sensor : sensors) {
+        maxVelocity += sensor->getMaxVelocity();
+    }
+    return maxVelocity / sensors.size(); // Simple averaging for now
+}
+
+float SensorFusion::getMaxAltitude() const {
+    float maxAltitude = 0;
+    for (const auto& sensor : sensors) {
+        maxAltitude += sensor->getMaxAltitude();
+    }
+    return maxAltitude / sensors.size(); // Simple averaging for now
+}
+
+float SensorFusion::getMaxAcceleration() const {
+    float maxAcceleration = 0;
+    for (const auto& sensor : sensors) {
+        maxAcceleration += sensor->getMaxAcceleration();
+    }
+    return maxAcceleration / sensors.size(); // Simple averaging for now
+}

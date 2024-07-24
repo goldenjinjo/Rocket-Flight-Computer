@@ -45,29 +45,37 @@ public:
      * 
      * @return Maximum recorded altitude.
      */
-    float getMaxAltitude() const;
+    float getMaxAltitude() const override;
 
     /**
      * @brief Get the maximum recorded vertical velocity.
      * 
      * @return Maximum recorded vertical velocity.
      */
-    float getMaxVelocity() const;
+    float getMaxVelocity() const override;
 
     /**
      * @brief Get the ground altitude recorded at end of stabilisation period
      * 
      * @return ground altitude
      */
-    float getGroundAltitude() const;
-
+    float getGroundAltitude() const override;
 
     /**
-     * @brief Override of virtual method. Barometer not able to calculate altitude.
+     * @brief Override of virtual method. Barometer not able to calculate acceleration.
      * 
      * @return 0
      */
     float getAcceleration() const override {
+        return 0;
+    }
+    
+    /**
+     * @brief Override of virtual method. Barometer not able to calculate acceleration.
+     * 
+     * @return 0
+     */
+    float getMaxAcceleration() const override {
         return 0;
     }
 
