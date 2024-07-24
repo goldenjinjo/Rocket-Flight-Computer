@@ -9,10 +9,11 @@
 #include "configKeys.hpp"
 #include "barometricProcessor.hpp"
 #include "sensorFusion.hpp"
+#include "buzzerFunctions.hpp"
 
 class FlightStateMachine {
 public:
-    FlightStateMachine();
+    FlightStateMachine(BuzzerFunctions& buzzerFunc_);
     void update();
     FlightState getCurrentState() const;
     void transitionToState(FlightState newState);
@@ -25,6 +26,7 @@ private:
     SensorFusion sensors;
     PyroController pyroDrogue;
     PyroController pyroMain;
+    BuzzerFunctions buzzerFunc_;
 
     /**
      * @brief Initialize sensors and add them to sensor fusion.

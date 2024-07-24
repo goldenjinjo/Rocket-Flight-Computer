@@ -35,7 +35,7 @@ ConfigFileManager config(fm);
 SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
 
 Timer testTimer;
-FlightStateMachine flightState;
+FlightStateMachine flightState(buzzerFunc);
 
 void setup() {
 

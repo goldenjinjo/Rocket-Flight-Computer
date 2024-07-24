@@ -41,6 +41,12 @@ public:
     void startUp();
 
     /**
+     * @brief Plays the landing tone. Designed to be played on repeat.
+     * 
+     */
+    void landingTone();
+
+    /**
      * @brief Updates the buzzer state. This should be called in the main loop 
      * to ensure non-blocking behavior.
      */

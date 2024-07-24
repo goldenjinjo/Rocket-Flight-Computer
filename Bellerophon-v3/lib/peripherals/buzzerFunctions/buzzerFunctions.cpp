@@ -180,6 +180,16 @@ void BuzzerFunctions::debugStartUp() {
     _buzzer.silent(2000);
 }
 
+void BuzzerFunctions::landingTone() {
+    // Designed to be run on loop
+    if(!isSpaceInQueue(2)){
+        return;
+  }
+  _buzzer.beep(2000, 1000);
+  _buzzer.silent(2000);
+
+}
+
 bool BuzzerFunctions::isSpaceInQueue(size_t queueNum) {
     return (_buzzer.getQueueSize() < (_buzzer.getMaxQueueSize() - queueNum));
 }

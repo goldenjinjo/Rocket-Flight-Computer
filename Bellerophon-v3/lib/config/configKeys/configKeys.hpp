@@ -40,7 +40,6 @@ struct ConfigKey {
     X(LAUNCH_VEL_THRESHOLD, 15.0) /* Launch Detect Threshold for Velocity (m/s) */ \
     X(LAUNCH_ACC_THRESHOLD, 60.0) /* Launch Detect Threshold for Acceleration (m/s^2) */ \
     X(APOGEE_TIMER, 100.0) /* Time the rocket must spend with a velocity estimate below 0 before apogee is decided (milliseconds) */ \
-    X(LANDING_VEL_THRESHOLD, 1.0) /* Landing velocity threshold (i.e. if velocity is lower than this consider the rocket landed) (Unit TBD) */ \
     X(BOOTUP_MODE, 0) /* Mode that activates when computer resets */ \
     X(DUAL_DEPLOY, 1.0) /* Flag for triggering dual deploy (may be replaced by a mode) (0: No dual deploy, 1: dual deploy) */ \
     X(DROGUE_DELAY, 5.0) /* Delay to deploy drogue parachute (ms) */ \

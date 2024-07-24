@@ -1,12 +1,13 @@
 #include "flightStateMachine.hpp"
 
-FlightStateMachine::FlightStateMachine()
+FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_)
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
-      pyroMain(PYRO_MAIN, MAIN_DELAY) {
+      pyroMain(PYRO_MAIN, MAIN_DELAY),
+      buzzerFunc_(buzzerFunc_) {
     // Initialize sensors and actuators
     initializeSensors();
 }
@@ -146,14 +147,14 @@ void FlightStateMachine::handleLowAltitudeDetection() {
 
 void FlightStateMachine::handleDescentMain() {
     // Descent under main logic
-    if (currentAltitude_ <= LANDING_ALTITUDE) {
+    if (currentVelocity_ <= LANDING_VEL_THRESHOLD) {
         transitionToState(FlightState::LANDING);
     }
 }
 
 void FlightStateMachine::handleLanding() {
-    // Landing logic
-    // Handle landing operations
+    // infinitely play
+    buzzerFunc_.landingTone();
 }
 
 void FlightStateMachine::handleStageSeparation() {
