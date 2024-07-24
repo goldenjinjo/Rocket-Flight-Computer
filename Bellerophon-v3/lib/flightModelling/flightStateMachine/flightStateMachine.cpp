@@ -3,13 +3,27 @@
 FlightStateMachine::FlightStateMachine()
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
-      altitudeProcessor(pressureSensor, 50, 5),
+      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 1)),
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
       pyroMain(PYRO_MAIN, MAIN_DELAY) {
     // Initialize sensors and actuators
-    pressureSensor.initialize();
+    initializeSensors();
 }
+
+void FlightStateMachine::initializeSensors() {
+    pressureSensor.initialize();
+    
+    // TODO: Add logic to determine if the sensor should be added
+    // Example: Check if sensor is found and if stable readings can be identified
+    
+    // Add BarometricProcessor to SensorFusion
+    sensors.addSensor(altitudeProcessor);
+    
+    // Example for adding other sensors (IMU)
+    // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
+}
+
 
 void FlightStateMachine::update() {
     updateSensorData();
@@ -17,22 +31,24 @@ void FlightStateMachine::update() {
 }
 
 void FlightStateMachine::updateSensorData() {
-    altitudeProcessor.update(); // Update altitude processor data
-    currentAltitude = altitudeProcessor.getAltitude(); // Get the current altitude
-
-    velocity = altitudeProcessor.getVerticalVelocity();
+    sensors.updateSensors(); // Update altitude processor data
+    
+    currentAltitude_ = sensors.getFusedAltitude(); // Get the current altitude
+    currentVelocity_ = sensors.getFusedVerticalVelocity(); // get the current velocity
+    maxAltitude_ = altitudeProcessor->getMaxAltitude();
+    maxVelocity_ = altitudeProcessor->getMaxVelocity();
 
     Serial.println(pressureSensor.getData());
-    Serial.println(currentAltitude);
-    Serial.println(velocity);
+    Serial.println(currentAltitude_);
+    Serial.println(currentVelocity_);
     Serial.print("Max Altitude: ");
-    Serial.println(altitudeProcessor.getMaxAltitude());
+    Serial.println(maxAltitude_);
     Serial.print("Max Velocity: ");
-    Serial.println(altitudeProcessor.getMaxVelocity());
+    Serial.println(maxVelocity_);
     Serial.print("Ground Altitude: ");
-    Serial.println(altitudeProcessor.getGroundAltitude());
+    Serial.println(altitudeProcessor->getGroundAltitude());
     Serial.print("Outlier Count: ");
-    Serial.println(altitudeProcessor.getOutlierCount());
+    Serial.println(altitudeProcessor->getOutlierCount());
     Serial.println("----");
 }
 
@@ -76,13 +92,13 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 void FlightStateMachine::handlePreLaunch() {
     // Pre-launch logic
 
-    if (velocity > LAUNCH_VEL_THRESHOLD) {
+    if (currentVelocity_ > LAUNCH_VEL_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
         return;
     }
 
     // redudant altitude check
-    if (currentAltitude > LAUNCH_ALTITUDE_THRESHOLD) {
+    if (currentAltitude_ > LAUNCH_ALTITUDE_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
         return;
     }
@@ -92,14 +108,14 @@ void FlightStateMachine::handleAscent() {
     // Ascent logic
    
     // Apogee detection logic
-    if (velocity <= APOGEE_VELOCITY_THRESHOLD) {
+    if (currentVelocity_ <= APOGEE_VELOCITY_THRESHOLD) {
         transitionToState(FlightState::APOGEE);
     }
 }
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
-    if(altitudeProcessor.getMaxAltitude() < MINIMUM_APOGEE) {
+    if(maxAltitude_ < MINIMUM_APOGEE) {
         // Do not allow pyro to trigger if minimum apogee was not reached,
         /// TODO: create failure mode for this
         return;
@@ -112,7 +128,7 @@ void FlightStateMachine::handleApogee() {
 
 void FlightStateMachine::handleDescentDrogue() {
     // Descent under drogue logic
-    if (currentAltitude <= MAIN_DEPLOYMENT_ALT) {
+    if (currentAltitude_ <= MAIN_DEPLOYMENT_ALT) {
         transitionToState(FlightState::LOW_ALTITUDE_DETECTION);
     }
 }
@@ -127,7 +143,7 @@ void FlightStateMachine::handleLowAltitudeDetection() {
 
 void FlightStateMachine::handleDescentMain() {
     // Descent under main logic
-    if (currentAltitude <= LANDING_ALTITUDE) {
+    if (currentAltitude_ <= LANDING_ALTITUDE) {
         transitionToState(FlightState::LANDING);
     }
 }

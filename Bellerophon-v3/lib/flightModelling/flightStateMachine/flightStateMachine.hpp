@@ -8,6 +8,7 @@
 #include "pinAssn.hpp"
 #include "configKeys.hpp"
 #include "barometricProcessor.hpp"
+#include "sensorFusion.hpp"
 
 class FlightStateMachine {
 public:
@@ -20,9 +21,15 @@ private:
     FlightState currentState;
     PressureSensor pressureSensor;
     IMUSensor imu;
-    BarometricProcessor altitudeProcessor;
+    std::shared_ptr<BarometricProcessor> altitudeProcessor;
+    SensorFusion sensors;
     PyroController pyroDrogue;
     PyroController pyroMain;
+
+    /**
+     * @brief Initialize sensors and add them to sensor fusion.
+     */
+    void initializeSensors();
 
     void updateSensorData();
     void handleStateTransition();
@@ -36,8 +43,10 @@ private:
     void handleLanding();
     void handleStageSeparation();
 
-    float currentAltitude;
-    float velocity;
+    float currentAltitude_;
+    float currentVelocity_;
+    float maxAltitude_;
+    float maxVelocity_;
     const float APOGEE_VELOCITY_THRESHOLD = 0.5; // Example value in m/s
     const float LANDING_ALTITUDE = 10.0; // Example value in meters
 };
