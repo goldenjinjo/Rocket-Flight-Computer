@@ -99,7 +99,7 @@ void FlightStateMachine::handleAscent() {
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
-    if(altitudeProcessor.getMaxAltitude < MINIMUM_APOGEE) {
+    if(altitudeProcessor.getMaxAltitude() < MINIMUM_APOGEE) {
         // Do not allow pyro to trigger if minimum apogee was not reached,
         /// TODO: create failure mode for this
         return;
