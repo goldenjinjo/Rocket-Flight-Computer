@@ -49,8 +49,8 @@ private:
     float maxAltitude_;
     float maxVelocity_;
     float groundAltitude_;
-    const float APOGEE_VELOCITY_THRESHOLD = 0.5; // Example value in m/s
-    const float LANDING_ALTITUDE = 10.0; // Example value in meters
+    const float APOGEE_VELOCITY_THRESHOLD = 0.5; // meters per second
+    const float LANDING_VEL_THRESHOLD = 1; // meters per second
 };
 
 #endif // FLIGHT_STATE_MACHINE_HPP

@@ -24,7 +24,6 @@ void FlightStateMachine::initializeSensors() {
     // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
 }
 
-
 void FlightStateMachine::update() {
     updateSensorData();
     handleStateTransition();
@@ -79,7 +78,6 @@ void FlightStateMachine::handleStateTransition() {
         case FlightState::STAGE_SEPARATION:
             handleStageSeparation();
             break;
-
         case FlightState::FAILURE:
             handleFailure();
             break;
