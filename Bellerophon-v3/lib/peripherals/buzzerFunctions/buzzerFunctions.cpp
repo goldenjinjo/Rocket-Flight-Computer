@@ -190,6 +190,21 @@ void BuzzerFunctions::landingTone() {
 
 }
 
+// Pre-launch mode: A cheerful beep pattern to save power consumption
+void BuzzerFunctions::preLaunchTone() {
+    if (!isSpaceInQueue(6)) {
+        return;
+    }
+
+    // A cheerful sequence: Beep - Higher beep - Lower beep - Pause
+    _buzzer.beep(500, 1000);   // 1kHz tone for 0.5 seconds
+    _buzzer.silent(200);       // Short pause
+    _buzzer.beep(500, 1200);   // 1.2kHz tone for 0.5 seconds
+    _buzzer.silent(200);       // Short pause
+    _buzzer.beep(500, 800);    // 0.8kHz tone for 0.5 seconds
+    _buzzer.silent(10000);      // 10 seconds of silence
+}
+
 bool BuzzerFunctions::isSpaceInQueue(size_t queueNum) {
     return (_buzzer.getQueueSize() < (_buzzer.getMaxQueueSize() - queueNum));
 }

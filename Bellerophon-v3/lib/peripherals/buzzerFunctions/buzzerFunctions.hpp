@@ -47,6 +47,11 @@ public:
     void landingTone();
 
     /**
+     * @brief A cheerful beep pattern to save power consumption during launch detect phase.
+     */
+    void preLaunchTone();
+
+    /**
      * @brief Updates the buzzer state. This should be called in the main loop 
      * to ensure non-blocking behavior.
      */

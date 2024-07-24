@@ -95,6 +95,7 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 
 void FlightStateMachine::handlePreLaunch() {
     // Pre-launch logic
+    buzzerFunc_.preLaunchTone();
 
     if (currentVelocity_ > LAUNCH_VEL_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
