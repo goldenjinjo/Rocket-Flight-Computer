@@ -2,6 +2,7 @@
 #define barometricProcessor_HPP
 
 #include "dataProcessor.hpp"
+#include "sensorProcessor.hpp"
 #include "pressureSensor.hpp"
 #include "configKeys.hpp"
 
@@ -9,7 +10,7 @@
  * @class BarometricProcessor
  * @brief Class for processing barometric pressure data and estimating altitude and vertical velocity.
  */
-class BarometricProcessor : public DataProcessor {
+class BarometricProcessor : public DataProcessor, public SensorProcessor {
 public:
     /**
      * @brief Constructor with history size and outlier threshold.
@@ -30,14 +31,14 @@ public:
      * 
      * @return Estimated altitude.
      */
-    float getAltitude() const;
+    float getAltitude() const override;
 
     /**
      * @brief Get the estimated vertical velocity.
      * 
      * @return Estimated vertical velocity.
      */
-    float getVerticalVelocity() const;
+    float getVerticalVelocity() const override;
 
     /**
      * @brief Get the maximum recorded altitude.
@@ -59,6 +60,16 @@ public:
      * @return ground altitude
      */
     float getGroundAltitude() const;
+
+
+    /**
+     * @brief Override of virtual method. Barometer not able to calculate altitude.
+     * 
+     * @return 0
+     */
+    float getAcceleration() const override {
+        return 0;
+    }
 
 
 private:
