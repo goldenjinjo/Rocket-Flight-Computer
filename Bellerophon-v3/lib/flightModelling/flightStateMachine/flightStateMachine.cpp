@@ -39,6 +39,22 @@ void FlightStateMachine::updateSensorData() {
     maxAltitude_ = sensors.getMaxAltitude();
     maxVelocity_ = sensors.getMaxVelocity();
 
+
+    imu.update();
+
+    float* accelArray;
+    accelArray = imu.getAccelerometerData();
+    Serial.println(accelArray[0]);
+    Serial.println(accelArray[1]);
+    Serial.println(accelArray[2]);
+
+    float* gyroArray;
+    gyroArray = imu.getGyroscopeData();
+    Serial.println(gyroArray[0]);
+    Serial.println(gyroArray[1]);
+    Serial.println(gyroArray[2]);
+
+
     Serial.println(pressureSensor.getData());
     Serial.println(currentAltitude_);
     Serial.println(currentVelocity_);

@@ -37,21 +37,11 @@ void IMUSensor::enable() {
 float* IMUSensor::getAccelerometerData() {
     static float accelData[3]; // Array to hold accelerometer data: [accel_x, accel_y, accel_z]
 
-    int32_t lsm_acc[3]; // Array to store raw accelerometer data
-    LSM6DSLStatusTypeDef status;
-
-    status = imu.Get_X_Axes(lsm_acc);
-
-    if (status != LSM6DSL_STATUS_OK) {
-        // Handle error
-        return nullptr;
-    }
-
     // Convert raw accelerometer data to physical units and store in the accelData array
     // divide by 1000 to convert from milli g, to g
-    accelData[0] = static_cast<float>(lsm_acc[0]) / 1000.0f;
-    accelData[1] = static_cast<float>(lsm_acc[1]) / 1000.0f;
-    accelData[2] = static_cast<float>(lsm_acc[2]) / 1000.0f;
+    accelData[0] = static_cast<float>(accelArray_[0]) / 1000.0f;
+    accelData[1] = static_cast<float>(accelArray_[1]) / 1000.0f;
+    accelData[2] = static_cast<float>(accelArray_[2]) / 1000.0f;
 
     return accelData;
 }
@@ -60,20 +50,11 @@ float* IMUSensor::getAccelerometerData() {
 float* IMUSensor::getGyroscopeData() {
     static float gyroData[3]; // Array to hold gyroscope data: [gyro_x, gyro_y, gyro_z]
 
-    int32_t lsm_gyro[3]; // Array to store raw gyroscope data
-    LSM6DSLStatusTypeDef status;
-
-    status = imu.Get_G_Axes(lsm_gyro);
-    if (status != LSM6DSL_STATUS_OK) {
-        // Handle error
-        return nullptr;
-    }
-
     // Convert raw gyroscope data to physical units and store in the gyroData array
     // Divide by 1000 to convert from milli degrees per second
-    gyroData[0] = static_cast<float>(lsm_gyro[0]) / 1000.0f;
-    gyroData[1] = static_cast<float>(lsm_gyro[1]) / 1000.0f;
-    gyroData[2] = static_cast<float>(lsm_gyro[2]) / 1000.0f;
+    gyroData[0] = static_cast<float>(gyroArray_[0]) / 1000.0f;
+    gyroData[1] = static_cast<float>(gyroArray_[1]) / 1000.0f;
+    gyroData[2] = static_cast<float>(gyroArray_[2]) / 1000.0f;
 
     return gyroData;
 }
@@ -111,6 +92,11 @@ float IMUSensor::getAccelPollRate() {
         return -1.0f; // Return a negative value to indicate error
     }
     return accelPollRate;
+}
+
+void IMUSensor::update() {
+    imu.Get_G_Axes(gyroArray_);
+    imu.Get_X_Axes(accelArray_);
 }
 
 // Wrapper method to get the polling rate (ODR) of the gyroscope

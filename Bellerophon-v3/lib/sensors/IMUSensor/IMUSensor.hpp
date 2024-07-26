@@ -3,8 +3,9 @@
 
 #include <Wire.h>
 #include <LSM6DSLSensor.h>
+#include "sensor.hpp"
 
-class IMUSensor {
+class IMUSensor: public Sensor {
 private:
     // ------------------------- MEMBERS ------------------------- //
     LSM6DSLSensor imu; // LSM6DSLSensor object
@@ -14,6 +15,9 @@ private:
     uint16_t gyroRange; // Gyroscope range
     float accelSense; // Store accelerometer sensitivity as an instance variable
     float gyroSense; // Store gyroscope sensitivity as an instance variable
+
+    int32_t gyroArray_[3];
+    int32_t accelArray_[3];
 
 public:
     // ------------------------- METHODS ------------------------- //
@@ -30,7 +34,7 @@ public:
     /**
      * @brief  Initialize the IMU sensor.
      */
-    void initialize();
+    void initialize() override;
     
     /**
      * @brief  Enable the IMU sensor.
@@ -66,6 +70,13 @@ public:
      * @return Polling rate (ODR) of the gyroscope.
      */
     float getGyroPollRate();
+
+
+    float getData() override {
+        return 1;
+    };
+
+    void update() override;
 };
 
 #endif // IMU_SENSOR_HPP
