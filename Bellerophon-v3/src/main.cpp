@@ -21,7 +21,7 @@
 #include "LEDManager.hpp"
 #include "flightStateMachine.hpp"
 
-size_t buzzerQueueLimit = 50;
+size_t buzzerQueueLimit = 20;
 // Class Declarations
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
 BuzzerFunctions buzzerFunc(buzzer);
@@ -52,12 +52,14 @@ void setup() {
     LED.startUp();
     buzzerFunc.startUp();
 
-
+    delay(2000);
 }
 // keep track of previous tones
 int previousMode = -1;  
 int time1 = 0;
 int time2 = 0;
+
+
 // MAIN LOOP
 
 void loop()
@@ -79,6 +81,7 @@ void loop()
         case STANDBY_MODE: {
             // do nothing
             LED.cycleLEDs(5000);
+            //controlFins.continuousDeflect(250, 15);
             break;
         }    
         case READING_MODE: {

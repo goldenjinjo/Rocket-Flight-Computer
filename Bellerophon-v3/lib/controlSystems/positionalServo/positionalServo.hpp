@@ -6,6 +6,7 @@
 #include <array>
 #include <unordered_map>
 #include "configKeys.hpp"
+#include "timer.hpp"
 
 /**
  * @class PositionalServo
@@ -144,7 +145,7 @@ public:
      * @param relativePosition The position relative to the center position.
      * Positive values move forward, negative values move backward.
      */
-    void moveServoRelativeToCenter(char id, int& relativePosition);
+    void moveServoRelativeToCenter(char id, int relativePosition);
 
     /**
      * @brief Stops the specified servo by its ID.
@@ -176,6 +177,15 @@ public:
      * @return true if the servo ID is valid and exists in the servoMap, false otherwise.
      */
     bool isValidServoID(char id);
+
+
+    /**
+     * @brief Deflects the servos with a specified angle and interval.
+     * 
+     * @param deflectTime Time in milliseconds between deflections.
+     * @param deflectAngle Angle in degrees to deflect the servos.
+     */
+    void continuousDeflect(int deflectTime, int deflectAngle);
 
 };
 

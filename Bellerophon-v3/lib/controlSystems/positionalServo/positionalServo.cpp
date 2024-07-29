@@ -5,7 +5,7 @@ PUBLIC
 */
 PositionalServo::PositionalServo() {}
 
-void PositionalServo::moveServoRelativeToCenter(char id, int& relativePosition) {
+void PositionalServo::moveServoRelativeToCenter(char id, int relativePosition) {
     ServoObject* servoObj = findServoByID(id);
     
     // Ensure relativePosition is within the allowed range
@@ -44,6 +44,31 @@ void PositionalServo::updateCenterPosition(char id, int& position){
 
 bool PositionalServo::isValidServoID(char id) {
     return servoMap.find(id) != servoMap.end();
+}
+
+// Continuous servo movement for deflection
+void PositionalServo::continuousDeflect(int deflectTime, int deflectAngle) {
+    static bool forwardFlag = true;
+    static int multipler = 1;
+
+    static Timer deflectionTimer;
+    deflectionTimer.start(deflectTime);
+    
+    if (!deflectionTimer.hasElapsed()) {
+        return;
+    }
+    
+    multipler = forwardFlag ? 1 : -1;
+    // Iterate through all servos and move them
+    for (auto& pair : servoMap) {
+        char id = pair.first;
+        int angle = (id == 'A' || id == 'D') ? -deflectAngle * multipler : deflectAngle * multipler;
+        moveServoRelativeToCenter(id, angle);
+    }
+
+    forwardFlag = !forwardFlag;
+    deflectionTimer.reset();
+    
 }
 
 /*

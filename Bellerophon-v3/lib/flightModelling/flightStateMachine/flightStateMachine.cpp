@@ -5,7 +5,7 @@ FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_)
       pressureSensor(0), 
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
-      pyroDrogue(PYRO_DROGUE, DROGUE_DELAY), 
+      pyroDrogue(PYRO_DROGUE, DROGUE_DELAY),
       pyroMain(PYRO_MAIN, MAIN_DELAY),
       buzzerFunc_(buzzerFunc_) {
     // Initialize sensors and actuators
