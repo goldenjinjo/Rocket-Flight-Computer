@@ -35,7 +35,7 @@ ConfigFileManager config(fm);
 SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
 
 Timer testTimer;
-FlightStateMachine flightState(buzzerFunc);
+FlightStateMachine flightState(buzzerFunc, logger);
 
 void setup() {
 
@@ -58,7 +58,6 @@ void setup() {
 int previousMode = -1;  
 int time1 = 0;
 int time2 = 0;
-
 
 // MAIN LOOP
 

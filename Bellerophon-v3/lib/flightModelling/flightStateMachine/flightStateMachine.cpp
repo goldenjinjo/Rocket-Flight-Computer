@@ -1,13 +1,14 @@
 #include "flightStateMachine.hpp"
 
-FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_)
+FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_, DataLogger& logger_)
     : currentState(FlightState::PRE_LAUNCH), 
       pressureSensor(0), 
       imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
       altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
       pyroDrogue(PYRO_DROGUE, DROGUE_DELAY),
       pyroMain(PYRO_MAIN, MAIN_DELAY),
-      buzzerFunc_(buzzerFunc_) {
+      buzzerFunc_(buzzerFunc_),
+      logger_(logger_) {
     // Initialize sensors and actuators
     initializeSensors();
 }
@@ -114,12 +115,18 @@ void FlightStateMachine::handlePreLaunch() {
 
     if (currentVelocity_ > LAUNCH_VEL_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
+        char logMessage[40];
+        snprintf(logMessage, sizeof(logMessage), "Launch detected for velocity = %.2f", currentVelocity_);
+        logger_.logEvent(logMessage);
         return;
     }
 
     // redudant altitude check
     if (currentAltitude_ > LAUNCH_ALTITUDE_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
+        char logMessage[40];
+        snprintf(logMessage, sizeof(logMessage), "Launch detected for altitude = %.2f", currentAltitude_);
+        logger_.logEvent(logMessage);
         return;
     }
 }
@@ -130,6 +137,9 @@ void FlightStateMachine::handleAscent() {
     // Apogee detection logic
     if (currentVelocity_ <= APOGEE_VELOCITY_THRESHOLD) {
         transitionToState(FlightState::APOGEE);
+        char logMessage[40];
+        snprintf(logMessage, sizeof(logMessage), "APOGEE DETECTED = %.2f METERS", currentAltitude_);
+        logger_.logEvent(logMessage);
     }
 }
 
@@ -143,6 +153,7 @@ void FlightStateMachine::handleApogee() {
     // Trigger drogue parachute
     if(pyroDrogue.trigger()) {
         transitionToState(FlightState::DESCENT_DROGUE);
+        logger_.logEvent("DROGUE DEPLOYED");
     }
 }
 
@@ -157,6 +168,7 @@ void FlightStateMachine::handleLowAltitudeDetection() {
     // Trigger main parachutes
     if(pyroMain.trigger()){
         transitionToState(FlightState::DESCENT_MAIN);
+        logger_.logEvent("MAIN DEPLOYED");
     }
     
 }
@@ -165,6 +177,7 @@ void FlightStateMachine::handleDescentMain() {
     // Descent under main logic
     if (currentVelocity_ <= LANDING_VEL_THRESHOLD) {
         transitionToState(FlightState::LANDING);
+        logger_.logEvent("LANDING DETECTED");
     }
 }
 
