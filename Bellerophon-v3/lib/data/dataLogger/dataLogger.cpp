@@ -159,8 +159,8 @@ void DataLogger::logData() {
         delay(1000);
     }
     // get IMU data
-    float* acc = imu.getAccelerometerData();
-    float* gyro = imu.getGyroscopeData();
+    std::array<float, 3> acc = imu.getAccelerometerData();
+    std::array<float, 3> gyro = imu.getGyroscopeData();
 
     float* sensorArray = new float[9];
 

@@ -13,7 +13,7 @@
  * This class inherits from the Sensor base class and implements
  * the specific functionalities for a pressure sensor.
  */
-class PressureSensor : public Sensor {
+class PressureSensor : public Sensor<2> {
 public:
     /**
      * @brief Constructor with oversample rate as argument.
@@ -44,6 +44,15 @@ public:
      * @return Current pressure sensor data.
      */
     float getData() override;
+
+
+    std::array<float, 2> getAllData() override {
+        std::array<float, 2> allData;
+        allData[0] = getData();
+        allData[1] = getTemperature();
+
+        return allData;
+    }
 
     /**
      * @brief Get the current temperature from the sensor.

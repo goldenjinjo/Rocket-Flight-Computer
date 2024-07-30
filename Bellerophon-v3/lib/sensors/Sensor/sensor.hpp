@@ -1,6 +1,8 @@
 #ifndef SENSOR_HPP
 #define SENSOR_HPP
 
+#include <array>
+
 /**
  * @class Sensor
  * @brief Abstract base class for all sensor types.
@@ -10,6 +12,7 @@
  * Derived sensor classes must implement the pure virtual functions
  * to provide specific functionality.
  */
+template <std::size_t N>
 class Sensor {
 public:
     /**
@@ -44,6 +47,17 @@ public:
      * @return Current sensor data.
      */
     virtual float getData() = 0;
+
+    /**
+     * @brief Get all unique data values available by the sensor
+     *
+     * This method should return an array of sensor data values.
+     * It must be implemented by the derived sensor class.
+     * 
+     * @return Array of current sensor data values.
+     */
+    virtual std::array<float, N> getAllData() = 0;
 };
 
 #endif // SENSOR_HPP
+

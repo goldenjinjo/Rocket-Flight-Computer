@@ -41,19 +41,10 @@ void FlightStateMachine::updateSensorData() {
 
 
     imu.update();
-
-    float* accelArray;
-    accelArray = imu.getAccelerometerData();
-    Serial.println(accelArray[0]);
-    Serial.println(accelArray[1]);
-    Serial.println(accelArray[2]);
-
-    float* gyroArray;
-    gyroArray = imu.getGyroscopeData();
-    Serial.println(gyroArray[0]);
-    Serial.println(gyroArray[1]);
-    Serial.println(gyroArray[2]);
-
+    std::array<float, 6> allData = imu.getAllData();
+    for (int i = 0; i < 6; ++i) {
+        Serial.println(allData[i]);
+    }
 
     Serial.println(pressureSensor.getData());
     Serial.println(currentAltitude_);
