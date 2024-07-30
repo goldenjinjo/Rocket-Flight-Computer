@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include "sensorProcessor.hpp"
 
 /**
@@ -22,8 +23,16 @@ public:
     /**
      * @brief Adds a sensor processor to the fusion system.
      * @param sensor Shared pointer to the sensor processor to be added.
+     * @return true if the sensor was successfully added, false otherwise.
      */
-    void addSensor(const std::shared_ptr<SensorProcessor>& sensor);
+    bool addSensor(const std::shared_ptr<SensorProcessor>& sensor);
+
+    /**
+     * @brief Removes a sensor processor from the fusion system.
+     * @param sensor Shared pointer to the sensor processor to be removed.
+     * @return true if the sensor was successfully removed, false otherwise.
+     */
+    bool removeSensor(const std::shared_ptr<SensorProcessor>& sensor);
 
     /**
      * @brief Updates all sensors in the fusion system.

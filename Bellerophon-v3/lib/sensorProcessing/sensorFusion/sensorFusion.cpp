@@ -1,7 +1,23 @@
 #include "sensorFusion.hpp"
 
-void SensorFusion::addSensor(const std::shared_ptr<SensorProcessor>& sensor) {
-    sensors.push_back(sensor);
+bool SensorFusion::addSensor(const std::shared_ptr<SensorProcessor>& sensor) {
+    // Check if the argument is a valid SensorProcessor
+    if (sensor && dynamic_cast<SensorProcessor*>(sensor.get())) {
+        sensors.push_back(sensor);
+        return true;
+    }
+    return false;
+}
+
+bool SensorFusion::removeSensor(const std::shared_ptr<SensorProcessor>& sensor) {
+    auto it = std::find(sensors.begin(), sensors.end(), sensor);
+    // remove sensor and return true if found
+    if (it != sensors.end()) {
+        sensors.erase(it);
+        return true;
+    }
+    // return false if sensor not found
+    return false;
 }
 
 void SensorFusion::updateSensors() {

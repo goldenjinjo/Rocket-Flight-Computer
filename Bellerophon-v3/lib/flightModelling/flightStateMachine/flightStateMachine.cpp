@@ -20,7 +20,6 @@ void FlightStateMachine::initializeSensors() {
     
     // Add BarometricProcessor to SensorFusion
     sensors.addSensor(altitudeProcessor);
-    
     // Example for adding other sensors (IMU)
     // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
 }
