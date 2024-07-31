@@ -130,8 +130,12 @@ void FlightStateMachine::transitionToState(FlightState newState) {
 
 void FlightStateMachine::handlePreLaunch() {
     // Pre-launch logic
-    buzzerFunc_.preLaunchTone();
-
+    
+    // play regular wait for launch tone, only in non debug mode
+    if(!DEBUG) {
+        buzzerFunc_.preLaunchTone();
+    }
+   
     if (currentVelocity_ > LAUNCH_VEL_THRESHOLD) {
         transitionToState(FlightState::ASCENT);
         char logMessage[40];

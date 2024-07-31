@@ -100,7 +100,7 @@ void loop()
         }
         case LOGGING_MODE: {
             // log data to data file
-            //flightState.logSensorData(0);
+            flightState.logSensorData(0);
             break;
         }
         case FIN_CONTROL_MODE: {
