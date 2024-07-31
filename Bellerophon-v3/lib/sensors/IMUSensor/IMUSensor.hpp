@@ -83,6 +83,10 @@ public:
     size_t getNumValues() override {
         return 6;
     }
+
+    std::string getNames() {
+        return "a_x,a_y,a_z,g_x,g_y,g_z";
+    }
 };
 
 #endif // IMU_SENSOR_HPP

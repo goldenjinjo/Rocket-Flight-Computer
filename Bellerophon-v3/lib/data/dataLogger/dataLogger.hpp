@@ -58,6 +58,11 @@ public:
      */
     void sendAllFiles();
 
+    /**
+     * @brief  Adds a header title to the data file, if one does not already exist
+     */
+    void addDataFileHeading(const char* title);
+
 private:
     
     // ------------------------- MEMBERS ------------------------- //

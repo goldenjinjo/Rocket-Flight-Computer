@@ -36,12 +36,32 @@ void DataLogger::logEvent(const char* message) {
     files.print(files.logFile, buffer);
 }
 
-void DataLogger::logData(float* data, size_t numFloats) {
+void DataLogger::addDataFileHeading(const char* title) {
+    // set initial state to false
+    static bool headingSet = false;
 
     if (!files.fileExists(files.dataFileName)) {
-        files.print(files.dataFile, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+        // reset state to false is ever deleted
+        headingSet = false;
     }
+
+    if(headingSet) {
+        // only set the heading once
+        return;
+    }
+
+    Serial.println("CREATING DATA FILE");
+    files.print(files.dataFile, title);
+    // start new line for data values
+    files.print(files.dataFile, "\n");
     
+    // prevent repeats of header creation
+    headingSet = true;
+
+}
+
+void DataLogger::logData(float* data, size_t numFloats) {
+
     int currentTime = Timer::currentTime();
     char buffer[logBuffer];
     int offset = snprintf(buffer, sizeof(buffer), "%lu,", currentTime);

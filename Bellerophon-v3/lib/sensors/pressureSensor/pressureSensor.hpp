@@ -58,6 +58,10 @@ public:
         return 2;
     }
 
+    std::string getNames() override {
+        return "pressure,temperature";
+    }
+
     /**
      * @brief Get the current temperature from the sensor.
      *

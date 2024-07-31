@@ -51,6 +51,11 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
     appendSensorDataToArray(allData, offset, pressureSensor);
     appendSensorDataToArray(allData, offset, imu);
     
+    // create title
+    std::string sensorNames = "time," + pressureSensor.getNames() + "," + imu.getNames();
+    logger_.addDataFileHeading(sensorNames.c_str());
+    Serial.println(sensorNames.c_str());
+    // log data
     logger_.logData(allData, numDataPoints);
 
     // DEBUG
@@ -58,7 +63,6 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
         Serial.println(allData[i]);
     }
 
-    // diagonistics
     Serial.println(currentAltitude_);
     Serial.println(currentVelocity_);
     Serial.print("Max Altitude: ");

@@ -2,6 +2,7 @@
 #define SENSOR_HPP
 
 #include <array>
+#include <vector>
 
 /**
  * @class Sensor
@@ -58,6 +59,16 @@ public:
     virtual float* getAllData() = 0;
 
     virtual size_t getNumValues() = 0;
+
+     /**
+     * @brief Get all unique name values from a sensor
+     *
+     * This method should return a string with sensor value names separated
+     * by a column. e.g "value1,value2".
+     * 
+     * @return string of sensor names
+     */
+    virtual std::string getNames() = 0;
 
 };
 
