@@ -1,17 +1,12 @@
 #ifndef DATA_LOGGER_HPP
 #define DATA_LOGGER_HPP
 
-#include <SdFat.h>
 #include <CRC32.h>
-#include <vector>
-#include <string>
 #include "configKeys.hpp"
 #include "serialCommunicator.hpp"
 #include "fileManager.hpp"
+#include "timer.hpp"
 
-// sensors
-#include "pressureSensor.hpp"
-#include "IMUSensor.hpp"
 
 /**
  * @file dataLogger.hpp
@@ -63,25 +58,10 @@ public:
      */
     void sendAllFiles();
 
-
-    void logData();
-
-   
-    // ------------------------- MEMBERS ------------------------- //
-    // Tracks time since program inception
-    unsigned long currentTime = millis();
- 
-    // Sensor Objects
-    // set oversample rate (lower, faster)
-    PressureSensor baro;
-    // Change address to low or high based on PCB design
-    IMUSensor imu;
-
 private:
     
     // ------------------------- MEMBERS ------------------------- //
 
-    
     SerialCommunicator& serialComm;
 
     // sub class
@@ -95,8 +75,6 @@ private:
 
     // ------------------------- METHODS ------------------------- //
 
-
-    
 
 };
 

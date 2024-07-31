@@ -12,7 +12,6 @@
  * Derived sensor classes must implement the pure virtual functions
  * to provide specific functionality.
  */
-template <std::size_t N>
 class Sensor {
 public:
     /**
@@ -54,9 +53,12 @@ public:
      * This method should return an array of sensor data values.
      * It must be implemented by the derived sensor class.
      * 
-     * @return Array of current sensor data values.
+     * @return Pointer to an array of current sensor data values.
      */
-    virtual std::array<float, N> getAllData() = 0;
+    virtual float* getAllData() = 0;
+
+    virtual size_t getNumValues() = 0;
+
 };
 
 #endif // SENSOR_HPP

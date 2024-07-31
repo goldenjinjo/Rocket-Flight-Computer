@@ -19,6 +19,8 @@ public:
     FlightState getCurrentState() const;
     void transitionToState(FlightState newState);
 
+    void logSensorData(uint16_t delayTime);
+
 private:
     FlightState currentState;
     PressureSensor pressureSensor;
@@ -29,6 +31,7 @@ private:
     PyroController pyroMain;
     BuzzerFunctions buzzerFunc_;
     DataLogger logger_;
+    Timer loggingTimer_;
 
     /**
      * @brief Initialize sensors and add them to sensor fusion.
@@ -55,6 +58,17 @@ private:
     float groundAltitude_;
     const float APOGEE_VELOCITY_THRESHOLD = 0.5; // meters per second
     const float LANDING_VEL_THRESHOLD = 1; // meters per second
+
+    // for logging data
+    template <typename SensorType>
+    void appendSensorDataToArray(float* dataArray, size_t& offset, const SensorType& sensor) {
+        float* allData = sensor.getAllData();
+        size_t numValues = sensor.getNumValues(); // Get the number of values from the sensor
+
+        for (size_t i = 0; i < numValues; ++i) {
+            dataArray[offset++] = allData[i];
+        }
+    }
 };
 
 #endif // FLIGHT_STATE_MACHINE_HPP

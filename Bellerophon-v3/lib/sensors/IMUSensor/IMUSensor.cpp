@@ -34,8 +34,8 @@ void IMUSensor::enable() {
 
 // Get accelerometer data as an array
 // TODO: adjust for gravity, currently g = 1. Weird...
-std::array<float, 3> IMUSensor::getAccelerometerData() {
-    std::array<float, 3> accelData; // Array to hold accelerometer data: [accel_x, accel_y, accel_z]
+float* IMUSensor::getAccelerometerData() {
+    static float accelData[3]; // Array to hold accelerometer data: [accel_x, accel_y, accel_z]
 
     // Convert raw accelerometer data to physical units and store in the accelData array
     // divide by 1000 to convert from milli g, to g
@@ -47,8 +47,8 @@ std::array<float, 3> IMUSensor::getAccelerometerData() {
 }
 
 // Get gyroscope data as an array
-std::array<float, 3> IMUSensor::getGyroscopeData() {
-    std::array<float, 3> gyroData; // Array to hold gyroscope data: [gyro_x, gyro_y, gyro_z]
+float* IMUSensor::getGyroscopeData() {
+    static float gyroData[3]; // Array to hold gyroscope data: [gyro_x, gyro_y, gyro_z]
     
     // Convert raw gyroscope data to physical units and store in the gyroData array
     // Divide by 1000 to convert from milli degrees per second
@@ -110,18 +110,15 @@ float IMUSensor::getGyroPollRate() {
     return gyroPollRate;
 }
 
-std::array<float, 6> IMUSensor::getAllData() {
-    std::array<float, 6> allData;
-    std::array<float, 3> accelData = getAccelerometerData();
-    std::array<float, 3> gyroData = getGyroscopeData();
+float* IMUSensor::getAllData() {
+    static float allData[6];
+    float* accelData = getAccelerometerData();
+    float* gyroData = getGyroscopeData();
 
-    // Combine accelerometer and gyroscope data
-    allData[0] = accelData[0];
-    allData[1] = accelData[1];
-    allData[2] = accelData[2];
-    allData[3] = gyroData[0];
-    allData[4] = gyroData[1];
-    allData[5] = gyroData[2];
+    for (int i = 0; i < 3; ++i) {
+        allData[i] = accelData[i];
+        allData[i + 3] = gyroData[i];
+    }
 
     return allData;
 }

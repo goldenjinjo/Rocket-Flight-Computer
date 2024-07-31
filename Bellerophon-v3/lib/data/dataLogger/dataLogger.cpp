@@ -11,7 +11,7 @@
 /// TODO: add unique identifers for different Bellerophons in file name
 
 DataLogger::DataLogger(SerialCommunicator& serialComm, FileManager& files) : \
-serialComm(serialComm), files(files), baro(1), imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {}
+serialComm(serialComm), files(files) {}
 
 bool DataLogger::initialize() {
     
@@ -26,21 +26,23 @@ bool DataLogger::initialize() {
         logEvent("Start LOG FILE");
     }
 
-    // Sensor config
-    imu.setPollRate(10); 
-
     return true;
 }
 
 void DataLogger::logEvent(const char* message) {
-    currentTime = millis();
+    int currentTime = Timer::currentTime();
     char buffer[logBuffer];
     snprintf(buffer, sizeof(buffer), "%lu: %s\n", currentTime, message);
     files.print(files.logFile, buffer);
 }
 
 void DataLogger::logData(float* data, size_t numFloats) {
-    currentTime = millis();
+
+    if (!files.fileExists(files.dataFileName)) {
+        files.print(files.dataFile, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
+    }
+    
+    int currentTime = Timer::currentTime();
     char buffer[logBuffer];
     int offset = snprintf(buffer, sizeof(buffer), "%lu,", currentTime);
     for (size_t i = 0; i < numFloats; ++i) {
@@ -144,41 +146,5 @@ void DataLogger::deleteAllFiles() {
 
     // update fileNames array, which now should be empty
     files.updateFileList();
-}
-
-// SENSOR logging - logging mode
-void DataLogger::logData() {
-    
-    // Write header to the new data file on first run of loop
-    if (!files.fileExists(files.dataFileName)) {
-        files.print(files.dataFile, "time, pressure, temp, ax, ay, az, gx, gy, gz\n");
-
-    }
-
-    if(DEBUG){
-        delay(1000);
-    }
-    // get IMU data
-    std::array<float, 3> acc = imu.getAccelerometerData();
-    std::array<float, 3> gyro = imu.getGyroscopeData();
-
-    float* sensorArray = new float[9];
-
-    // put all sensors into sensor array
-    // TODO: Abstract this to dataLogger class
-    // TODO: improve speed. Last check, 13ms between loops. Way too slow.
-    sensorArray[0] = baro.getData();
-    sensorArray[1] = baro.getTemperature();  // Resolved by commenting out TDR bit check in SparkFun Lib. 
-    sensorArray[2] = acc[0];
-    sensorArray[3] = acc[1];
-    sensorArray[4] = acc[2];
-    sensorArray[5] = acc[3];
-    sensorArray[6] = gyro[1];
-    sensorArray[7] = gyro[2];
-    sensorArray[8] = gyro[3];
-    // log sensor data
-    logData(sensorArray, 9);
-
-    delete[] sensorArray; // Don't forget to free the allocated memory
 }
 

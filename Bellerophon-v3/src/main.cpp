@@ -52,7 +52,6 @@ void setup() {
     LED.startUp();
     buzzerFunc.startUp();
 
-    delay(2000);
 }
 // keep track of previous tones
 int previousMode = -1;  
@@ -75,6 +74,12 @@ void loop()
     buzzerFunc.update();
     LED.updateAllLEDS();
 
+        time1 = Timer::currentTime();
+           
+        flightState.update();
+
+      
+
     switch (mode) {
         
         case STANDBY_MODE: {
@@ -95,7 +100,7 @@ void loop()
         }
         case LOGGING_MODE: {
             // log data to data file
-            logger.logData();
+            //flightState.logSensorData(0);
             break;
         }
         case FIN_CONTROL_MODE: {
@@ -108,17 +113,11 @@ void loop()
         }
         case BARO_ONLY_FLIGHT_MODE: {
             /// TODO: write this
-
-            
-            time1 = Timer::currentTime();
-           
-            flightState.update();
-
-            time2 = Timer::currentTime();
-            Serial.println(time2 - time1);
-            Serial.println("-------------");
-
             break;
         }
     }
+
+    time2 = Timer::currentTime();
+    Serial.println(time2 - time1);
+    Serial.println("-------------");
 }

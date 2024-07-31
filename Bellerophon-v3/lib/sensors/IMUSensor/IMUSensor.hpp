@@ -5,7 +5,7 @@
 #include <LSM6DSLSensor.h>
 #include "sensor.hpp"
 
-class IMUSensor: public Sensor<6> {
+class IMUSensor: public Sensor {
 private:
     // ------------------------- MEMBERS ------------------------- //
     LSM6DSLSensor imu; // LSM6DSLSensor object
@@ -45,13 +45,13 @@ public:
      * @brief  Get accelerometer data as an array.
      * @return Pointer to the array of accelerometer data.
      */
-    std::array<float, 3> getAccelerometerData();
+    float* getAccelerometerData();
     
     /**
      * @brief  Get gyroscope data as an array.
      * @return Pointer to the array of gyroscope data.
      */
-    std::array<float, 3> getGyroscopeData();
+    float* getGyroscopeData();
     
     /**
      * @brief  Adjust polling rate (ODR).
@@ -73,12 +73,16 @@ public:
 
 
     float getData() override {
-        return 1;
+        return accelArray_[0];
     };
 
     void update() override;
 
-    std::array<float, 6> getAllData() override;
+    float* getAllData() override;
+
+    size_t getNumValues() override {
+        return 6;
+    }
 };
 
 #endif // IMU_SENSOR_HPP

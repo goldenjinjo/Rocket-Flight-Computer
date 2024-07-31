@@ -13,14 +13,19 @@ FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_, DataLogger&
     initializeSensors();
 }
 
+
+
 void FlightStateMachine::initializeSensors() {
     pressureSensor.initialize();
+    imu.initialize();
+    imu.setPollRate(10); 
     
     // TODO: Add logic to determine if the sensor should be added
     // Example: Check if sensor is found and if stable readings can be identified
     
     // Add BarometricProcessor to SensorFusion
     sensors.addSensor(altitudeProcessor);
+
     // Example for adding other sensors (IMU)
     // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
 }
@@ -30,23 +35,30 @@ void FlightStateMachine::update() {
     handleStateTransition();
 }
 
-void FlightStateMachine::updateSensorData() {
-    sensors.updateSensors(); // Update altitude processor data
+
+void FlightStateMachine::logSensorData(uint16_t delayTime) {
+
+    loggingTimer_.start(delayTime);
+
+    if(!loggingTimer_.hasElapsed()) {
+        // do not log data if wait time is in effect
+        return;
+    }
+
+    size_t numDataPoints = imu.getNumValues() + pressureSensor.getNumValues();
+    float allData[numDataPoints];
+    size_t offset = 0;
+    appendSensorDataToArray(allData, offset, pressureSensor);
+    appendSensorDataToArray(allData, offset, imu);
     
-    currentAltitude_ = sensors.getFusedAltitude(); // Get the current altitude
-    currentVelocity_ = sensors.getFusedVerticalVelocity(); // get the current velocity
-    groundAltitude_ = sensors.getGroundAltitude();
-    maxAltitude_ = sensors.getMaxAltitude();
-    maxVelocity_ = sensors.getMaxVelocity();
+    logger_.logData(allData, numDataPoints);
 
-
-    imu.update();
-    std::array<float, 6> allData = imu.getAllData();
-    for (int i = 0; i < 6; ++i) {
+    // DEBUG
+    for (int i = 0; i < numDataPoints; ++i) {
         Serial.println(allData[i]);
     }
 
-    Serial.println(pressureSensor.getData());
+    // diagonistics
     Serial.println(currentAltitude_);
     Serial.println(currentVelocity_);
     Serial.print("Max Altitude: ");
@@ -58,6 +70,22 @@ void FlightStateMachine::updateSensorData() {
     Serial.print("Outlier Count: ");
     Serial.println(altitudeProcessor->getOutlierCount());
     Serial.println("----");
+
+    // reset timer for next cycle
+    loggingTimer_.reset();
+
+}
+
+void FlightStateMachine::updateSensorData() {
+    sensors.updateSensors(); // Update altitude processor data
+    
+    currentAltitude_ = sensors.getFusedAltitude(); // Get the current altitude
+    currentVelocity_ = sensors.getFusedVerticalVelocity(); // get the current velocity
+    groundAltitude_ = sensors.getGroundAltitude();
+    maxAltitude_ = sensors.getMaxAltitude();
+    maxVelocity_ = sensors.getMaxVelocity();
+
+    imu.update(); 
 }
 
 void FlightStateMachine::handleStateTransition() {
@@ -124,6 +152,7 @@ void FlightStateMachine::handlePreLaunch() {
 
 void FlightStateMachine::handleAscent() {
     // Ascent logic
+    logSensorData(0);
    
     // Apogee detection logic
     if (currentVelocity_ <= APOGEE_VELOCITY_THRESHOLD) {
@@ -136,6 +165,7 @@ void FlightStateMachine::handleAscent() {
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
+    logSensorData(0);
     if(maxAltitude_ < MINIMUM_APOGEE) {
         // Do not allow pyro to trigger if minimum apogee was not reached,
         /// TODO: create failure mode for this
@@ -150,12 +180,15 @@ void FlightStateMachine::handleApogee() {
 
 void FlightStateMachine::handleDescentDrogue() {
     // Descent under drogue logic
+    logSensorData(500);
     if (currentAltitude_ <= MAIN_DEPLOYMENT_ALT) {
         transitionToState(FlightState::LOW_ALTITUDE_DETECTION);
     }
 }
 
 void FlightStateMachine::handleLowAltitudeDetection() {
+    
+    logSensorData(500);
     // Trigger main parachutes
     if(pyroMain.trigger()){
         transitionToState(FlightState::DESCENT_MAIN);
@@ -165,6 +198,8 @@ void FlightStateMachine::handleLowAltitudeDetection() {
 }
 
 void FlightStateMachine::handleDescentMain() {
+    
+    logSensorData(500);
     // Descent under main logic
     if (currentVelocity_ <= LANDING_VEL_THRESHOLD) {
         transitionToState(FlightState::LANDING);
