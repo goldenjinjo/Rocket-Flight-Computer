@@ -73,12 +73,8 @@ void loop()
 
     buzzerFunc.update();
     LED.updateAllLEDS();
-
-        time1 = Timer::currentTime();
-           
-        flightState.update();
-
-      
+   
+    flightState.update();
 
     switch (mode) {
         
@@ -100,7 +96,7 @@ void loop()
         }
         case LOGGING_MODE: {
             // log data to data file
-            flightState.logSensorData(0);
+            flightState.logSensorData(100);
             break;
         }
         case FIN_CONTROL_MODE: {
@@ -116,8 +112,4 @@ void loop()
             break;
         }
     }
-
-    time2 = Timer::currentTime();
-    Serial.println(time2 - time1);
-    Serial.println("-------------");
 }
