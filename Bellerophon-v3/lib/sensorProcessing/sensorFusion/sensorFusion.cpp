@@ -81,3 +81,27 @@ float SensorFusion::getMaxAcceleration() const {
     }
     return maxAcceleration / sensors.size(); // Simple averaging for now
 }
+
+
+float* SensorFusion::getAllRawData() const {
+    // First determine the total size required
+    size_t totalSize = 0;
+    for (const auto& sensor : sensors) {
+        totalSize += sensor->getNumSensorValues();
+    }
+
+    // Allocate a sufficiently large array
+    // Todo reassess dynamic allocation
+    float* combinedData = new float[totalSize];
+
+    // Copy data from each sensor into the combined array
+    size_t offset = 0;
+    for (const auto& sensor : sensors) {
+        float* sensorData = sensor->getRawData();
+        size_t sensorDataSize = sensor->getNumSensorValues();
+        std::memcpy(combinedData + offset, sensorData, sensorDataSize * sizeof(float));
+        offset += sensorDataSize;
+    }
+
+    return combinedData;
+}

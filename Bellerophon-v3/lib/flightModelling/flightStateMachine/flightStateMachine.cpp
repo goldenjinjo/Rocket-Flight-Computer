@@ -17,8 +17,7 @@ FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc, DataLogger& 
 
 
 void FlightStateMachine::initializeSensors() {
-    pressureSensor_.initialize();
-    imu_.initialize();
+   
     imu_.setPollRate(10); 
     
     // TODO: Add logic to determine if the sensor should be added
@@ -27,9 +26,6 @@ void FlightStateMachine::initializeSensors() {
     // Add BarometricProcessor to SensorFusion
     sensors_.addSensor(altitudeProcessor_);
     sensors_.addSensor(imuProcessor_);
-
-    // Example for adding other sensors (IMU)
-    // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
 }
 
 void FlightStateMachine::update() {

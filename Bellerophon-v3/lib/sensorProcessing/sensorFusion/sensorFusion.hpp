@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <cstring>
 #include "sensorProcessor.hpp"
 
 /**
@@ -83,6 +84,9 @@ public:
      * @return Maximum recorded vertical acceleration.
      */
     float getMaxAcceleration() const;
+
+
+    float* getAllRawData() const;
 };
 
 #endif // SENSOR_FUSION_HPP

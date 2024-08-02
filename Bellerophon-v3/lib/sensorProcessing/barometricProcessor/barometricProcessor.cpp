@@ -17,6 +17,15 @@ void BarometricProcessor::update() {
     updateMaxVelocity();
 }
 
+
+float* BarometricProcessor::getRawData() const {
+    return pressureSensor_.getAllData();
+}
+
+size_t BarometricProcessor::getNumSensorValues() const {
+    return pressureSensor_.getNumValues();
+}
+
 void BarometricProcessor::updateGroundAltitude() {
     // update ground altitude only if data is stable
     if(!isStabilized()){

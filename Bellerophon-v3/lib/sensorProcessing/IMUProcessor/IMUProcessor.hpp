@@ -12,6 +12,16 @@ public:
 
     void update() override;
 
+    float* getRawData() const override;
+
+
+     /**
+     * @brief returns number of unique sensor values, wrapper of getNumValues()
+     * 
+     * @return size_t num of unique sensors
+     */
+    size_t getNumSensorValues() const override;
+
 protected:
     float getAltitude() const override {
         return 0.0;
@@ -41,6 +51,8 @@ protected:
     float getMaxAcceleration() const override {
         return 0.0;
     }
+
+    
 
 private:
     IMUSensor& imu_;

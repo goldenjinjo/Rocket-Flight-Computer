@@ -27,6 +27,20 @@ public:
     void update() override;
 
     /**
+     * @brief Get the raw data from the pressure sensor, wrapper of getAllData()
+     * 
+     * @return raw pressure (Pa) and temperature (C)
+     */
+    float* getRawData() const override;
+
+    /**
+     * @brief returns number of unique sensor values, wrapper of getNumValues()
+     * 
+     * @return size_t num of unique sensors
+     */
+    size_t getNumSensorValues() const override;
+
+    /**
      * @brief Get the estimated altitude.
      * 
      * @return Estimated altitude.
