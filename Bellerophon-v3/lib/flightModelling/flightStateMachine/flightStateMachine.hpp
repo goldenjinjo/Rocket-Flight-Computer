@@ -11,6 +11,7 @@
 #include "sensorFusion.hpp"
 #include "buzzerFunctions.hpp"
 #include "dataLogger.hpp"
+#include "IMUProcessor.hpp"
 
 class FlightStateMachine {
 public:
@@ -22,16 +23,24 @@ public:
     void logSensorData(uint16_t delayTime);
 
 private:
-    FlightState currentState;
-    PressureSensor pressureSensor;
-    IMUSensor imu;
-    std::shared_ptr<BarometricProcessor> altitudeProcessor;
-    SensorFusion sensors;
-    PyroController pyroDrogue;
-    PyroController pyroMain;
-    BuzzerFunctions buzzerFunc_;
-    DataLogger logger_;
+    FlightState currentState_;
+    PressureSensor pressureSensor_;
+    IMUSensor imu_;
+    std::shared_ptr<BarometricProcessor> altitudeProcessor_;
+    std::shared_ptr<IMUProcessor> imuProcessor_;
+    SensorFusion sensors_;
+    PyroController pyroDrogue_;
+    PyroController pyroMain_;
+    BuzzerFunctions& buzzerFunc_;
+    DataLogger& logger_;
     Timer loggingTimer_;
+    float currentAltitude_;
+    float currentVelocity_;
+    float maxAltitude_;
+    float maxVelocity_;
+    float groundAltitude_;
+    const float APOGEE_VELOCITY_THRESHOLD = 0.5; // meters per second
+    const float LANDING_VEL_THRESHOLD = 1; // meters per second
 
     /**
      * @brief Initialize sensors and add them to sensor fusion.
@@ -51,13 +60,7 @@ private:
     void handleStageSeparation();
     void handleFailure();
 
-    float currentAltitude_;
-    float currentVelocity_;
-    float maxAltitude_;
-    float maxVelocity_;
-    float groundAltitude_;
-    const float APOGEE_VELOCITY_THRESHOLD = 0.5; // meters per second
-    const float LANDING_VEL_THRESHOLD = 1; // meters per second
+
 
     // for logging data
     template <typename SensorType>

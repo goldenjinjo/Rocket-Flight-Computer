@@ -1,30 +1,32 @@
 #include "flightStateMachine.hpp"
 
-FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc_, DataLogger& logger_)
-    : currentState(FlightState::PRE_LAUNCH), 
-      pressureSensor(0), 
-      imu(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
-      altitudeProcessor(std::make_shared<BarometricProcessor>(pressureSensor, 150, 0.8)),
-      pyroDrogue(PYRO_DROGUE, DROGUE_DELAY),
-      pyroMain(PYRO_MAIN, MAIN_DELAY),
-      buzzerFunc_(buzzerFunc_),
-      logger_(logger_) {
-    // Initialize sensors and actuators
+FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc, DataLogger& logger)
+    : currentState_(FlightState::PRE_LAUNCH),
+      pressureSensor_(0),
+      imu_(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
+      altitudeProcessor_(std::make_shared<BarometricProcessor>(pressureSensor_, 150, 0.8)),
+      imuProcessor_(std::make_shared<IMUProcessor>(imu_, 150, 0.8)),
+      pyroDrogue_(PYRO_DROGUE, DROGUE_DELAY),
+      pyroMain_(PYRO_MAIN, MAIN_DELAY),
+      buzzerFunc_(buzzerFunc),
+      logger_(logger) {
+    // Initialize sensors_ and actuators
     initializeSensors();
 }
 
 
 
 void FlightStateMachine::initializeSensors() {
-    pressureSensor.initialize();
-    imu.initialize();
-    imu.setPollRate(10); 
+    pressureSensor_.initialize();
+    imu_.initialize();
+    imu_.setPollRate(10); 
     
     // TODO: Add logic to determine if the sensor should be added
     // Example: Check if sensor is found and if stable readings can be identified
     
     // Add BarometricProcessor to SensorFusion
-    sensors.addSensor(altitudeProcessor);
+    sensors_.addSensor(altitudeProcessor_);
+    sensors_.addSensor(imuProcessor_);
 
     // Example for adding other sensors (IMU)
     // sensorFusion.addSensor(std::make_shared<IMUProcessor>(imu));
@@ -45,14 +47,14 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
         return;
     }
 
-    size_t numDataPoints = imu.getNumValues() + pressureSensor.getNumValues();
+    size_t numDataPoints = imu_.getNumValues() + pressureSensor_.getNumValues();
     float allData[numDataPoints];
     size_t offset = 0;
-    appendSensorDataToArray(allData, offset, pressureSensor);
-    appendSensorDataToArray(allData, offset, imu);
+    appendSensorDataToArray(allData, offset, pressureSensor_);
+    appendSensorDataToArray(allData, offset, imu_);
     
     // create title
-    std::string sensorNames = "time," + pressureSensor.getNames() + "," + imu.getNames();
+    std::string sensorNames = "time," + pressureSensor_.getNames() + "," + imu_.getNames();
     logger_.addDataFileHeading(sensorNames.c_str());
     Serial.println(sensorNames.c_str());
     // log data
@@ -72,7 +74,7 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
     Serial.print("Ground Altitude: ");
     Serial.println(groundAltitude_);
     Serial.print("Outlier Count: ");
-    Serial.println(altitudeProcessor->getOutlierCount());
+    Serial.println(altitudeProcessor_->getOutlierCount());
     Serial.println("----");
 
     // reset timer for next cycle
@@ -81,19 +83,19 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
 }
 
 void FlightStateMachine::updateSensorData() {
-    sensors.updateSensors(); // Update altitude processor data
+    sensors_.updateSensors(); // Update altitude processor data
     
-    currentAltitude_ = sensors.getFusedAltitude(); // Get the current altitude
-    currentVelocity_ = sensors.getFusedVerticalVelocity(); // get the current velocity
-    groundAltitude_ = sensors.getGroundAltitude();
-    maxAltitude_ = sensors.getMaxAltitude();
-    maxVelocity_ = sensors.getMaxVelocity();
+    currentAltitude_ = sensors_.getFusedAltitude(); // Get the current altitude
+    currentVelocity_ = sensors_.getFusedVerticalVelocity(); // get the current velocity
+    groundAltitude_ = sensors_.getGroundAltitude();
+    maxAltitude_ = sensors_.getMaxAltitude();
+    maxVelocity_ = sensors_.getMaxVelocity();
 
-    imu.update(); 
+    imu_.update(); 
 }
 
 void FlightStateMachine::handleStateTransition() {
-    switch (currentState) {
+    switch (currentState_) {
         case FlightState::PRE_LAUNCH:
             handlePreLaunch();
             break;
@@ -125,11 +127,11 @@ void FlightStateMachine::handleStateTransition() {
 }
 
 FlightState FlightStateMachine::getCurrentState() const {
-    return currentState;
+    return currentState_;
 }
 
 void FlightStateMachine::transitionToState(FlightState newState) {
-    currentState = newState;
+    currentState_ = newState;
 }
 
 void FlightStateMachine::handlePreLaunch() {
@@ -180,7 +182,7 @@ void FlightStateMachine::handleApogee() {
         return;
     }
     // Trigger drogue parachute
-    if(pyroDrogue.trigger()) {
+    if(pyroDrogue_.trigger()) {
         transitionToState(FlightState::DESCENT_DROGUE);
         logger_.logEvent("DROGUE DEPLOYED");
     }
@@ -198,7 +200,7 @@ void FlightStateMachine::handleLowAltitudeDetection() {
     
     logSensorData(500);
     // Trigger main parachutes
-    if(pyroMain.trigger()){
+    if(pyroMain_.trigger()){
         transitionToState(FlightState::DESCENT_MAIN);
         logger_.logEvent("MAIN DEPLOYED");
     }
