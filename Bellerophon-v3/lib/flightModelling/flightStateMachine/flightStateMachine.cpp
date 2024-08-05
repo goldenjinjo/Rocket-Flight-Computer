@@ -36,19 +36,23 @@ void FlightStateMachine::update() {
 
 
 void FlightStateMachine::logSensorData(uint16_t delayTime) {
-
-    loggingTimer_.start(delayTime);
-
-    if(!loggingTimer_.hasElapsed()) {
-        // do not log data if wait time is in effect
+    if (delayTime == 0) {
+        // Log data immediately if delayTime is zero
+        sensors_.logSensorData();
         return;
     }
+    // If delay time is not zero, log data based on time delay
+    loggingTimer_.start(delayTime);
 
+    if (!loggingTimer_.hasElapsed()) {
+        // Do not log data if wait time is in effect
+        return;
+    }
+    // Log data
     sensors_.logSensorData();
 
-    // reset timer for next cycle
+    // Reset timer for next cycle
     loggingTimer_.reset();
-
 }
 
 void FlightStateMachine::updateSensorData() {
@@ -131,7 +135,7 @@ void FlightStateMachine::handlePreLaunch() {
 
 void FlightStateMachine::handleAscent() {
     // Ascent logic
-    logSensorData(0);
+    logSensorData();
    
     // Apogee detection logic
     if (currentVelocity_ <= APOGEE_VELOCITY_THRESHOLD) {
@@ -144,7 +148,7 @@ void FlightStateMachine::handleAscent() {
 
 void FlightStateMachine::handleApogee() {
     // Apogee logic
-    logSensorData(0);
+    logSensorData();
     if(maxAltitude_ < MINIMUM_APOGEE) {
         // Do not allow pyro to trigger if minimum apogee was not reached,
         /// TODO: create failure mode for this

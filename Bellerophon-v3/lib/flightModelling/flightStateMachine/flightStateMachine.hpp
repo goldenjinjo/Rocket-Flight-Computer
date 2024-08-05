@@ -20,7 +20,7 @@ public:
     FlightState getCurrentState() const;
     void transitionToState(FlightState newState);
 
-    void logSensorData(uint16_t delayTime);
+    void logSensorData(uint16_t delayTime = 0);
 
 private:
     FlightState currentState_;
