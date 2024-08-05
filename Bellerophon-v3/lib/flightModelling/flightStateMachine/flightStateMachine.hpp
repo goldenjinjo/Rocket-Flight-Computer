@@ -28,11 +28,11 @@ private:
     IMUSensor imu_;
     std::shared_ptr<BarometricProcessor> altitudeProcessor_;
     std::shared_ptr<IMUProcessor> imuProcessor_;
-    SensorFusion sensors_;
     PyroController pyroDrogue_;
     PyroController pyroMain_;
     BuzzerFunctions& buzzerFunc_;
     DataLogger& logger_;
+    SensorFusion sensors_;
     Timer loggingTimer_;
     float currentAltitude_;
     float currentVelocity_;
@@ -59,19 +59,6 @@ private:
     void handleLanding();
     void handleStageSeparation();
     void handleFailure();
-
-
-
-    // for logging data
-    template <typename SensorType>
-    void appendSensorDataToArray(float* dataArray, size_t& offset, const SensorType& sensor) {
-        float* allData = sensor.getAllData();
-        size_t numValues = sensor.getNumValues(); // Get the number of values from the sensor
-
-        for (size_t i = 0; i < numValues; ++i) {
-            dataArray[offset++] = allData[i];
-        }
-    }
 };
 
 #endif // FLIGHT_STATE_MACHINE_HPP

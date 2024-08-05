@@ -22,6 +22,8 @@ public:
      */
     size_t getNumSensorValues() const override;
 
+    std::string getSensorNames() const override;
+
 protected:
     float getAltitude() const override {
         return 0.0;

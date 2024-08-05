@@ -15,3 +15,7 @@ float* IMUProcessor::getRawData() const {
 size_t IMUProcessor::getNumSensorValues() const {
     return imu_.getNumValues();
 }
+
+std::string IMUProcessor::getSensorNames() const {
+    return imu_.getNames();
+}

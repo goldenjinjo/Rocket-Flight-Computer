@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include "sensorProcessor.hpp"
+#include "dataLogger.hpp"
 
 /**
  * @class SensorFusion
@@ -14,12 +15,11 @@
 class SensorFusion {
 private:
     std::vector<std::shared_ptr<SensorProcessor>> sensors; ///< Vector of shared pointers to sensor processors
+    DataLogger& logger_;
 
 public:
-    /**
-     * @brief Default constructor for SensorFusion.
-     */
-    SensorFusion() = default;
+   
+    SensorFusion(DataLogger& logger);
 
     /**
      * @brief Adds a sensor processor to the fusion system.
@@ -87,6 +87,10 @@ public:
 
 
     float* getAllRawData() const;
+
+    void logSensorData();
+
+    std::string generateHeaderString() const;
 };
 
 #endif // SENSOR_FUSION_HPP

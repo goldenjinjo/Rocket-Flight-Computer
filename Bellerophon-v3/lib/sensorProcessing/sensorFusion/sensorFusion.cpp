@@ -1,5 +1,10 @@
 #include "sensorFusion.hpp"
 
+
+SensorFusion::SensorFusion(DataLogger& logger) : logger_(logger) {}
+
+
+
 bool SensorFusion::addSensor(const std::shared_ptr<SensorProcessor>& sensor) {
     // Check if the argument is a valid SensorProcessor
     if (sensor && dynamic_cast<SensorProcessor*>(sensor.get())) {
@@ -104,4 +109,58 @@ float* SensorFusion::getAllRawData() const {
     }
 
     return combinedData;
+}
+
+std::string SensorFusion::generateHeaderString() const {
+    std::string header = "time";
+    for (const auto& sensor : sensors) {
+        std::string names = sensor->getSensorNames();
+        if (!names.empty()) {
+            header += "," + names;
+        }
+    }
+    return header;
+}
+
+
+void SensorFusion::logSensorData() {
+    
+    // Write title for logging file
+    std::string header = generateHeaderString();
+    logger_.addDataFileHeading(header.c_str());
+
+    // Get the total number of sensors
+    size_t totalSize = 0;
+    for (const auto& sensor : sensors) {
+        totalSize += sensor->getNumSensorValues();
+    }
+
+    float combinedData[totalSize];
+
+    // Copy data from each sensor into the combined array
+    size_t offset = 0;
+    for (const auto& sensor : sensors) {
+        float* sensorData = sensor->getRawData();
+        size_t sensorDataSize = sensor->getNumSensorValues();
+        std::memcpy(combinedData + offset, sensorData, sensorDataSize * sizeof(float));
+        offset += sensorDataSize;
+    }
+
+     // DEBUG
+    for (int i = 0; i < totalSize; ++i) {
+        Serial.println(combinedData[i]);
+    }
+
+    // MORE DEBUG
+    Serial.println(getFusedAltitude());
+    Serial.println(getFusedVerticalVelocity());
+    Serial.print("Max Altitude: ");
+    Serial.println(getMaxAltitude());
+    Serial.print("Max Velocity: ");
+    Serial.println(getMaxVelocity());
+    Serial.print("Ground Altitude: ");
+    Serial.println(getGroundAltitude());
+    
+    // Log the combined array
+    logger_.logData(combinedData, totalSize);
 }

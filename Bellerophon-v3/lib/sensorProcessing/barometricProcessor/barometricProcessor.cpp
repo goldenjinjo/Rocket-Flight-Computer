@@ -26,6 +26,10 @@ size_t BarometricProcessor::getNumSensorValues() const {
     return pressureSensor_.getNumValues();
 }
 
+std::string BarometricProcessor::getSensorNames() const {
+    return pressureSensor_.getNames();
+}
+
 void BarometricProcessor::updateGroundAltitude() {
     // update ground altitude only if data is stable
     if(!isStabilized()){

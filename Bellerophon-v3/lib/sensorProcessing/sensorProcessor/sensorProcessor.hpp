@@ -3,6 +3,8 @@
     #define SENSOR_PROCESSOR_HPP
 
     #include <cstddef>
+    #include <string>
+
 
     class SensorProcessor {
     public:
@@ -18,6 +20,7 @@
         virtual float getMaxAcceleration() const = 0;
         virtual float* getRawData() const = 0;
         virtual size_t getNumSensorValues() const = 0;
+        virtual std::string getSensorNames() const = 0;
     };
 
     #endif // SENSOR_PROCESSOR_HPP

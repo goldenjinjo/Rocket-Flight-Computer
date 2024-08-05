@@ -40,6 +40,8 @@ public:
      */
     size_t getNumSensorValues() const override;
 
+    std::string getSensorNames() const override;
+
     /**
      * @brief Get the estimated altitude.
      * 

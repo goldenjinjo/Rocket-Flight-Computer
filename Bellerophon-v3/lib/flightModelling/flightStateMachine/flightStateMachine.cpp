@@ -9,7 +9,8 @@ FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc, DataLogger& 
       pyroDrogue_(PYRO_DROGUE, DROGUE_DELAY),
       pyroMain_(PYRO_MAIN, MAIN_DELAY),
       buzzerFunc_(buzzerFunc),
-      logger_(logger) {
+      logger_(logger),
+      sensors_(logger) {
     // Initialize sensors_ and actuators
     initializeSensors();
 }
@@ -43,35 +44,7 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
         return;
     }
 
-    size_t numDataPoints = imu_.getNumValues() + pressureSensor_.getNumValues();
-    float allData[numDataPoints];
-    size_t offset = 0;
-    appendSensorDataToArray(allData, offset, pressureSensor_);
-    appendSensorDataToArray(allData, offset, imu_);
-    
-    // create title
-    std::string sensorNames = "time," + pressureSensor_.getNames() + "," + imu_.getNames();
-    logger_.addDataFileHeading(sensorNames.c_str());
-    Serial.println(sensorNames.c_str());
-    // log data
-    logger_.logData(allData, numDataPoints);
-
-    // DEBUG
-    for (int i = 0; i < numDataPoints; ++i) {
-        Serial.println(allData[i]);
-    }
-
-    Serial.println(currentAltitude_);
-    Serial.println(currentVelocity_);
-    Serial.print("Max Altitude: ");
-    Serial.println(maxAltitude_);
-    Serial.print("Max Velocity: ");
-    Serial.println(maxVelocity_);
-    Serial.print("Ground Altitude: ");
-    Serial.println(groundAltitude_);
-    Serial.print("Outlier Count: ");
-    Serial.println(altitudeProcessor_->getOutlierCount());
-    Serial.println("----");
+    sensors_.logSensorData();
 
     // reset timer for next cycle
     loggingTimer_.reset();
