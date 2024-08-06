@@ -1,7 +1,11 @@
 #include "sensorFusion.hpp"
 
+/// TODO: Add general initalisation implementation for each sensor, 
+// prevent data logging or processing until initilisation complete
 
-SensorFusion::SensorFusion(DataLogger& logger) : logger_(logger) {}
+
+SensorFusion::SensorFusion(DataLogger& logger) : logger_(logger), numFusedDataPoints_(3), numSensorValues_(0),
+dataHeaderString_("") {}
 
 void SensorFusion::updateSensorInformation() {
     calculateNumSensorValues();
@@ -99,6 +103,7 @@ size_t SensorFusion::getNumSensorValues() const {
 
 void SensorFusion::writeDataHeaderString() {
     std::string header = "time";
+    header+= "," + getFusedDataString();
     for (const auto& sensor : sensors) {
         std::string names = sensor->getSensorNames();
         if (!names.empty()) {
@@ -106,6 +111,11 @@ void SensorFusion::writeDataHeaderString() {
         }
     }
     dataHeaderString_ = header.c_str();
+}
+
+
+std::string SensorFusion::getFusedDataString() {
+    return "altitude,velocity(Z),acceleration(Z)";
 }
 
 
@@ -125,10 +135,14 @@ void SensorFusion::logSensorData() {
     // Write title for logging file
     logger_.addDataFileHeading(dataHeaderString_);
 
-    float combinedData[numSensorValues_];
+    float combinedData[numSensorValues_+ numFusedDataPoints_];
+
+    combinedData[0] = getFusedAltitude();
+    combinedData[1] = getFusedVerticalVelocity();
+    combinedData[2] = getFusedAcceleration();
 
     // Copy data from each sensor into the combined array
-    size_t offset = 0;
+    size_t offset = numFusedDataPoints_;
     for (const auto& sensor : sensors) {
         float* sensorData = sensor->getRawData();
         size_t sensorDataSize = sensor->getNumSensorValues();
@@ -137,7 +151,7 @@ void SensorFusion::logSensorData() {
     }
 
     // DEBUG
-    for (int i = 0; i < numSensorValues_; ++i) {
+    for (size_t i = 0; i < numSensorValues_; ++i) {
         Serial.println(combinedData[i]);
     }
 
