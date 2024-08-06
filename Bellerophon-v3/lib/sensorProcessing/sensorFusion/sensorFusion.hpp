@@ -16,6 +16,13 @@ class SensorFusion {
 private:
     std::vector<std::shared_ptr<SensorProcessor>> sensors; ///< Vector of shared pointers to sensor processors
     DataLogger& logger_;
+    size_t numSensorValues_;
+    const char* dataHeaderString_;
+
+
+    void calculateNumSensorValues();
+
+    void updateSensorInformation();
 
 public:
    
@@ -90,7 +97,10 @@ public:
 
     void logSensorData();
 
-    std::string generateHeaderString() const;
+    void writeDataHeaderString();
+
+
+    size_t getNumSensorValues() const;
 };
 
 #endif // SENSOR_FUSION_HPP
