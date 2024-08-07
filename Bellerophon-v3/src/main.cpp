@@ -19,8 +19,9 @@
 #include "LEDController.hpp"
 #include "buzzerFunctions.hpp"
 #include "LEDManager.hpp"
+#include "flightStateMachine.hpp"
 
-size_t buzzerQueueLimit = 50;
+size_t buzzerQueueLimit = 20;
 // Class Declarations
 BuzzerController buzzer(BUZZER, buzzerQueueLimit);
 BuzzerFunctions buzzerFunc(buzzer);
@@ -33,8 +34,8 @@ DataLogger logger(serialComm, fm);
 ConfigFileManager config(fm);
 SerialAction serialAction(serialComm, config, logger, controlFins, buzzerFunc, LED);
 
-// test instance of pyro class for drogue
-PyroController drogue(PYRO_DROGUE, 2000);
+Timer testTimer;
+FlightStateMachine flightState(buzzerFunc, logger);
 
 void setup() {
 
@@ -54,6 +55,9 @@ void setup() {
 }
 // keep track of previous tones
 int previousMode = -1;  
+int time1 = 0;
+int time2 = 0;
+
 // MAIN LOOP
 
 void loop()
@@ -69,12 +73,15 @@ void loop()
 
     buzzerFunc.update();
     LED.updateAllLEDS();
+   
+    flightState.update();
 
     switch (mode) {
         
         case STANDBY_MODE: {
             // do nothing
             LED.cycleLEDs(5000);
+            //controlFins.continuousDeflect(250, 15);
             break;
         }    
         case READING_MODE: {
@@ -89,7 +96,7 @@ void loop()
         }
         case LOGGING_MODE: {
             // log data to data file
-            logger.logData();
+            flightState.logSensorData(1000);
             break;
         }
         case FIN_CONTROL_MODE: {
