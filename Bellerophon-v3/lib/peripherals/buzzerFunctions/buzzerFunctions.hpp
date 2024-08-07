@@ -1,7 +1,7 @@
 #ifndef BUZZER_FUNCTIONS_HPP
 #define BUZZER_FUNCTIONS_HPP
 
-#include "BuzzerController.hpp"
+#include "buzzerController.hpp"
 #include "pinAssn.hpp"
 #include "constants.hpp"
 

@@ -1,10 +1,9 @@
 #ifndef BUZZERCONTROLLER_HPP
 #define BUZZERCONTROLLER_HPP
 
-#include <Arduino.h>
 #include <queue>
-#include "PinController.hpp"
-#include "Timer.hpp"
+#include "pinController.hpp"
+#include "timer.hpp"
 
 /**
  * @class BuzzerController
