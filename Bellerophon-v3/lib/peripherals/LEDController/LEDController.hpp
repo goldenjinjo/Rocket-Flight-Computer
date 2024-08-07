@@ -1,8 +1,8 @@
 #ifndef LEDCONTROLLER_HPP
 #define LEDCONTROLLER_HPP
 
-#include "PinController.hpp"
-#include "Timer.hpp"
+#include "pinController.hpp"
+#include "timer.hpp"
 
 /**
  * @class LEDController

@@ -1,4 +1,4 @@
-#include "PinController.hpp"
+#include "pinController.hpp"
 
 // Constructor to initialize the PinController with a specific pin
 PinController::PinController(uint8_t pin) : _pin(pin) {}
