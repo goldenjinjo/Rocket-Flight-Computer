@@ -56,7 +56,7 @@ void FlightStateMachine::logSensorData(uint16_t delayTime) {
 }
 
 void FlightStateMachine::updateSensorData() {
-    sensors_.updateSensors(); // Update altitude processor data
+    sensors_.update(); // Update altitude processor data
     
     currentAltitude_ = sensors_.getFusedAltitude(); // Get the current altitude
     currentVelocity_ = sensors_.getFusedVerticalVelocity(); // get the current velocity
