@@ -89,7 +89,7 @@ void SensorFusion::logSensorData() {
         offset += sensorDataSize;
     }
     // Log the combined array
-    logger_.logData(combinedData, numSensorValues_);
+    logger_.logData(combinedData, combinedDataLength);
 }
 
 
