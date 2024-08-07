@@ -58,6 +58,15 @@ public:
      */
     virtual float* getAllData() = 0;
 
+    /**
+     * @brief Get the number of sensor values.
+     *
+     * This method should return the number of unique data values 
+     * the sensor provides. It must be implemented by the derived
+     * sensor class.
+     * 
+     * @return Number of sensor values.
+     */
     virtual size_t getNumValues() = 0;
 
      /**

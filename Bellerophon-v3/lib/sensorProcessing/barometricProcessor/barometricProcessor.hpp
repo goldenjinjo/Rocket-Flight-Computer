@@ -8,7 +8,8 @@
 
 /**
  * @class BarometricProcessor
- * @brief Class for processing barometric pressure data and estimating altitude and vertical velocity.
+ * @brief Class for processing barometric pressure data and estimating 
+ *        altitude and vertical velocity.
  */
 class BarometricProcessor : public DataProcessor, public SensorProcessor {
 public:
@@ -16,10 +17,12 @@ public:
      * @brief Constructor with history size and outlier threshold.
      * 
      * @param pressureSensor Reference to the pressure sensor.
-     * @param historySize The size of the history buffer for smoothing and differentiation.
+     * @param historySize The size of the history buffer for smoothing 
+     *        and differentiation.
      * @param outlierThreshold The threshold for detecting outliers.
      */
-    BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, float outlierThreshold = 10.0);
+    BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, 
+                        float outlierThreshold = 10.0);
 
     /**
      * @brief Update the pressure sensor data and process it.
@@ -40,6 +43,11 @@ public:
      */
     size_t getNumSensorValues() const override;
 
+    /**
+     * @brief Get the sensor names.
+     * 
+     * @return Sensor names as a string.
+     */
     std::string getSensorNames() const override;
 
     /**
@@ -71,23 +79,25 @@ public:
     float getMaxVelocity() const override;
 
     /**
-     * @brief Get the ground altitude recorded at end of stabilisation period
+     * @brief Get the ground altitude recorded at end of stabilization period.
      * 
-     * @return ground altitude
+     * @return Ground altitude.
      */
     float getGroundAltitude() const override;
 
     /**
-     * @brief Override of virtual method. Barometer not able to calculate acceleration.
+     * @brief Override of virtual method. Barometer not able to calculate 
+     *        acceleration.
      * 
      * @return 0
      */
     float getAcceleration() const override {
         return 0;
     }
-    
+
     /**
-     * @brief Override of virtual method. Barometer not able to calculate acceleration.
+     * @brief Override of virtual method. Barometer not able to calculate 
+     *        maximum acceleration.
      * 
      * @return 0
      */
@@ -95,16 +105,33 @@ public:
         return 0;
     }
 
-
 private:
-    PressureSensor& pressureSensor_;
-    float maxAltitude_;
-    float maxVelocity_;
-    float groundAltitude_;
+    PressureSensor& pressureSensor_; ///< Reference to the pressure sensor
+    float maxAltitude_; ///< Maximum recorded altitude
+    float maxVelocity_; ///< Maximum recorded vertical velocity
+    float groundAltitude_; ///< Ground altitude
 
-    float calculateAltitude(float pressure) const; // Helper function to calculate altitude from pressure
+    /**
+     * @brief Helper function to calculate altitude from pressure.
+     * 
+     * @param pressure The pressure value.
+     * @return Calculated altitude.
+     */
+    float calculateAltitude(float pressure) const;
+
+    /**
+     * @brief Update the maximum recorded altitude.
+     */
     void updateMaxAltitude();
+
+    /**
+     * @brief Update the maximum recorded vertical velocity.
+     */
     void updateMaxVelocity();
+
+    /**
+     * @brief Update the ground altitude.
+     */
     void updateGroundAltitude();
 };
 

@@ -1,7 +1,10 @@
 #include "IMUProcessor.hpp"
 
 IMUProcessor::IMUProcessor(IMUSensor& imu, size_t historySize, float outlierThreshold) 
-    : imu_(imu) {}
+    : imu_(imu) {
+
+        imu_.setPollRate(10); 
+    }
 
 void IMUProcessor::update() {
     imu_.update();
