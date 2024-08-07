@@ -88,20 +88,6 @@ void SensorFusion::logSensorData() {
         std::memcpy(combinedData + offset, sensorData, sensorDataSize * sizeof(float));
         offset += sensorDataSize;
     }
-
-    // DEBUG
-    for (size_t i = 0; i < combinedDataLength; ++i) {
-        Serial.println(combinedData[i]);
-    }
-
-    // MORE DEBUG
-    Serial.print("Max Altitude: ");
-    Serial.println(getMaxAltitude());
-    Serial.print("Max Velocity: ");
-    Serial.println(getMaxVelocity());
-    Serial.print("Ground Altitude: ");
-    Serial.println(getGroundAltitude());
-
     // Log the combined array
     logger_.logData(combinedData, numSensorValues_);
 }
