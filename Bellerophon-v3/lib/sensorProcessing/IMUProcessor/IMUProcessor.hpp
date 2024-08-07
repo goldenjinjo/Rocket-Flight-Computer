@@ -19,13 +19,11 @@ public:
     /**
      * @brief Constructor for IMUProcessor.
      * 
-     * @param imu Reference to the IMU sensor.
      * @param historySize The size of the history buffer for smoothing 
      *        and differentiation.
      * @param outlierThreshold The threshold for detecting outliers.
      */
-    IMUProcessor(IMUSensor& imu, size_t historySize, 
-                 float outlierThreshold = 10.0);
+    IMUProcessor(size_t historySize, float outlierThreshold = 10.0);
 
     /**
      * @brief Update the IMU sensor data.
@@ -118,7 +116,7 @@ protected:
     }
 
 private:
-    IMUSensor& imu_; ///< Reference to the IMU sensor
+    IMUSensor imu_; ///< IMU sensor
 };
 
 #endif // IMU_PROCESSOR_HPP

@@ -1,7 +1,7 @@
 #include "IMUProcessor.hpp"
 
-IMUProcessor::IMUProcessor(IMUSensor& imu, size_t historySize, float outlierThreshold) 
-    : imu_(imu) {
+IMUProcessor::IMUProcessor(size_t historySize, float outlierThreshold) 
+    : imu_(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000) {
 
         imu_.setPollRate(10); 
     }

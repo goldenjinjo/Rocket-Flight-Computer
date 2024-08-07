@@ -1,7 +1,7 @@
 #include "barometricProcessor.hpp"
 
-BarometricProcessor::BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, float outlierThreshold)
-    : DataProcessor(historySize, outlierThreshold), pressureSensor_(pressureSensor), maxAltitude_(0), maxVelocity_(0),
+BarometricProcessor::BarometricProcessor(size_t historySize, float outlierThreshold)
+    : DataProcessor(historySize, outlierThreshold), pressureSensor_(0), maxAltitude_(0), maxVelocity_(0),
     groundAltitude_(0) {}
 
 void BarometricProcessor::update() {

@@ -2,10 +2,8 @@
 
 FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc, DataLogger& logger)
     : currentState_(FlightState::PRE_LAUNCH),
-      pressureSensor_(0),
-      imu_(&Wire, LSM6DSL_ACC_GYRO_I2C_ADDRESS_LOW, 16, 1000),
-      altitudeProcessor_(std::make_shared<BarometricProcessor>(pressureSensor_, 150, 0.8)),
-      imuProcessor_(std::make_shared<IMUProcessor>(imu_, 150, 0.8)),
+      altitudeProcessor_(std::make_shared<BarometricProcessor>(150, 0.8)),
+      imuProcessor_(std::make_shared<IMUProcessor>(150, 0.8)),
       pyroDrogue_(PYRO_DROGUE, DROGUE_DELAY),
       pyroMain_(PYRO_MAIN, MAIN_DELAY),
       buzzerFunc_(buzzerFunc),
@@ -15,12 +13,8 @@ FlightStateMachine::FlightStateMachine(BuzzerFunctions& buzzerFunc, DataLogger& 
     initializeSensors();
 }
 
-
-
 void FlightStateMachine::initializeSensors() {
    
-    imu_.setPollRate(10); 
-    
     // TODO: Add logic to determine if the sensor should be added
     // Example: Check if sensor is found and if stable readings can be identified
     
@@ -64,7 +58,6 @@ void FlightStateMachine::updateSensorData() {
     maxAltitude_ = sensors_.getMaxAltitude();
     maxVelocity_ = sensors_.getMaxVelocity();
 
-    imu_.update(); 
 }
 
 void FlightStateMachine::handleStateTransition() {

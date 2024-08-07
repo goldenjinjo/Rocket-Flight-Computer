@@ -21,7 +21,7 @@ public:
      *        and differentiation.
      * @param outlierThreshold The threshold for detecting outliers.
      */
-    BarometricProcessor(PressureSensor& pressureSensor, size_t historySize, 
+    BarometricProcessor(size_t historySize, 
                         float outlierThreshold = 10.0);
 
     /**
@@ -106,7 +106,7 @@ public:
     }
 
 private:
-    PressureSensor& pressureSensor_; ///< Reference to the pressure sensor
+    PressureSensor pressureSensor_; ///< the pressure sensor
     float maxAltitude_; ///< Maximum recorded altitude
     float maxVelocity_; ///< Maximum recorded vertical velocity
     float groundAltitude_; ///< Ground altitude

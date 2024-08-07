@@ -62,8 +62,6 @@ public:
 
 private:
     FlightState currentState_; ///< The current flight state
-    PressureSensor pressureSensor_; ///< The pressure sensor object
-    IMUSensor imu_; ///< The IMU sensor object
     std::shared_ptr<BarometricProcessor> altitudeProcessor_; ///< The barometric processor
     std::shared_ptr<IMUProcessor> imuProcessor_; ///< The IMU processor
     PyroController pyroDrogue_; ///< The pyro controller for drogue deployment
