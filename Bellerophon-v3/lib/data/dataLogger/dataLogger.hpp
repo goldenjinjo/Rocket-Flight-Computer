@@ -34,12 +34,14 @@ public:
      */
     void logEvent(const char* message);
 
-    /**
+  /**
      * @brief  Logs an array of floating-point data to the data file.
-     * @param  data      Pointer to the array of floating-point data.
-     * @param  numFloats Number of floats in the array.
+     * @param  data           Pointer to the array of floating-point data.
+     * @param  numFloats      Number of floats in the array.
+     * @param  decimalPlaces  Number of decimal places to format each float. Default is 2.
+     *                        The value is constrained between 0 and 10.
      */
-    void logData(float* data, size_t numFloats);
+    void logData(float* data, size_t numFloats, uint8_t decimalPlaces = 2);
 
 
     /**

@@ -60,17 +60,28 @@ void DataLogger::addDataFileHeading(const char* title) {
 
 }
 
-void DataLogger::logData(float* data, size_t numFloats) {
-
-    int currentTime = Timer::currentTime();
+void DataLogger::logData(float* data, size_t numFloats, uint8_t decimalPlaces) {
+    uint32_t currentTime = Timer::currentTime();
     char buffer[logBuffer];
     int offset = snprintf(buffer, sizeof(buffer), "%lu,", currentTime);
-    for (size_t i = 0; i < numFloats; ++i) {
-        offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%f,", data[i]);
+
+    // Constrain decimalPlaces to a reasonable range, e.g., 0 to 10
+    if (decimalPlaces > 10) {
+        decimalPlaces = 10;
     }
+
+    // Create a format string for the desired number of decimal places
+    char formatString[10];
+    snprintf(formatString, sizeof(formatString), "%%.%uf,", decimalPlaces);
+
+    for (size_t i = 0; i < numFloats; ++i) {
+        offset += snprintf(buffer + offset, sizeof(buffer) - offset, formatString, data[i]);
+    }
+
     snprintf(buffer + offset - 1, 2, "\n"); // Replace the last comma with a newline
     files.print(files.dataFile, buffer);
 }
+
 
 // Method to read data from a specific file and send it over serial
 void DataLogger::readDataFromFile(const char* fileName) {
