@@ -107,9 +107,5 @@ void loop()
             serialAction.processAndChangeConfig();
             break;
         }
-        case BARO_ONLY_FLIGHT_MODE: {
-            /// TODO: write this
-            break;
-        }
     }
 }

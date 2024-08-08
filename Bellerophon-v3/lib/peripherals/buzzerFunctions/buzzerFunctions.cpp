@@ -36,10 +36,6 @@ void BuzzerFunctions::modeSelect(int mode) {
             configMode();
             break;
 
-        case BARO_ONLY_FLIGHT_MODE:
-            baroOnlyFlightMode();
-            break;
-
         default:
             // Handle unknown mode
             break;
